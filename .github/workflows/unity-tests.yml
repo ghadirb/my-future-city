@@ -33,6 +33,11 @@ jobs:
     if: needs.license-check.outputs.has_license == 'true'
     runs-on: ubuntu-latest
     steps:
+      # Unity 6000 IL2CPP images are large.  Without this, Docker can fail while
+      # unpacking the editor before any project code or test is executed.
+      - name: Free disk space for Unity image
+        uses: jlumbroso/free-disk-space@v1.3.1
+
       - uses: actions/checkout@v4
 
       - uses: actions/cache@v4
