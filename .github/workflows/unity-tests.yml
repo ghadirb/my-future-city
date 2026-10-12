@@ -5,6 +5,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# game-ci publishes the Unity Test Framework result as a GitHub Check Run.
+# The default token is read-only for checks, which made a 49/49 passing suite
+# appear failed after execution.
+permissions:
+  contents: read
+  checks: write
+
 env:
   UNITY_VERSION: 6000.3.11f1
 
