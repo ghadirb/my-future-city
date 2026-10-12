@@ -466,6 +466,31 @@ namespace MyFutureCity.EditorTools
             farmVisual.renovatingObjects = new[] { farmWork };
             farmVisual.restoredObjects = new[] { farmOpen };
 
+            // ----- fire station (dynamic: restored by the firefighter job) -----
+            var fireRoot = MakeBuilding(landmarks.transform, "FireStation", new Vector3(-28, 0, 0), new Vector3(11, 5, 7), Lit("FireAbandoned", 0.5f, 0.45f, 0.42f), Lit("RoofFire", 0.72f, 0.2f, 0.18f), +1);
+            zones.Add(new Zone(-28, 0, 8, 6));
+            var fireBody = fireRoot.transform.Find("Body").GetComponent<Renderer>();
+            var fireVisual = fireRoot.AddComponent<BuildingVisual>();
+            fireVisual.buildingId = "fire_station";
+            fireVisual.bodyRenderers = new[] { fireBody };
+            fireVisual.abandonedMaterial = Lit("FireAbandoned", 0.5f, 0.45f, 0.42f);
+            fireVisual.renovatingMaterial = Lit("FireRenovating", 0.76f, 0.65f, 0.38f);
+            fireVisual.restoredMaterial = Lit("FireRestored", 0.9f, 0.35f, 0.28f);
+            var fireClosed = Empty("FireClosedProps", fireRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "FireClosedSign", fireClosed.transform, new Vector3(0, 3.1f, -3.58f), new Vector3(3.2f, 0.7f, 0.12f), Lit("FireClosedSign", 0.45f, 0.18f, 0.15f), false);
+            Prim(PrimitiveType.Cube, "FireDebris", fireClosed.transform, new Vector3(-3.8f, 0.35f, -4f), new Vector3(1.5f, 0.7f, 0.9f), Lit("FireDebris", 0.35f, 0.32f, 0.3f), false);
+            var fireWork = Empty("FireWorkProps", fireRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "FireWorkSign", fireWork.transform, new Vector3(0, 3.1f, -3.58f), new Vector3(3.2f, 0.7f, 0.12f), Lit("FireWorkSign", 0.95f, 0.72f, 0.18f), false);
+            Prim(PrimitiveType.Cylinder, "FireWorkPole", fireWork.transform, new Vector3(3.8f, 1.0f, -4f), new Vector3(0.12f, 1f, 0.12f), wood, false);
+            var fireOpen = Empty("FireOpenProps", fireRoot.transform, Vector3.zero);
+            var fireRed = Lit("FireRed", 0.9f, 0.18f, 0.15f);
+            Prim(PrimitiveType.Cube, "FireOpenSign", fireOpen.transform, new Vector3(0, 3.1f, -3.58f), new Vector3(3.2f, 0.7f, 0.12f), fireRed, false);
+            Prim(PrimitiveType.Cylinder, "FireLight", fireOpen.transform, new Vector3(0, 4.25f, -3.75f), new Vector3(0.26f, 0.18f, 0.26f), Glow("FireLightGlow", 1f, 0.32f, 0.2f), false);
+            Prim(PrimitiveType.Cube, "FireDoor", fireOpen.transform, new Vector3(-3.2f, 1.25f, -3.62f), new Vector3(1.7f, 2.5f, 0.1f), Lit("FireDoorBlue", 0.2f, 0.5f, 0.8f), false);
+            fireVisual.abandonedObjects = new[] { fireClosed };
+            fireVisual.renovatingObjects = new[] { fireWork };
+            fireVisual.restoredObjects = new[] { fireOpen };
+
             // Repair points around the school
             var brokenMat = Lit("Broken", 0.9f, 0.25f, 0.2f);
             var fixedMat = Lit("Fixed", 0.3f, 0.85f, 0.4f);
@@ -559,6 +584,20 @@ namespace MyFutureCity.EditorTools
             var farmerAnim = farmerRoot.AddComponent<ProceduralWalkAnimator>();
             farmerAnim.leftArm = farmerHuman.leftArm; farmerAnim.rightArm = farmerHuman.rightArm; farmerAnim.leftLeg = farmerHuman.leftLeg; farmerAnim.rightLeg = farmerHuman.rightLeg;
             zones.Add(new Zone(-6, -30, 3, 3));
+
+            var firefighterRoot = Empty("NPC_Amin", null, new Vector3(-19, 0, -7));
+            firefighterRoot.transform.rotation = Quaternion.Euler(0, 45f, 0);
+            var firefighterHuman = BuildHuman(firefighterRoot.transform, Lit("FirefighterShirt", 0.9f, 0.22f, 0.16f), Lit("FirefighterHair", 0.12f, 0.08f, 0.05f), true);
+            var firefighter = firefighterRoot.AddComponent<NpcInteractable>();
+            firefighter.npcId = "npc_firefighter";
+            firefighter.displayNameFa = "امین، آتش‌نشان";
+            firefighter.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", firefighterRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var firefighterCol = firefighterRoot.AddComponent<CapsuleCollider>();
+            firefighterCol.height = 1.9f; firefighterCol.radius = 0.4f; firefighterCol.center = new Vector3(0, 0.95f, 0);
+            var firefighterAnim = firefighterRoot.AddComponent<ProceduralWalkAnimator>();
+            firefighterAnim.leftArm = firefighterHuman.leftArm; firefighterAnim.rightArm = firefighterHuman.rightArm; firefighterAnim.leftLeg = firefighterHuman.leftLeg; firefighterAnim.rightLeg = firefighterHuman.rightLeg;
+            zones.Add(new Zone(-19, -7, 3, 3));
 
             // ----- pickups -----
             var pickups = Empty("Pickups", null, Vector3.zero);
@@ -762,6 +801,40 @@ namespace MyFutureCity.EditorTools
             Vector3[] marketCardPos = { new Vector3(-36, 0.42f, 24), new Vector3(17, 0.42f, -35), new Vector3(35, 0.42f, 18) };
             for (int i = 0; i < marketCardPos.Length; i++)
                 AddPickupMarker(pickups.transform, zones, marketCardPos[i], "MarketCard", "farm_05_open_farm", "market_card", "کارت بازار", i, marketCardMat, beacon);
+
+            // ----- firefighter job: unlocks after the community farm becomes active -----
+            var helmetMat = Lit("FireHelmet", 0.95f, 0.75f, 0.12f);
+            Vector3[] helmetPos = { new Vector3(-35, 0.42f, 12), new Vector3(22, 0.42f, -22) };
+            for (int i = 0; i < helmetPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, helmetPos[i], "FireHelmet", "fire_01_helmets", "fire_helmet", "کلاه ایمنی", i, helmetMat, beacon);
+
+            var hoseMat = Lit("Hose", 0.2f, 0.55f, 0.9f);
+            Vector3[] hosePos = { new Vector3(-10, 0.42f, -6), new Vector3(12, 0.42f, 7), new Vector3(32, 0.42f, -35) };
+            for (int i = 0; i < hosePos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, hosePos[i], "FireHose", "fire_02_hoses", "fire_hose", "شلنگ آب", i, hoseMat, beacon);
+
+            var hosePending = Lit("HoseRackPending", 0.7f, 0.4f, 0.2f);
+            var hoseReady = Lit("HoseRackReady", 0.25f, 0.65f, 0.92f);
+            Vector3[] hoseRackPos = { new Vector3(-37, 0, -6), new Vector3(-37, 0, 6) };
+            for (int i = 0; i < hoseRackPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, hoseRackPos[i], "HoseRack", "fire_02_hoses", "hose_rack", "نصب شلنگ", i, hosePending, hoseReady, beacon);
+
+            var safetyPending = Lit("SafetyPending", 0.8f, 0.3f, 0.2f);
+            var safetyReady = Lit("SafetyReady", 0.3f, 0.82f, 0.45f);
+            Vector3[] safetyPos = { new Vector3(-20, 0, 7), new Vector3(-28, 0, 9), new Vector3(-36, 0, 7) };
+            for (int i = 0; i < safetyPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, safetyPos[i], "SafetyCheck", "fire_03_safety", "safety_check", "بررسی ایمنی", i, safetyPending, safetyReady, beacon);
+
+            var alarmPending = Lit("AlarmPending", 0.7f, 0.45f, 0.18f);
+            var alarmReady = Lit("AlarmReady", 0.92f, 0.22f, 0.18f);
+            Vector3[] alarmPos = { new Vector3(-20, 0, -14), new Vector3(-35, 0, -14) };
+            for (int i = 0; i < alarmPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, alarmPos[i], "Alarm", "fire_04_alarms", "fire_alarm", "آزمون آژیر", i, alarmPending, alarmReady, beacon);
+
+            var safetyCardMat = Lit("SafetyCard", 0.95f, 0.45f, 0.25f);
+            Vector3[] safetyCardPos = { new Vector3(-9, 0.42f, 35), new Vector3(19, 0.42f, -8), new Vector3(34, 0.42f, 33) };
+            for (int i = 0; i < safetyCardPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, safetyCardPos[i], "SafetyCard", "fire_05_open_station", "safety_card", "کارت ایمنی", i, safetyCardMat, beacon);
 
             // ----- trees (scenery) -----
             var rnd = new System.Random(12345);

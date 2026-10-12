@@ -34,6 +34,13 @@
       "descriptionFa": "بذر بکار، مزرعه را آبیاری کن و مزرعهٔ محله را دوباره فعال کن.",
       "badgeId": "badge_farm_helper",
       "badgeNameFa": "نشان دوستدار مزرعه"
+    },
+    {
+      "id": "firefighter",
+      "nameFa": "آتش‌نشان",
+      "descriptionFa": "تجهیزات ایمنی را آماده کن و ایستگاه آتش‌نشانی محله را دوباره فعال کن.",
+      "badgeId": "badge_safety_helper",
+      "badgeNameFa": "نشان یاور ایمنی"
     }
   ],
   "buildings": [
@@ -56,6 +63,11 @@
       "id": "farm",
       "nameFa": "مزرعهٔ محله",
       "descriptionFa": "مزرعهٔ کوچک محله برای کشت دوباره به خاک آماده و آب نیاز دارد."
+    },
+    {
+      "id": "fire_station",
+      "nameFa": "ایستگاه آتش‌نشانی",
+      "descriptionFa": "ایستگاه آتش‌نشانی محله برای بازگشت به خدمت به تجهیزات و بررسی ایمنی نیاز دارد."
     }
   ],
   "missions": [
@@ -488,6 +500,92 @@
       "repeatCoins": 0,
       "offerTextFa": "سه کارت بازار را پیدا کن تا همه بدانند مزرعهٔ محله دوباره آمادهٔ کار است.",
       "completeTextFa": "تبریک! مزرعه فعال شد و تو نشان دوستدار مزرعه را گرفتی."
+    },
+    {
+      "id": "fire_01_helmets",
+      "jobId": "firefighter",
+      "nameFa": "کلاه‌های ایمنی",
+      "descriptionFa": "دو کلاه ایمنی را پیدا کن و به امین، آتش‌نشان محله، برگردان.",
+      "startNpcId": "npc_firefighter",
+      "requiresMissionId": "farm_05_open_farm",
+      "objectives": [
+        { "type": "collect", "targetId": "fire_helmet", "count": 2, "textFa": "دو کلاه ایمنی را پیدا کن" },
+        { "type": "talk", "targetId": "npc_firefighter", "count": 1, "textFa": "کلاه‌ها را به امین بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 6,
+      "offerTextFa": "سلام! من امین، آتش‌نشان محله هستم. دو کلاه ایمنی گم شده‌اند؛ کمکم می‌کنی پیدایشان کنیم؟",
+      "completeTextFa": "ممنون! حالا می‌توانیم تجهیزات ایستگاه را کامل کنیم."
+    },
+    {
+      "id": "fire_02_hoses",
+      "jobId": "firefighter",
+      "nameFa": "شلنگ‌های آماده",
+      "descriptionFa": "شلنگ‌های آب را پیدا کن و آن‌ها را روی دو جایگاه ایستگاه نصب کن.",
+      "startNpcId": "npc_firefighter",
+      "requiresMissionId": "fire_01_helmets",
+      "objectives": [
+        { "type": "collect", "targetId": "fire_hose", "count": 3, "textFa": "سه شلنگ آب پیدا کن" },
+        { "type": "interact", "targetId": "hose_rack", "count": 2, "textFa": "دو جایگاه شلنگ را آماده کن", "buildingId": "fire_station", "buildingProgress": 15 },
+        { "type": "talk", "targetId": "npc_firefighter", "count": 1, "textFa": "نصب شلنگ‌ها را به امین بگو" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه شلنگ آب پیدا کن و بعد آن‌ها را روی دو جایگاه ایستگاه نصب کن.",
+      "completeTextFa": "شلنگ‌ها آماده‌اند؛ حالا باید بخش‌های ایمنی ایستگاه را بررسی کنیم."
+    },
+    {
+      "id": "fire_03_safety",
+      "jobId": "firefighter",
+      "nameFa": "بازبینی ایمنی",
+      "descriptionFa": "سه نقطهٔ ایمنی ایستگاه را بررسی کن تا دوباره آمادهٔ خدمت شود.",
+      "startNpcId": "npc_firefighter",
+      "requiresMissionId": "fire_02_hoses",
+      "objectives": [
+        { "type": "interact", "targetId": "safety_check", "count": 3, "textFa": "سه نقطهٔ ایمنی را بررسی کن", "buildingId": "fire_station", "buildingProgress": 20 },
+        { "type": "talk", "targetId": "npc_firefighter", "count": 1, "textFa": "نتیجهٔ بازبینی را به امین بگو" }
+      ],
+      "reward": { "coins": 35, "xp": 65, "badgeId": "badge_safety_helper", "buildingId": "fire_station", "buildingProgress": 40 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه نقطهٔ ایمنی هنوز نیاز به بررسی دارند. آن‌ها را آماده کن تا ایستگاه بازسازی شود.",
+      "completeTextFa": "ایستگاه بازسازی شد! فقط آزمون آژیرها و دعوت از خانواده‌ها باقی مانده است."
+    },
+    {
+      "id": "fire_04_alarms",
+      "jobId": "firefighter",
+      "nameFa": "آزمون آژیرها",
+      "descriptionFa": "دو آژیر ایمنی را آزمایش کن تا همه بدانند ایستگاه آماده است.",
+      "startNpcId": "npc_firefighter",
+      "requiresMissionId": "fire_03_safety",
+      "objectives": [
+        { "type": "interact", "targetId": "fire_alarm", "count": 2, "textFa": "دو آژیر را آزمایش کن", "buildingId": "fire_station", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_firefighter", "count": 1, "textFa": "آماده شدن آژیرها را به امین بگو" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "fire_station", "buildingProgress": 15 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "دو آژیر ایمنی را آزمایش کن تا ایستگاه برای خدمت مطمئن‌تر شود.",
+      "completeTextFa": "آژیرها آماده‌اند؛ وقت بازگشایی رسمی ایستگاه است."
+    },
+    {
+      "id": "fire_05_open_station",
+      "jobId": "firefighter",
+      "nameFa": "بازگشایی ایستگاه",
+      "descriptionFa": "کارت‌های ایمنی را جمع کن تا ایستگاه آتش‌نشانی رسماً فعالیتش را آغاز کند.",
+      "startNpcId": "npc_firefighter",
+      "requiresMissionId": "fire_04_alarms",
+      "objectives": [
+        { "type": "collect", "targetId": "safety_card", "count": 3, "textFa": "سه کارت ایمنی را جمع کن", "buildingId": "fire_station", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_firefighter", "count": 1, "textFa": "برای بازگشایی به امین خبر بده" }
+      ],
+      "reward": { "coins": 45, "xp": 80, "badgeId": "badge_safety_helper", "buildingId": "fire_station", "buildingProgress": 15 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه کارت ایمنی را پیدا کن تا خانواده‌ها بدانند ایستگاه آتش‌نشانی دوباره آمادهٔ کمک است.",
+      "completeTextFa": "تبریک! ایستگاه آتش‌نشانی فعال شد و تو نشان یاور ایمنی را گرفتی."
     }
   ]
 }
