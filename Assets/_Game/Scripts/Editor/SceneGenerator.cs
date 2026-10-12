@@ -325,8 +325,6 @@ namespace MyFutureCity.EditorTools
             zones.Add(new Zone(-24, -30, 7, 6));
             MakeBuilding(houses.transform, "HousePink", new Vector3(24, 0, -30), new Vector3(8, 5, 7), Lit("WallPink", 0.95f, 0.6f, 0.7f), roofMat, +1);
             zones.Add(new Zone(24, -30, 7, 6));
-            MakeBuilding(houses.transform, "Clinic", new Vector3(0, 0, 28), new Vector3(12, 5, 8), Lit("WallWhite", 0.95f, 0.95f, 0.95f), Lit("RoofClinic", 0.85f, 0.25f, 0.25f), -1);
-            zones.Add(new Zone(0, 28, 9, 7));
             MakeBuilding(houses.transform, "Workshop", new Vector3(24, 0, 15), new Vector3(10, 5, 8), Lit("WallOrange", 0.9f, 0.55f, 0.25f), roofMat, -1);
             zones.Add(new Zone(24, 15, 8, 7));
             var home = MakeBuilding(houses.transform, "PlayerHome", new Vector3(30, 0, -16), new Vector3(8, 5, 7), Lit("WallBlue", 0.45f, 0.65f, 0.9f), roofMat, +1);
@@ -390,6 +388,33 @@ namespace MyFutureCity.EditorTools
             visual.renovatingObjects = new[] { scaffold };
             visual.restoredObjects = new[] { restored };
 
+            // ----- clinic (dynamic: repaired by the doctor job) -----
+            var clinicRoot = MakeBuilding(landmarks.transform, "Clinic", new Vector3(0, 0, 28), new Vector3(12, 5, 8), Lit("ClinicAbandoned", 0.62f, 0.6f, 0.58f), Lit("RoofClinic", 0.85f, 0.25f, 0.25f), -1);
+            zones.Add(new Zone(0, 28, 9, 7));
+            var clinicBody = clinicRoot.transform.Find("Body").GetComponent<Renderer>();
+            var clinicVisual = clinicRoot.AddComponent<BuildingVisual>();
+            clinicVisual.buildingId = "clinic";
+            clinicVisual.bodyRenderers = new[] { clinicBody };
+            clinicVisual.abandonedMaterial = Lit("ClinicAbandoned", 0.62f, 0.6f, 0.58f);
+            clinicVisual.renovatingMaterial = Lit("ClinicRenovating", 0.78f, 0.78f, 0.62f);
+            clinicVisual.restoredMaterial = Lit("ClinicRestored", 0.88f, 0.96f, 0.98f);
+            var clinicClosed = Empty("ClinicClosedProps", clinicRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "ClosedSign", clinicClosed.transform, new Vector3(0, 3.1f, -4.08f), new Vector3(3.6f, 0.8f, 0.12f), Lit("ClosedSign", 0.55f, 0.18f, 0.15f), false);
+            Prim(PrimitiveType.Cube, "Crate", clinicClosed.transform, new Vector3(-4.4f, 0.45f, -4.6f), new Vector3(1.2f, 0.9f, 1.1f), boards, false);
+            var clinicWork = Empty("ClinicWorkProps", clinicRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "WorkSign", clinicWork.transform, new Vector3(0, 3.1f, -4.08f), new Vector3(3.6f, 0.8f, 0.12f), Lit("WorkSign", 0.95f, 0.7f, 0.18f), false);
+            Prim(PrimitiveType.Cylinder, "WorkPole", clinicWork.transform, new Vector3(-4.4f, 1.0f, -4.6f), new Vector3(0.12f, 1f, 0.12f), wood, false);
+            var clinicOpen = Empty("ClinicOpenProps", clinicRoot.transform, Vector3.zero);
+            var clinicBlue = Lit("ClinicBlue", 0.2f, 0.62f, 0.9f);
+            Prim(PrimitiveType.Cube, "OpenSign", clinicOpen.transform, new Vector3(0, 3.1f, -4.08f), new Vector3(3.6f, 0.8f, 0.12f), clinicBlue, false);
+            Prim(PrimitiveType.Cube, "CrossVertical", clinicOpen.transform, new Vector3(0, 3.1f, -4.17f), new Vector3(0.35f, 0.62f, 0.08f), Lit("CrossWhite", 1f, 1f, 1f), false);
+            Prim(PrimitiveType.Cube, "CrossHorizontal", clinicOpen.transform, new Vector3(0, 3.1f, -4.18f), new Vector3(0.75f, 0.25f, 0.08f), Lit("CrossWhite2", 1f, 1f, 1f), false);
+            for (int i = -1; i <= 1; i += 2)
+                Prim(PrimitiveType.Sphere, "ClinicFlower" + i, clinicOpen.transform, new Vector3(i * 4.4f, 0.32f, -4.7f), new Vector3(0.55f, 0.55f, 0.55f), flowerMat, false);
+            clinicVisual.abandonedObjects = new[] { clinicClosed };
+            clinicVisual.renovatingObjects = new[] { clinicWork };
+            clinicVisual.restoredObjects = new[] { clinicOpen };
+
             // Repair points around the school
             var brokenMat = Lit("Broken", 0.9f, 0.25f, 0.2f);
             var fixedMat = Lit("Fixed", 0.3f, 0.85f, 0.4f);
@@ -441,6 +466,20 @@ namespace MyFutureCity.EditorTools
             var teacherAnim = teacherRoot.AddComponent<ProceduralWalkAnimator>();
             teacherAnim.leftArm = teacherHuman.leftArm; teacherAnim.rightArm = teacherHuman.rightArm; teacherAnim.leftLeg = teacherHuman.leftLeg; teacherAnim.rightLeg = teacherHuman.rightLeg;
             zones.Add(new Zone(-13, 27, 3, 3));
+
+            var doctorRoot = Empty("NPC_DrFarhad", null, new Vector3(14, 0, 31));
+            doctorRoot.transform.rotation = Quaternion.Euler(0, 230f, 0);
+            var doctorHuman = BuildHuman(doctorRoot.transform, Lit("DoctorCoat", 0.9f, 0.95f, 0.98f), Lit("DoctorHair", 0.12f, 0.08f, 0.05f), true);
+            var doctor = doctorRoot.AddComponent<NpcInteractable>();
+            doctor.npcId = "npc_doctor";
+            doctor.displayNameFa = "دکتر فرهاد";
+            doctor.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", doctorRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var doctorCol = doctorRoot.AddComponent<CapsuleCollider>();
+            doctorCol.height = 1.9f; doctorCol.radius = 0.4f; doctorCol.center = new Vector3(0, 0.95f, 0);
+            var doctorAnim = doctorRoot.AddComponent<ProceduralWalkAnimator>();
+            doctorAnim.leftArm = doctorHuman.leftArm; doctorAnim.rightArm = doctorHuman.rightArm; doctorAnim.leftLeg = doctorHuman.leftLeg; doctorAnim.rightLeg = doctorHuman.rightLeg;
+            zones.Add(new Zone(14, 31, 3, 3));
 
             // ----- pickups -----
             var pickups = Empty("Pickups", null, Vector3.zero);
@@ -542,6 +581,40 @@ namespace MyFutureCity.EditorTools
             Vector3[] invitationPos = { new Vector3(-4, 0.42f, -24), new Vector3(13, 0.42f, -8), new Vector3(30, 0.42f, 4) };
             for (int i = 0; i < invitationPos.Length; i++)
                 AddPickupMarker(pickups.transform, zones, invitationPos[i], "Invitation", "teach_05_open_class", "class_invitation", "دعوت‌نامه", i, invitationMat, beacon);
+
+            // ----- doctor job: unlocks after the first class, then reopens the clinic -----
+            var kitMat = Lit("MedicalKit", 0.96f, 0.95f, 0.95f);
+            Vector3[] kitPos = { new Vector3(31, 0.42f, 28), new Vector3(7, 0.42f, -30) };
+            for (int i = 0; i < kitPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, kitPos[i], "MedicalKit", "med_01_first_aid", "medical_kit", "کیف کمک‌های اولیه", i, kitMat, beacon);
+
+            var bandageMat = Lit("Bandage", 0.96f, 0.82f, 0.72f);
+            Vector3[] bandagePos = { new Vector3(-8, 0.42f, -30), new Vector3(31, 0.42f, 8), new Vector3(-13, 0.42f, -7) };
+            for (int i = 0; i < bandagePos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, bandagePos[i], "Bandage", "med_02_supplies", "bandage", "باند پانسمان", i, bandageMat, beacon);
+
+            var supplyPending = Lit("SupplyPending", 0.8f, 0.55f, 0.25f);
+            var supplyReady = Lit("SupplyReady", 0.3f, 0.75f, 0.9f);
+            Vector3[] supplyPos = { new Vector3(-8.5f, 0, 36), new Vector3(8.5f, 0, 36) };
+            for (int i = 0; i < supplyPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, supplyPos[i], "ClinicSupply", "med_02_supplies", "clinic_supplies", "چیدن تجهیزات", i, supplyPending, supplyReady, beacon);
+
+            var repairPending = Lit("ClinicRepairPending", 0.78f, 0.28f, 0.2f);
+            var repairReady = Lit("ClinicRepairReady", 0.3f, 0.82f, 0.5f);
+            Vector3[] clinicRepairPos = { new Vector3(-8.5f, 0, 22), new Vector3(0, 0, 21.5f), new Vector3(8.5f, 0, 22) };
+            for (int i = 0; i < clinicRepairPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, clinicRepairPos[i], "ClinicRepair", "med_03_repair_clinic", "clinic_repair", "تعمیر کلینیک", i, repairPending, repairReady, beacon);
+
+            var roomPending = Lit("RoomPending", 0.72f, 0.55f, 0.42f);
+            var roomReady = Lit("RoomReady", 0.42f, 0.8f, 0.7f);
+            Vector3[] roomPos = { new Vector3(-7, 0, 18), new Vector3(7, 0, 18) };
+            for (int i = 0; i < roomPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, roomPos[i], "WaitingRoom", "med_04_waiting_room", "waiting_room", "آماده‌سازی سالن", i, roomPending, roomReady, beacon);
+
+            var healthCardMat = Lit("HealthCard", 0.3f, 0.85f, 0.8f);
+            Vector3[] healthCardPos = { new Vector3(-31, 0.42f, -5), new Vector3(17, 0.42f, -23), new Vector3(34, 0.42f, -28) };
+            for (int i = 0; i < healthCardPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, healthCardPos[i], "HealthCard", "med_05_open_clinic", "health_card", "کارت سلامت", i, healthCardMat, beacon);
 
             // ----- trees (scenery) -----
             var rnd = new System.Random(12345);

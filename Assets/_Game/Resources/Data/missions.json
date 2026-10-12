@@ -13,6 +13,13 @@
       "descriptionFa": "کلاس را آماده کن، به بچه\u200cها کمک کن و مدرسهٔ شهر را زنده نگه دار.",
       "badgeId": "badge_teacher_helper",
       "badgeNameFa": "نشان یاور معلم"
+    },
+    {
+      "id": "doctor",
+      "nameFa": "پزشک و مراقب سلامت",
+      "descriptionFa": "تجهیزات درمانی را پیدا کن و کلینیک محله را دوباره فعال کن.",
+      "badgeId": "badge_health_helper",
+      "badgeNameFa": "نشان یاور سلامت"
     }
   ],
   "buildings": [
@@ -20,6 +27,11 @@
       "id": "school",
       "nameFa": "مدرسه",
       "descriptionFa": "مدرسهٔ محله سال\u200cهاست متروک مانده است."
+    },
+    {
+      "id": "clinic",
+      "nameFa": "کلینیک محله",
+      "descriptionFa": "کلینیک کوچک محله برای پذیرش دوباره به تعمیر و تجهیزات نیاز دارد."
     }
   ],
   "missions": [
@@ -194,6 +206,92 @@
       "repeatCoins": 0,
       "offerTextFa": "همه چیز برای اولین کلاس آماده است. سه دعوت\u200cنامه را پیدا کن تا بچه\u200cها را خبر کنیم.",
       "completeTextFa": "عالی شد! تو نشان یاور معلم را گرفتی و اولین کلاس مدرسه آغاز شد."
+    },
+    {
+      "id": "med_01_first_aid",
+      "jobId": "doctor",
+      "nameFa": "کیف‌های کمک‌های اولیه",
+      "descriptionFa": "دو کیف کمک‌های اولیه را پیدا کن و به دکتر فرهاد برگردان.",
+      "startNpcId": "npc_doctor",
+      "requiresMissionId": "teach_05_open_class",
+      "objectives": [
+        { "type": "collect", "targetId": "medical_kit", "count": 2, "textFa": "دو کیف کمک‌های اولیه را پیدا کن" },
+        { "type": "talk", "targetId": "npc_doctor", "count": 1, "textFa": "کیف‌ها را به دکتر فرهاد بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 6,
+      "offerTextFa": "سلام! من دکتر فرهاد هستم. برای شروع کار کلینیک دو کیف کمک‌های اولیه لازم داریم؛ پیدایشان می‌کنی؟",
+      "completeTextFa": "ممنون! حالا برای کمک‌های فوری آماده‌تریم."
+    },
+    {
+      "id": "med_02_supplies",
+      "jobId": "doctor",
+      "nameFa": "قفسه‌های تجهیزات",
+      "descriptionFa": "باندهای پانسمان را پیدا کن و تجهیزات کلینیک را در قفسه‌ها بچین.",
+      "startNpcId": "npc_doctor",
+      "requiresMissionId": "med_01_first_aid",
+      "objectives": [
+        { "type": "collect", "targetId": "bandage", "count": 3, "textFa": "سه باند پانسمان پیدا کن" },
+        { "type": "interact", "targetId": "clinic_supplies", "count": 2, "textFa": "تجهیزات را در دو قفسه بچین", "buildingId": "clinic", "buildingProgress": 15 },
+        { "type": "talk", "targetId": "npc_doctor", "count": 1, "textFa": "آماده شدن تجهیزات را به دکتر بگو" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه باند پانسمان پیدا کن و بعد تجهیزات را در دو قفسهٔ کلینیک مرتب کن.",
+      "completeTextFa": "عالی است؛ کلینیک دارد دوباره جان می‌گیرد."
+    },
+    {
+      "id": "med_03_repair_clinic",
+      "jobId": "doctor",
+      "nameFa": "تعمیر کلینیک",
+      "descriptionFa": "سه بخش فرسودهٔ کلینیک را تعمیر کن تا برای پذیرش آماده شود.",
+      "startNpcId": "npc_doctor",
+      "requiresMissionId": "med_02_supplies",
+      "objectives": [
+        { "type": "interact", "targetId": "clinic_repair", "count": 3, "textFa": "سه بخش کلینیک را تعمیر کن", "buildingId": "clinic", "buildingProgress": 20 },
+        { "type": "talk", "targetId": "npc_doctor", "count": 1, "textFa": "پایان تعمیرها را به دکتر خبر بده" }
+      ],
+      "reward": { "coins": 35, "xp": 65, "badgeId": "badge_health_helper", "buildingId": "clinic", "buildingProgress": 40 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه بخش کلینیک هنوز فرسوده است. آن‌ها را تعمیر کن تا بتوانیم پذیرش را شروع کنیم.",
+      "completeTextFa": "کلینیک بازسازی شد! حالا می‌توانیم فضای پذیرش را آماده کنیم."
+    },
+    {
+      "id": "med_04_waiting_room",
+      "jobId": "doctor",
+      "nameFa": "سالن انتظار آرام",
+      "descriptionFa": "دو بخش سالن انتظار را مرتب کن تا مراجعه‌کننده‌ها جای مناسبی داشته باشند.",
+      "startNpcId": "npc_doctor",
+      "requiresMissionId": "med_03_repair_clinic",
+      "objectives": [
+        { "type": "interact", "targetId": "waiting_room", "count": 2, "textFa": "دو بخش سالن انتظار را آماده کن", "buildingId": "clinic", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_doctor", "count": 1, "textFa": "مرتب شدن سالن را به دکتر بگو" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "clinic", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "برای آرامش مراجعه‌کننده‌ها، دو بخش سالن انتظار را مرتب کن.",
+      "completeTextFa": "چه سالن آرام و مرتبی! فقط دعوت از خانواده‌ها باقی مانده است."
+    },
+    {
+      "id": "med_05_open_clinic",
+      "jobId": "doctor",
+      "nameFa": "بازگشایی کلینیک",
+      "descriptionFa": "کارت‌های سلامت را جمع کن تا کلینیک رسماً کارش را آغاز کند.",
+      "startNpcId": "npc_doctor",
+      "requiresMissionId": "med_04_waiting_room",
+      "objectives": [
+        { "type": "collect", "targetId": "health_card", "count": 3, "textFa": "سه کارت سلامت را جمع کن", "buildingId": "clinic", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_doctor", "count": 1, "textFa": "برای بازگشایی کلینیک به دکتر بگو" }
+      ],
+      "reward": { "coins": 45, "xp": 80, "badgeId": "badge_health_helper", "buildingId": "clinic", "buildingProgress": 10 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه کارت سلامت را پیدا کن تا همه بدانند کلینیک دوباره آمادهٔ کمک است.",
+      "completeTextFa": "تبریک! کلینیک فعال شد و تو نشان یاور سلامت را گرفتی."
     }
   ]
 }
