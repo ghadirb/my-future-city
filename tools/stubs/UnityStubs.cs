@@ -13,6 +13,7 @@ namespace UnityEngine
         public string name;
         public static void Destroy(Object o) { }
         public static void DestroyImmediate(Object o) { }
+        public static void DontDestroyOnLoad(Object o) { }
         public static T FindFirstObjectByType<T>() where T : Object { return null; }
         public static T[] FindObjectsByType<T>(FindObjectsSortMode m) where T : Object { return null; }
         public static implicit operator bool(Object o) { return o != null; }
@@ -216,9 +217,16 @@ namespace UnityEngine
         public static int targetFrameRate;
         public static bool isBatchMode { get; }
         public static void Quit() { }
+        public delegate void LogCallback(string condition, string stackTrace, LogType type);
+        public static event LogCallback logMessageReceived;
     }
-    public static class Screen { public static int width; public static float dpi; public static int sleepTimeout; }
-    public static class Time { public static float deltaTime, unscaledDeltaTime, timeScale; }
+    public enum LogType { Error, Assert, Warning, Log, Exception }
+    [AttributeUsage(AttributeTargets.Method)] public class RuntimeInitializeOnLoadMethodAttribute : Attribute { }
+    public class GUIStyleState { public Color textColor; }
+    public class GUIStyle { public int fontSize; public bool wordWrap; public GUIStyleState normal = new GUIStyleState(); }
+    public static class GUI { public static void Label(Rect r, string t, GUIStyle s) { } }
+    public static class Screen { public static int width; public static int height; public static float dpi; public static int sleepTimeout; }
+    public static class Time { public static float deltaTime, unscaledDeltaTime, unscaledTime, timeScale; }
     public static class Input
     {
         public static int touchCount;

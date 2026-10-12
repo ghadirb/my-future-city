@@ -150,8 +150,8 @@ namespace MyFutureCity.EditorTools
         {
             var scene = NewEmptyScene();
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.65f, 0.68f, 0.75f);
-            AddSun(new Color(1f, 0.96f, 0.88f), 1.0f);
+            RenderSettings.ambientLight = new Color(0.38f, 0.40f, 0.46f);
+            AddSun(new Color(1f, 0.96f, 0.88f), 0.85f);
 
             var cam = AddCamera(new Vector3(0f, 9f, -22f), new Color(0.45f, 0.75f, 0.95f));
             cam.transform.rotation = Quaternion.Euler(18f, 0f, 0f);
@@ -243,8 +243,8 @@ namespace MyFutureCity.EditorTools
         {
             var scene = NewEmptyScene();
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.62f, 0.65f, 0.72f);
-            AddSun(new Color(1f, 0.95f, 0.85f), 1.1f);
+            RenderSettings.ambientLight = new Color(0.36f, 0.38f, 0.44f);
+            AddSun(new Color(1f, 0.95f, 0.85f), 0.85f);
 
             var grass = Lit("Grass", 0.45f, 0.75f, 0.35f);
             var road = Lit("Road", 0.35f, 0.36f, 0.4f);
