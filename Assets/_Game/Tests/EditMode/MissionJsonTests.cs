@@ -24,10 +24,11 @@ namespace MyFutureCity.Tests
         }
 
         [Test]
-        public void MvpHasAtLeastThreePlayableMissionsWithRewards()
+        public void MvpHasFivePlayableEngineerStagesWithRewards()
         {
             var db = Load();
-            Assert.GreaterOrEqual(db.missions.Count, 3);
+            Assert.GreaterOrEqual(db.missions.Count, 5);
+            Assert.AreEqual(5, db.missions.FindAll(m => m.jobId == "engineer").Count);
             foreach (var m in db.missions)
             {
                 Assert.GreaterOrEqual(m.objectives.Count, 1);

@@ -150,8 +150,8 @@ namespace MyFutureCity.EditorTools
         {
             var scene = NewEmptyScene();
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.38f, 0.40f, 0.46f);
-            AddSun(new Color(1f, 0.96f, 0.88f), 0.85f);
+            RenderSettings.ambientLight = new Color(0.16f, 0.18f, 0.22f);
+            AddSun(new Color(1f, 0.96f, 0.88f), 0.65f);
 
             var cam = AddCamera(new Vector3(0f, 9f, -22f), new Color(0.45f, 0.75f, 0.95f));
             cam.transform.rotation = Quaternion.Euler(18f, 0f, 0f);
@@ -243,8 +243,10 @@ namespace MyFutureCity.EditorTools
         {
             var scene = NewEmptyScene();
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.36f, 0.38f, 0.44f);
-            AddSun(new Color(1f, 0.95f, 0.85f), 0.85f);
+            // Mobile/Diffuse adds direct and ambient light.  Keeping both below one avoids
+            // clipped white surfaces on Android while retaining the cheerful low-poly palette.
+            RenderSettings.ambientLight = new Color(0.16f, 0.18f, 0.22f);
+            AddSun(new Color(1f, 0.95f, 0.85f), 0.65f);
 
             var grass = Lit("Grass", 0.45f, 0.75f, 0.35f);
             var road = Lit("Road", 0.35f, 0.36f, 0.4f);
@@ -411,6 +413,47 @@ namespace MyFutureCity.EditorTools
                 var pp = pr.AddComponent<PickupInteractable>();
                 pp.missionId = "eng_02_planks"; pp.targetId = "plank"; pp.displayNameFa = "تخته"; pp.order = i; pp.spin = pv.transform; pp.radius = 2.4f;
                 zones.Add(new Zone(plankPos[i].x, plankPos[i].z, 2, 2));
+            }
+
+            // ----- engineer stages 4 and 5: paint and finish the restored school -----
+            // These are deliberately separate world interactions, not UI-only counters, so
+            // the final two stages complete the same exploration -> repair -> city-change loop.
+            Vector3[] paintPos = { new Vector3(-6, 0.45f, 20), new Vector3(13, 0.45f, 18) };
+            var paintMat = Lit("Paint", 0.25f, 0.55f, 0.95f);
+            for (int i = 0; i < paintPos.Length; i++)
+            {
+                var pr = Empty("Paint" + i, pickups.transform, paintPos[i]);
+                var pv = Empty("Visual", pr.transform, Vector3.zero);
+                Prim(PrimitiveType.Cylinder, "Can", pv.transform, Vector3.zero, new Vector3(0.34f, 0.38f, 0.34f), paintMat, false);
+                Prim(PrimitiveType.Cylinder, "Beacon", pv.transform, new Vector3(0, 2.0f, 0), new Vector3(0.1f, 1.4f, 0.1f), beacon, false);
+                var pp = pr.AddComponent<PickupInteractable>();
+                pp.missionId = "eng_04_paint_school"; pp.targetId = "paint"; pp.displayNameFa = "قوطی رنگ"; pp.order = i; pp.spin = pv.transform; pp.radius = 2.4f;
+                zones.Add(new Zone(paintPos[i].x, paintPos[i].z, 2, 2));
+            }
+
+            Vector3[] paintSpotPos = { new Vector3(-32.5f, 0, 20.5f), new Vector3(-19.5f, 0, 20.5f) };
+            for (int i = 0; i < paintSpotPos.Length; i++)
+            {
+                var rp = Empty("PaintSpot" + i, repairs.transform, paintSpotPos[i]);
+                var br = Prim(PrimitiveType.Cube, "FadedWall", rp.transform, new Vector3(0, 0.55f, 0), new Vector3(0.9f, 0.9f, 0.18f), Lit("FadedWall", 0.55f, 0.5f, 0.4f), false);
+                Prim(PrimitiveType.Cylinder, "Beacon", br.transform, new Vector3(0, 1.9f, 0), new Vector3(0.1f, 1.3f, 0.1f), beacon, false);
+                var fx = Prim(PrimitiveType.Cube, "PaintedWall", rp.transform, new Vector3(0, 0.55f, 0), new Vector3(0.9f, 0.9f, 0.18f), Lit("PaintedWall", 0.95f, 0.8f, 0.35f), false);
+                var ri = rp.AddComponent<RepairInteractable>();
+                ri.missionId = "eng_04_paint_school"; ri.targetId = "school_paint"; ri.order = i; ri.promptFa = "رنگ‌آمیزی"; ri.radius = 2.4f; ri.brokenVisual = br; ri.fixedVisual = fx;
+                zones.Add(new Zone(paintSpotPos[i].x, paintSpotPos[i].z, 2, 2));
+            }
+
+            Vector3[] cleanupPos = { new Vector3(-36, 0.25f, 10), new Vector3(-16, 0.25f, 23), new Vector3(-27, 0.25f, 27) };
+            var cleanupMat = Lit("CleanupBag", 0.3f, 0.75f, 0.45f);
+            for (int i = 0; i < cleanupPos.Length; i++)
+            {
+                var pr = Empty("Cleanup" + i, pickups.transform, cleanupPos[i]);
+                var pv = Empty("Visual", pr.transform, Vector3.zero);
+                Prim(PrimitiveType.Sphere, "Bag", pv.transform, Vector3.zero, new Vector3(0.5f, 0.45f, 0.5f), cleanupMat, false);
+                Prim(PrimitiveType.Cylinder, "Beacon", pv.transform, new Vector3(0, 1.9f, 0), new Vector3(0.1f, 1.3f, 0.1f), beacon, false);
+                var pp = pr.AddComponent<PickupInteractable>();
+                pp.missionId = "eng_05_open_school"; pp.targetId = "school_cleanup"; pp.displayNameFa = "کیسهٔ زباله"; pp.order = i; pp.spin = pv.transform; pp.radius = 2.4f;
+                zones.Add(new Zone(cleanupPos[i].x, cleanupPos[i].z, 2, 2));
             }
 
             // ----- trees (scenery) -----

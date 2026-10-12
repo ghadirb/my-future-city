@@ -66,6 +66,41 @@
       "repeatCoins": 0,
       "offerTextFa": "مدرسه سال\u200cهاست متروک مانده. بیا با هم زنده\u200cاش کنیم! سه نقطهٔ خراب دور مدرسه را تعمیر کن.",
       "completeTextFa": "مدرسه دوباره زنده شد! بچه\u200cهای محله از این به بعد می\u200cتوانند آنجا درس بخوانند."
+    },
+    {
+      "id": "eng_04_paint_school",
+      "jobId": "engineer",
+      "nameFa": "رنگ تازه برای مدرسه",
+      "descriptionFa": "دو قوطی رنگ پیدا کن و بخش\u200cهای فرسودهٔ مدرسه را رنگ\u200cآمیزی کن.",
+      "startNpcId": "npc_engineer",
+      "requiresMissionId": "eng_03_repair_school",
+      "objectives": [
+        { "type": "collect", "targetId": "paint", "count": 2, "textFa": "قوطی\u200cهای رنگ را پیدا کن" },
+        { "type": "interact", "targetId": "school_paint", "count": 2, "textFa": "دیوارهای مدرسه را رنگ\u200cآمیزی کن", "buildingId": "school", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_engineer", "count": 1, "textFa": "کار رنگ\u200cآمیزی را به استاد بهروز بگو" }
+      ],
+      "reward": { "coins": 35, "xp": 70, "badgeId": "", "buildingId": "school", "buildingProgress": 20 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "مدرسه جان گرفته، اما هنوز رنگ و روی شادی ندارد. دو قوطی رنگ پیدا کن و دو بخش فرسوده را رنگ بزن.",
+      "completeTextFa": "چه رنگ\u200cهای شادی! مدرسه حالا خیلی دوست\u200cداشتنی\u200cتر شده است."
+    },
+    {
+      "id": "eng_05_open_school",
+      "jobId": "engineer",
+      "nameFa": "آماده\u200cسازی روز اول مدرسه",
+      "descriptionFa": "محوطهٔ مدرسه را پاک\u200cسازی کن تا برای بازگشت بچه\u200cها آماده شود.",
+      "startNpcId": "npc_engineer",
+      "requiresMissionId": "eng_04_paint_school",
+      "objectives": [
+        { "type": "collect", "targetId": "school_cleanup", "count": 3, "textFa": "سه کیسهٔ زباله را جمع کن", "buildingId": "school", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_engineer", "count": 1, "textFa": "آماده شدن مدرسه را به استاد بهروز خبر بده" }
+      ],
+      "reward": { "coins": 45, "xp": 90, "badgeId": "badge_engineer_apprentice", "buildingId": "school", "buildingProgress": 20 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "فقط محوطهٔ مدرسه مانده است. سه کیسه زباله را جمع کن تا روز اول مدرسه را شروع کنیم.",
+      "completeTextFa": "آفرین! مدرسه آماده و فعال شد. شهر با کمک تو جای بهتری برای یادگرفتن است."
     }
   ]
 }
