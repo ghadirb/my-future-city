@@ -1,0 +1,4 @@
+<linker>
+  <assembly fullname="MyFutureCity.Core" preserve="all"/>
+  <assembly fullname="MyFutureCity.Runtime" preserve="all"/>
+</linker>
