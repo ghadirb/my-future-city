@@ -415,6 +415,31 @@ namespace MyFutureCity.EditorTools
             clinicVisual.renovatingObjects = new[] { clinicWork };
             clinicVisual.restoredObjects = new[] { clinicOpen };
 
+            // ----- recycling station (dynamic: restored by the environment job) -----
+            var recycleRoot = MakeBuilding(landmarks.transform, "RecyclingStation", new Vector3(27, 0, 30), new Vector3(10, 5, 7), Lit("RecycleAbandoned", 0.5f, 0.52f, 0.48f), Lit("RoofRecycle", 0.28f, 0.6f, 0.42f), -1);
+            zones.Add(new Zone(27, 30, 8, 6));
+            var recycleBody = recycleRoot.transform.Find("Body").GetComponent<Renderer>();
+            var recycleVisual = recycleRoot.AddComponent<BuildingVisual>();
+            recycleVisual.buildingId = "recycling";
+            recycleVisual.bodyRenderers = new[] { recycleBody };
+            recycleVisual.abandonedMaterial = Lit("RecycleAbandoned", 0.5f, 0.52f, 0.48f);
+            recycleVisual.renovatingMaterial = Lit("RecycleRenovating", 0.72f, 0.72f, 0.52f);
+            recycleVisual.restoredMaterial = Lit("RecycleRestored", 0.48f, 0.86f, 0.65f);
+            var recycleClosed = Empty("RecycleClosedProps", recycleRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "WastePile", recycleClosed.transform, new Vector3(-3.5f, 0.38f, -4.1f), new Vector3(1.4f, 0.75f, 1.0f), Lit("WastePile", 0.35f, 0.32f, 0.28f), false);
+            Prim(PrimitiveType.Cube, "ClosedRecycleSign", recycleClosed.transform, new Vector3(0, 3.1f, -3.58f), new Vector3(3f, 0.7f, 0.12f), Lit("ClosedRecycleSign", 0.5f, 0.2f, 0.15f), false);
+            var recycleWork = Empty("RecycleWorkProps", recycleRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "WorkRecycleSign", recycleWork.transform, new Vector3(0, 3.1f, -3.58f), new Vector3(3f, 0.7f, 0.12f), Lit("WorkRecycleSign", 0.95f, 0.72f, 0.18f), false);
+            Prim(PrimitiveType.Cylinder, "WorkRecyclePole", recycleWork.transform, new Vector3(3.5f, 1.1f, -4f), new Vector3(0.12f, 1.1f, 0.12f), wood, false);
+            var recycleOpen = Empty("RecycleOpenProps", recycleRoot.transform, Vector3.zero);
+            var recycleGreen = Lit("RecycleGreen", 0.22f, 0.78f, 0.42f);
+            Prim(PrimitiveType.Cube, "RecycleSign", recycleOpen.transform, new Vector3(0, 3.1f, -3.58f), new Vector3(3f, 0.7f, 0.12f), recycleGreen, false);
+            for (int i = -1; i <= 1; i++)
+                Prim(PrimitiveType.Cylinder, "Bin" + i, recycleOpen.transform, new Vector3(i * 2.2f, 0.55f, -4.0f), new Vector3(0.45f, 0.55f, 0.45f), i == 0 ? Lit("BinBlue", 0.25f, 0.55f, 0.95f) : recycleGreen, false);
+            recycleVisual.abandonedObjects = new[] { recycleClosed };
+            recycleVisual.renovatingObjects = new[] { recycleWork };
+            recycleVisual.restoredObjects = new[] { recycleOpen };
+
             // Repair points around the school
             var brokenMat = Lit("Broken", 0.9f, 0.25f, 0.2f);
             var fixedMat = Lit("Fixed", 0.3f, 0.85f, 0.4f);
@@ -480,6 +505,20 @@ namespace MyFutureCity.EditorTools
             var doctorAnim = doctorRoot.AddComponent<ProceduralWalkAnimator>();
             doctorAnim.leftArm = doctorHuman.leftArm; doctorAnim.rightArm = doctorHuman.rightArm; doctorAnim.leftLeg = doctorHuman.leftLeg; doctorAnim.rightLeg = doctorHuman.rightLeg;
             zones.Add(new Zone(14, 31, 3, 3));
+
+            var rangerRoot = Empty("NPC_Sahar", null, new Vector3(15, 0, 21));
+            rangerRoot.transform.rotation = Quaternion.Euler(0, 210f, 0);
+            var rangerHuman = BuildHuman(rangerRoot.transform, Lit("RangerShirt", 0.25f, 0.7f, 0.42f), Lit("RangerHair", 0.25f, 0.13f, 0.08f), false);
+            var ranger = rangerRoot.AddComponent<NpcInteractable>();
+            ranger.npcId = "npc_ranger";
+            ranger.displayNameFa = "سحر، محیط‌بان";
+            ranger.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", rangerRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var rangerCol = rangerRoot.AddComponent<CapsuleCollider>();
+            rangerCol.height = 1.9f; rangerCol.radius = 0.4f; rangerCol.center = new Vector3(0, 0.95f, 0);
+            var rangerAnim = rangerRoot.AddComponent<ProceduralWalkAnimator>();
+            rangerAnim.leftArm = rangerHuman.leftArm; rangerAnim.rightArm = rangerHuman.rightArm; rangerAnim.leftLeg = rangerHuman.leftLeg; rangerAnim.rightLeg = rangerHuman.rightLeg;
+            zones.Add(new Zone(15, 21, 3, 3));
 
             // ----- pickups -----
             var pickups = Empty("Pickups", null, Vector3.zero);
@@ -615,6 +654,40 @@ namespace MyFutureCity.EditorTools
             Vector3[] healthCardPos = { new Vector3(-31, 0.42f, -5), new Vector3(17, 0.42f, -23), new Vector3(34, 0.42f, -28) };
             for (int i = 0; i < healthCardPos.Length; i++)
                 AddPickupMarker(pickups.transform, zones, healthCardPos[i], "HealthCard", "med_05_open_clinic", "health_card", "کارت سلامت", i, healthCardMat, beacon);
+
+            // ----- environment job: unlocks after the clinic becomes active -----
+            var gloveMat = Lit("WorkGlove", 0.95f, 0.72f, 0.2f);
+            Vector3[] glovePos = { new Vector3(-34, 0.42f, 31), new Vector3(4, 0.42f, -14) };
+            for (int i = 0; i < glovePos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, glovePos[i], "WorkGlove", "env_01_gloves", "work_glove", "دستکش کار", i, gloveMat, beacon);
+
+            var litterMat = Lit("LitterBag", 0.32f, 0.38f, 0.42f);
+            Vector3[] litterPos = { new Vector3(-31, 0.42f, 2), new Vector3(4, 0.42f, 10), new Vector3(34, 0.42f, -5) };
+            for (int i = 0; i < litterPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, litterPos[i], "LitterBag", "env_02_cleanup", "litter_bag", "کیسهٔ زباله", i, litterMat, beacon);
+
+            var cleanupPending = Lit("CleanupPending", 0.7f, 0.35f, 0.2f);
+            var cleanupReady = Lit("CleanupReady", 0.28f, 0.82f, 0.45f);
+            Vector3[] cleanupStationPos = { new Vector3(18, 0, 37), new Vector3(36, 0, 37), new Vector3(37, 0, 24) };
+            for (int i = 0; i < cleanupStationPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, cleanupStationPos[i], "CleanupStation", "env_02_cleanup", "cleanup_station", "تحویل زباله", i, cleanupPending, cleanupReady, beacon);
+
+            var sortPending = Lit("SortPending", 0.85f, 0.55f, 0.25f);
+            var sortReady = Lit("SortReady", 0.25f, 0.62f, 0.92f);
+            Vector3[] sortPos = { new Vector3(18, 0, 25), new Vector3(18, 0, 30), new Vector3(18, 0, 35) };
+            for (int i = 0; i < sortPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, sortPos[i], "SortingBin", "env_03_sorting", "sorting_bin", "تفکیک زباله", i, sortPending, sortReady, beacon);
+
+            var plantPending = Lit("PlantPending", 0.48f, 0.32f, 0.16f);
+            var plantReady = Lit("PlantReady", 0.22f, 0.78f, 0.35f);
+            Vector3[] plantPos = { new Vector3(10, 0, 16), new Vector3(20, 0, 16) };
+            for (int i = 0; i < plantPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, plantPos[i], "GreenPlot", "env_04_green_space", "green_plot", "کاشت نهال", i, plantPending, plantReady, beacon);
+
+            var recycleCardMat = Lit("RecycleCard", 0.25f, 0.78f, 0.65f);
+            Vector3[] recycleCardPos = { new Vector3(-17, 0.42f, -28), new Vector3(8, 0.42f, 36), new Vector3(34, 0.42f, 12) };
+            for (int i = 0; i < recycleCardPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, recycleCardPos[i], "RecycleCard", "env_05_open_station", "recycle_card", "کارت بازیافت", i, recycleCardMat, beacon);
 
             // ----- trees (scenery) -----
             var rnd = new System.Random(12345);

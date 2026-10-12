@@ -20,6 +20,13 @@
       "descriptionFa": "تجهیزات درمانی را پیدا کن و کلینیک محله را دوباره فعال کن.",
       "badgeId": "badge_health_helper",
       "badgeNameFa": "نشان یاور سلامت"
+    },
+    {
+      "id": "environment",
+      "nameFa": "محیط‌بان و بازیافت",
+      "descriptionFa": "محله را پاک‌سازی کن، زباله‌ها را تفکیک کن و ایستگاه بازیافت را فعال کن.",
+      "badgeId": "badge_green_helper",
+      "badgeNameFa": "نشان دوستدار زمین"
     }
   ],
   "buildings": [
@@ -32,6 +39,11 @@
       "id": "clinic",
       "nameFa": "کلینیک محله",
       "descriptionFa": "کلینیک کوچک محله برای پذیرش دوباره به تعمیر و تجهیزات نیاز دارد."
+    },
+    {
+      "id": "recycling",
+      "nameFa": "ایستگاه بازیافت",
+      "descriptionFa": "ایستگاه بازیافت محله برای بازگشایی به پاک‌سازی و تفکیک زباله نیاز دارد."
     }
   ],
   "missions": [
@@ -292,6 +304,92 @@
       "repeatCoins": 0,
       "offerTextFa": "سه کارت سلامت را پیدا کن تا همه بدانند کلینیک دوباره آمادهٔ کمک است.",
       "completeTextFa": "تبریک! کلینیک فعال شد و تو نشان یاور سلامت را گرفتی."
+    },
+    {
+      "id": "env_01_gloves",
+      "jobId": "environment",
+      "nameFa": "دستکش‌های پاک‌سازی",
+      "descriptionFa": "دو دستکش کار را پیدا کن و به سحر، محیط‌بان محله، برگردان.",
+      "startNpcId": "npc_ranger",
+      "requiresMissionId": "med_05_open_clinic",
+      "objectives": [
+        { "type": "collect", "targetId": "work_glove", "count": 2, "textFa": "دو دستکش کار را پیدا کن" },
+        { "type": "talk", "targetId": "npc_ranger", "count": 1, "textFa": "دستکش‌ها را به سحر بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 6,
+      "offerTextFa": "سلام! من سحر، محیط‌بان محله هستم. برای پاک‌سازی به دو دستکش کار نیاز داریم؛ کمکم می‌کنی؟",
+      "completeTextFa": "عالیه! حالا می‌توانیم با خیال راحت کار پاک‌سازی را شروع کنیم."
+    },
+    {
+      "id": "env_02_cleanup",
+      "jobId": "environment",
+      "nameFa": "پاک‌سازی محله",
+      "descriptionFa": "کیسه‌های زباله را جمع کن و آن‌ها را به ایستگاه بازیافت تحویل بده.",
+      "startNpcId": "npc_ranger",
+      "requiresMissionId": "env_01_gloves",
+      "objectives": [
+        { "type": "collect", "targetId": "litter_bag", "count": 3, "textFa": "سه کیسهٔ زباله را جمع کن" },
+        { "type": "interact", "targetId": "cleanup_station", "count": 3, "textFa": "زباله‌ها را به ایستگاه تحویل بده", "buildingId": "recycling", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_ranger", "count": 1, "textFa": "پایان پاک‌سازی را به سحر بگو" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه کیسه زباله را جمع کن و بعد هر سه را به ایستگاه بازیافت تحویل بده.",
+      "completeTextFa": "محله تمیزتر شد؛ حالا وقت تفکیک درست زباله‌هاست."
+    },
+    {
+      "id": "env_03_sorting",
+      "jobId": "environment",
+      "nameFa": "تفکیک هوشمند",
+      "descriptionFa": "سه مخزن بازیافت را برای تفکیک زباله‌ها آماده کن.",
+      "startNpcId": "npc_ranger",
+      "requiresMissionId": "env_02_cleanup",
+      "objectives": [
+        { "type": "interact", "targetId": "sorting_bin", "count": 3, "textFa": "سه مخزن تفکیک را آماده کن", "buildingId": "recycling", "buildingProgress": 20 },
+        { "type": "talk", "targetId": "npc_ranger", "count": 1, "textFa": "آماده شدن مخزن‌ها را به سحر بگو" }
+      ],
+      "reward": { "coins": 35, "xp": 65, "badgeId": "badge_green_helper", "buildingId": "recycling", "buildingProgress": 40 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه مخزن بازیافت هنوز آماده نیست. آن‌ها را فعال کن تا زباله‌ها درست تفکیک شوند.",
+      "completeTextFa": "آفرین! ایستگاه بازیافت بازسازی شد و حالا می‌توانیم فضای سبز را بهتر کنیم."
+    },
+    {
+      "id": "env_04_green_space",
+      "jobId": "environment",
+      "nameFa": "فضای سبز تازه",
+      "descriptionFa": "دو نهال را در فضای سبز کنار ایستگاه بازیافت بکار.",
+      "startNpcId": "npc_ranger",
+      "requiresMissionId": "env_03_sorting",
+      "objectives": [
+        { "type": "interact", "targetId": "green_plot", "count": 2, "textFa": "دو نهال بکار", "buildingId": "recycling", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_ranger", "count": 1, "textFa": "کاشت نهال‌ها را به سحر بگو" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "recycling", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "دو جای خالی برای نهال داریم. آن‌ها را بکار تا ایستگاه بازیافت محیط دلنشین‌تری داشته باشد.",
+      "completeTextFa": "چه فضای سبز خوبی! فقط دعوت از خانواده‌ها باقی مانده است."
+    },
+    {
+      "id": "env_05_open_station",
+      "jobId": "environment",
+      "nameFa": "بازگشایی ایستگاه بازیافت",
+      "descriptionFa": "کارت‌های بازیافت را جمع کن تا ایستگاه رسماً فعالیتش را آغاز کند.",
+      "startNpcId": "npc_ranger",
+      "requiresMissionId": "env_04_green_space",
+      "objectives": [
+        { "type": "collect", "targetId": "recycle_card", "count": 3, "textFa": "سه کارت بازیافت را جمع کن", "buildingId": "recycling", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_ranger", "count": 1, "textFa": "برای بازگشایی به سحر خبر بده" }
+      ],
+      "reward": { "coins": 45, "xp": 80, "badgeId": "badge_green_helper", "buildingId": "recycling", "buildingProgress": 10 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه کارت بازیافت را پیدا کن تا خانواده‌ها را برای شروع کار ایستگاه دعوت کنیم.",
+      "completeTextFa": "تبریک! ایستگاه بازیافت فعال شد و تو نشان دوستدار زمین را گرفتی."
     }
   ]
 }
