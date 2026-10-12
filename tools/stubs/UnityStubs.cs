@@ -330,7 +330,7 @@ namespace UnityEditor
     public enum BuildOptions { None }
     public enum ScriptingImplementation { IL2CPP }
     public enum ManagedStrippingLevel { Low }
-    public enum AndroidArchitecture { ARM64 }
+    [Flags] public enum AndroidArchitecture { None = 0, ARMv7 = 1, ARM64 = 2, X86 = 4, X86_64 = 8, All = -1 }
     public enum AndroidSdkVersions { AndroidApiLevel24, AndroidApiLevelAuto }
     public class BuildPlayerOptions { public string[] scenes; public string locationPathName; public BuildTarget target; public BuildTargetGroup targetGroup; public BuildOptions options; }
     public static class BuildPipeline { public static Build.Reporting.BuildReport BuildPlayer(BuildPlayerOptions o) { return null; } }

@@ -24,9 +24,12 @@ Artifact با نام `MyFutureCity-android-apk` (نگهداری ۱۴ روز). ن
 ## تنظیمات ساخت (در `BuildScript.cs`)
 - Unity `6000.3.11f1` (در `ProjectSettings/ProjectVersion.txt` و workflowها یکسان نگه دارید)
 - شناسه بسته: `com.myfuturecity.game` — **پیش از انتشار فروشگاهی عوض کنید**
-- IL2CPP، فقط ARM64، حداقل API 24، گرافیک GLES3، بدون هیچ مجوز اندرویدی (آفلاین)
+- IL2CPP، APK یونیورسال با معماری‌های ARMv7 (۳۲ بیتی) + ARM64 + x86_64، حداقل API 24، گرافیک GLES3، بدون هیچ مجوز اندرویدی (آفلاین)
 - ساخت آزمایشی با امضای Debug است. امضای Release در `docs/RELEASE_CHECKLIST.md`.
 
 ## نکته‌ها
 - صحنه‌ها در زمان بیلد توسط `SceneGenerator` ساخته می‌شوند؛ بیلد اگر اعتبارسنج خطا بدهد متوقف می‌شود.
 - نسخه Unity باید ایمیج Docker متناظر در GameCI داشته باشد؛ اگر اولین اجرا خطای «image not found» داد، نسخه را به یک پچ دیگر 6000.3.x تغییر دهید.
+
+## نصب‌نشدن روی گوشی (INSTALL_FAILED_NO_MATCHING_ABIS)
+نسخه‌های اولیه فقط ARM64 ساخته می‌شدند و روی گوشی‌های ۳۲ بیتی (مثلاً G-plus P10 با اندروید ۱۰) نصب نمی‌شدند. از این پس APK شامل `armeabi-v7a`، `arm64-v8a` و `x86_64` است و workflow بعد از بیلد، محتوای `lib/` داخل APK را چاپ و در صورت نبودن ARMv7 یا ARM64 شکست می‌خورد.

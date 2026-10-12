@@ -119,7 +119,11 @@ namespace MyFutureCity.EditorTools
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
 
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            // One universal APK that installs on every common phone: 32-bit ARM (budget phones such as
+            // many Android 10 devices ship a 32-bit userspace even on 64-bit CPUs), 64-bit ARM, and
+            // x86_64 (emulators / Chromebooks). An ARM64-only APK fails with INSTALL_FAILED_NO_MATCHING_ABIS.
+            PlayerSettings.Android.targetArchitectures =
+                AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Low);
 
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
