@@ -1,0 +1,62 @@
+name: Unity tests
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  UNITY_VERSION: 6000.3.11f1
+
+jobs:
+  license-check:
+    runs-on: ubuntu-latest
+    outputs:
+      has_license: ${{ steps.check.outputs.has_license }}
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+    steps:
+      - id: check
+        run: |
+          if [ -n "$UNITY_LICENSE" ] || [ -n "$UNITY_SERIAL" ]; then
+            echo "has_license=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_license=false" >> "$GITHUB_OUTPUT"
+            echo "### Unity tests SKIPPED" >> "$GITHUB_STEP_SUMMARY"
+            echo "No UNITY_LICENSE / UNITY_SERIAL secret is set, so Unity could not be activated. See docs/BUILD_ANDROID.md." >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Unity tests skipped: Unity license secrets are not configured."
+          fi
+
+  editmode:
+    needs: license-check
+    if: needs.license-check.outputs.has_license == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-test-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-test-${{ env.UNITY_VERSION }}-
+
+      - uses: game-ci/unity-test-runner@v4
+        id: tests
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          testMode: editmode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unity-editmode-results
+          path: ${{ steps.tests.outputs.artifactsPath }}
+          retention-days: 14

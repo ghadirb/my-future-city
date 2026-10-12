@@ -1,0 +1,89 @@
+name: Build Android
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: build-android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UNITY_VERSION: 6000.3.11f1
+
+jobs:
+  license-check:
+    runs-on: ubuntu-latest
+    outputs:
+      has_license: ${{ steps.check.outputs.has_license }}
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+    steps:
+      - id: check
+        run: |
+          if [ -n "$UNITY_LICENSE" ] || [ -n "$UNITY_SERIAL" ]; then
+            echo "has_license=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_license=false" >> "$GITHUB_OUTPUT"
+            echo "### Android build SKIPPED" >> "$GITHUB_STEP_SUMMARY"
+            echo "No UNITY_LICENSE / UNITY_SERIAL secret is set, so no APK was built. See docs/BUILD_ANDROID.md." >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Android build skipped: Unity license secrets are not configured."
+          fi
+
+  build:
+    needs: license-check
+    if: needs.license-check.outputs.has_license == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free disk space (Android builds are large)
+        uses: jlumbroso/free-disk-space@v1.3.1
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-android-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-android-${{ env.UNITY_VERSION }}-
+
+      - uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: Android
+          buildMethod: MyFutureCity.EditorTools.BuildScript.BuildAndroid
+          buildName: MyFutureCity
+          androidExportType: androidPackage
+          versioning: Custom
+          version: 0.1.${{ github.run_number }}
+          androidVersionCode: ${{ github.run_number }}
+          allowDirtyBuild: true
+
+      - name: Report APK
+        run: |
+          echo "### Android build" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Unity: ${UNITY_VERSION}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Version: 0.1.${{ github.run_number }} (code ${{ github.run_number }})" >> "$GITHUB_STEP_SUMMARY"
+          ls -la build/Android || true
+          if ls build/Android/*.apk >/dev/null 2>&1; then
+            for f in build/Android/*.apk; do
+              echo "- File: $(basename "$f"), size: $(du -h "$f" | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
+            done
+          else
+            echo "- NO APK FOUND in build/Android" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MyFutureCity-android-apk
+          path: build/Android
+          if-no-files-found: error
+          retention-days: 14

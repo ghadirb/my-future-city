@@ -1,0 +1,33 @@
+name: Validate (no Unity needed)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Repo checks (required files, JSON data, secret scan)
+        run: python3 tools/validate_repo.py
+
+      - name: Install Mono compiler
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq mono-mcs mono-runtime
+
+      - name: Core logic unit tests (real test sources, run under Mono)
+        run: ./tools/run-logic-tests.sh
+
+      - name: Type-check Unity scripts against local API stubs
+        run: ./tools/typecheck-unity-code.sh
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Validate" >> "$GITHUB_STEP_SUMMARY"
+          echo "This job does NOT compile inside Unity and does NOT build an APK." >> "$GITHUB_STEP_SUMMARY"
+          echo "See the 'Unity tests' and 'Build Android' workflows for those." >> "$GITHUB_STEP_SUMMARY"
