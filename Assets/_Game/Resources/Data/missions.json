@@ -27,6 +27,13 @@
       "descriptionFa": "محله را پاک‌سازی کن، زباله‌ها را تفکیک کن و ایستگاه بازیافت را فعال کن.",
       "badgeId": "badge_green_helper",
       "badgeNameFa": "نشان دوستدار زمین"
+    },
+    {
+      "id": "farmer",
+      "nameFa": "کشاورز",
+      "descriptionFa": "بذر بکار، مزرعه را آبیاری کن و مزرعهٔ محله را دوباره فعال کن.",
+      "badgeId": "badge_farm_helper",
+      "badgeNameFa": "نشان دوستدار مزرعه"
     }
   ],
   "buildings": [
@@ -44,6 +51,11 @@
       "id": "recycling",
       "nameFa": "ایستگاه بازیافت",
       "descriptionFa": "ایستگاه بازیافت محله برای بازگشایی به پاک‌سازی و تفکیک زباله نیاز دارد."
+    },
+    {
+      "id": "farm",
+      "nameFa": "مزرعهٔ محله",
+      "descriptionFa": "مزرعهٔ کوچک محله برای کشت دوباره به خاک آماده و آب نیاز دارد."
     }
   ],
   "missions": [
@@ -390,6 +402,92 @@
       "repeatCoins": 0,
       "offerTextFa": "سه کارت بازیافت را پیدا کن تا خانواده‌ها را برای شروع کار ایستگاه دعوت کنیم.",
       "completeTextFa": "تبریک! ایستگاه بازیافت فعال شد و تو نشان دوستدار زمین را گرفتی."
+    },
+    {
+      "id": "farm_01_seeds",
+      "jobId": "farmer",
+      "nameFa": "بذرهای گمشده",
+      "descriptionFa": "دو بسته بذر را پیدا کن و به عمو پروین برگردان.",
+      "startNpcId": "npc_farmer",
+      "requiresMissionId": "env_05_open_station",
+      "objectives": [
+        { "type": "collect", "targetId": "farm_seed", "count": 2, "textFa": "دو بسته بذر را پیدا کن" },
+        { "type": "talk", "targetId": "npc_farmer", "count": 1, "textFa": "بذرها را به عمو پروین بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 6,
+      "offerTextFa": "سلام! من پروین، کشاورز محله هستم. دو بسته بذر از مزرعه بیرون افتاده؛ کمکم می‌کنی؟",
+      "completeTextFa": "بذرها برگشتند؛ حالا می‌توانیم خاک مزرعه را آماده کنیم."
+    },
+    {
+      "id": "farm_02_soil",
+      "jobId": "farmer",
+      "nameFa": "خاک آماده",
+      "descriptionFa": "سه بخش خاک مزرعه را برای کاشت آماده کن.",
+      "startNpcId": "npc_farmer",
+      "requiresMissionId": "farm_01_seeds",
+      "objectives": [
+        { "type": "interact", "targetId": "farm_soil", "count": 3, "textFa": "سه بخش خاک را آماده کن", "buildingId": "farm", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_farmer", "count": 1, "textFa": "آماده شدن خاک را به عمو پروین بگو" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه بخش خاک هنوز سفت است. آن‌ها را آماده کن تا بذرها جای خوبی برای رشد داشته باشند.",
+      "completeTextFa": "خاک آماده شد؛ وقت آب‌رسانی به مزرعه است."
+    },
+    {
+      "id": "farm_03_watering",
+      "jobId": "farmer",
+      "nameFa": "آبیاری مزرعه",
+      "descriptionFa": "بطری‌های آب را پیدا کن و دو بخش مزرعه را آبیاری کن.",
+      "startNpcId": "npc_farmer",
+      "requiresMissionId": "farm_02_soil",
+      "objectives": [
+        { "type": "collect", "targetId": "water_bottle", "count": 3, "textFa": "سه بطری آب پیدا کن" },
+        { "type": "interact", "targetId": "water_plot", "count": 2, "textFa": "دو بخش مزرعه را آبیاری کن", "buildingId": "farm", "buildingProgress": 20 },
+        { "type": "talk", "targetId": "npc_farmer", "count": 1, "textFa": "پایان آبیاری را به عمو پروین بگو" }
+      ],
+      "reward": { "coins": 35, "xp": 65, "badgeId": "badge_farm_helper", "buildingId": "farm", "buildingProgress": 30 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه بطری آب پیدا کن و بعد دو بخش مزرعه را آبیاری کن تا گیاه‌ها جان بگیرند.",
+      "completeTextFa": "مزرعه بازسازی شد! حالا می‌توانیم محصول‌های آماده را برداشت کنیم."
+    },
+    {
+      "id": "farm_04_harvest",
+      "jobId": "farmer",
+      "nameFa": "برداشت مهربانانه",
+      "descriptionFa": "سه سبد محصول را آماده کن تا چیزی از مزرعه هدر نرود.",
+      "startNpcId": "npc_farmer",
+      "requiresMissionId": "farm_03_watering",
+      "objectives": [
+        { "type": "interact", "targetId": "harvest_basket", "count": 3, "textFa": "سه سبد محصول را آماده کن", "buildingId": "farm", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_farmer", "count": 1, "textFa": "برداشت را به عمو پروین بگو" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "farm", "buildingProgress": 15 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "سه سبد محصول را آماده کن تا بتوانیم آن‌ها را به خانواده‌های محله برسانیم.",
+      "completeTextFa": "محصول‌ها آماده‌اند؛ حالا مزرعه برای فروش محلی آماده می‌شود."
+    },
+    {
+      "id": "farm_05_open_farm",
+      "jobId": "farmer",
+      "nameFa": "بازگشایی مزرعه",
+      "descriptionFa": "کارت‌های بازار را جمع کن تا مزرعه رسماً فعالیتش را آغاز کند.",
+      "startNpcId": "npc_farmer",
+      "requiresMissionId": "farm_04_harvest",
+      "objectives": [
+        { "type": "collect", "targetId": "market_card", "count": 3, "textFa": "سه کارت بازار را جمع کن", "buildingId": "farm", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_farmer", "count": 1, "textFa": "برای بازگشایی مزرعه به عمو پروین بگو" }
+      ],
+      "reward": { "coins": 45, "xp": 80, "badgeId": "badge_farm_helper", "buildingId": "farm", "buildingProgress": 10 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه کارت بازار را پیدا کن تا همه بدانند مزرعهٔ محله دوباره آمادهٔ کار است.",
+      "completeTextFa": "تبریک! مزرعه فعال شد و تو نشان دوستدار مزرعه را گرفتی."
     }
   ]
 }

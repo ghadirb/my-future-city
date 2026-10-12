@@ -440,6 +440,32 @@ namespace MyFutureCity.EditorTools
             recycleVisual.renovatingObjects = new[] { recycleWork };
             recycleVisual.restoredObjects = new[] { recycleOpen };
 
+            // ----- community farm (dynamic: restored by the farmer job) -----
+            var farmRoot = MakeBuilding(landmarks.transform, "CommunityFarm", new Vector3(7, 0, -32), new Vector3(11, 4.5f, 7), Lit("FarmAbandoned", 0.54f, 0.48f, 0.4f), Lit("RoofFarm", 0.55f, 0.35f, 0.2f), +1);
+            zones.Add(new Zone(7, -32, 8, 6));
+            var farmBody = farmRoot.transform.Find("Body").GetComponent<Renderer>();
+            var farmVisual = farmRoot.AddComponent<BuildingVisual>();
+            farmVisual.buildingId = "farm";
+            farmVisual.bodyRenderers = new[] { farmBody };
+            farmVisual.abandonedMaterial = Lit("FarmAbandoned", 0.54f, 0.48f, 0.4f);
+            farmVisual.renovatingMaterial = Lit("FarmRenovating", 0.7f, 0.62f, 0.4f);
+            farmVisual.restoredMaterial = Lit("FarmRestored", 0.75f, 0.9f, 0.55f);
+            var farmClosed = Empty("FarmClosedProps", farmRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "DryPatch", farmClosed.transform, new Vector3(-3.7f, 0.13f, -4f), new Vector3(3f, 0.2f, 1.7f), Lit("DryPatch", 0.45f, 0.3f, 0.15f), false);
+            Prim(PrimitiveType.Cube, "FarmClosedSign", farmClosed.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(3.2f, 0.65f, 0.12f), Lit("FarmClosedSign", 0.5f, 0.2f, 0.15f), false);
+            var farmWork = Empty("FarmWorkProps", farmRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "FarmWorkSign", farmWork.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(3.2f, 0.65f, 0.12f), Lit("FarmWorkSign", 0.95f, 0.72f, 0.18f), false);
+            Prim(PrimitiveType.Cylinder, "FarmWorkPole", farmWork.transform, new Vector3(3.7f, 1f, -4f), new Vector3(0.12f, 1f, 0.12f), wood, false);
+            var farmOpen = Empty("FarmOpenProps", farmRoot.transform, Vector3.zero);
+            var cropMat = Lit("Crop", 0.22f, 0.78f, 0.32f);
+            for (int row = -1; row <= 1; row++)
+                for (int crop = -1; crop <= 1; crop++)
+                    Prim(PrimitiveType.Sphere, "Crop" + row + "_" + crop, farmOpen.transform, new Vector3(row * 2.4f, 0.36f, -4f + crop * 0.7f), new Vector3(0.5f, 0.7f, 0.5f), cropMat, false);
+            Prim(PrimitiveType.Cube, "FarmOpenSign", farmOpen.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(3.2f, 0.65f, 0.12f), Lit("FarmOpenSign", 0.25f, 0.72f, 0.35f), false);
+            farmVisual.abandonedObjects = new[] { farmClosed };
+            farmVisual.renovatingObjects = new[] { farmWork };
+            farmVisual.restoredObjects = new[] { farmOpen };
+
             // Repair points around the school
             var brokenMat = Lit("Broken", 0.9f, 0.25f, 0.2f);
             var fixedMat = Lit("Fixed", 0.3f, 0.85f, 0.4f);
@@ -519,6 +545,20 @@ namespace MyFutureCity.EditorTools
             var rangerAnim = rangerRoot.AddComponent<ProceduralWalkAnimator>();
             rangerAnim.leftArm = rangerHuman.leftArm; rangerAnim.rightArm = rangerHuman.rightArm; rangerAnim.leftLeg = rangerHuman.leftLeg; rangerAnim.rightLeg = rangerHuman.rightLeg;
             zones.Add(new Zone(15, 21, 3, 3));
+
+            var farmerRoot = Empty("NPC_Parvin", null, new Vector3(-6, 0, -30));
+            farmerRoot.transform.rotation = Quaternion.Euler(0, 70f, 0);
+            var farmerHuman = BuildHuman(farmerRoot.transform, Lit("FarmerShirt", 0.82f, 0.45f, 0.18f), Lit("FarmerHair", 0.18f, 0.1f, 0.06f), true);
+            var farmer = farmerRoot.AddComponent<NpcInteractable>();
+            farmer.npcId = "npc_farmer";
+            farmer.displayNameFa = "عمو پروین، کشاورز";
+            farmer.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", farmerRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var farmerCol = farmerRoot.AddComponent<CapsuleCollider>();
+            farmerCol.height = 1.9f; farmerCol.radius = 0.4f; farmerCol.center = new Vector3(0, 0.95f, 0);
+            var farmerAnim = farmerRoot.AddComponent<ProceduralWalkAnimator>();
+            farmerAnim.leftArm = farmerHuman.leftArm; farmerAnim.rightArm = farmerHuman.rightArm; farmerAnim.leftLeg = farmerHuman.leftLeg; farmerAnim.rightLeg = farmerHuman.rightLeg;
+            zones.Add(new Zone(-6, -30, 3, 3));
 
             // ----- pickups -----
             var pickups = Empty("Pickups", null, Vector3.zero);
@@ -688,6 +728,40 @@ namespace MyFutureCity.EditorTools
             Vector3[] recycleCardPos = { new Vector3(-17, 0.42f, -28), new Vector3(8, 0.42f, 36), new Vector3(34, 0.42f, 12) };
             for (int i = 0; i < recycleCardPos.Length; i++)
                 AddPickupMarker(pickups.transform, zones, recycleCardPos[i], "RecycleCard", "env_05_open_station", "recycle_card", "کارت بازیافت", i, recycleCardMat, beacon);
+
+            // ----- farmer job: unlocks after the recycling station becomes active -----
+            var seedPacketMat = Lit("SeedPacket", 0.92f, 0.72f, 0.2f);
+            Vector3[] farmSeedPos = { new Vector3(-14, 0.42f, -13), new Vector3(31, 0.42f, -15) };
+            for (int i = 0; i < farmSeedPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, farmSeedPos[i], "FarmSeed", "farm_01_seeds", "farm_seed", "بستهٔ بذر", i, seedPacketMat, beacon);
+
+            var soilPending = Lit("FarmSoil", 0.45f, 0.28f, 0.13f);
+            var soilReady = Lit("FarmSoilReady", 0.35f, 0.7f, 0.25f);
+            Vector3[] farmSoilPos = { new Vector3(0, 0, -25), new Vector3(7, 0, -24.5f), new Vector3(14, 0, -25) };
+            for (int i = 0; i < farmSoilPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, farmSoilPos[i], "FarmSoil", "farm_02_soil", "farm_soil", "آماده‌سازی خاک", i, soilPending, soilReady, beacon);
+
+            var waterMat = Lit("WaterBottle", 0.25f, 0.62f, 0.95f);
+            Vector3[] waterPos = { new Vector3(-33, 0.42f, -25), new Vector3(-3, 0.42f, 4), new Vector3(27, 0.42f, -4) };
+            for (int i = 0; i < waterPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, waterPos[i], "WaterBottle", "farm_03_watering", "water_bottle", "بطری آب", i, waterMat, beacon);
+
+            var waterPending = Lit("WaterPlotPending", 0.65f, 0.48f, 0.2f);
+            var waterReady = Lit("WaterPlotReady", 0.2f, 0.75f, 0.4f);
+            Vector3[] waterPlotPos = { new Vector3(0, 0, -38), new Vector3(14, 0, -38) };
+            for (int i = 0; i < waterPlotPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, waterPlotPos[i], "WaterPlot", "farm_03_watering", "water_plot", "آبیاری", i, waterPending, waterReady, beacon);
+
+            var harvestPending = Lit("HarvestPending", 0.88f, 0.65f, 0.2f);
+            var harvestReady = Lit("HarvestReady", 0.82f, 0.28f, 0.2f);
+            Vector3[] harvestPos = { new Vector3(-3, 0, -37.5f), new Vector3(7, 0, -37.5f), new Vector3(17, 0, -37.5f) };
+            for (int i = 0; i < harvestPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, harvestPos[i], "HarvestBasket", "farm_04_harvest", "harvest_basket", "برداشت محصول", i, harvestPending, harvestReady, beacon);
+
+            var marketCardMat = Lit("MarketCard", 0.95f, 0.45f, 0.25f);
+            Vector3[] marketCardPos = { new Vector3(-36, 0.42f, 24), new Vector3(17, 0.42f, -35), new Vector3(35, 0.42f, 18) };
+            for (int i = 0; i < marketCardPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, marketCardPos[i], "MarketCard", "farm_05_open_farm", "market_card", "کارت بازار", i, marketCardMat, beacon);
 
             // ----- trees (scenery) -----
             var rnd = new System.Random(12345);

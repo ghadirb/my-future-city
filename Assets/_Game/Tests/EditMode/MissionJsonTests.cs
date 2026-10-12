@@ -24,7 +24,7 @@ namespace MyFutureCity.Tests
         }
 
         [Test]
-        public void MvpHasFourCompleteFiveStageJobsWithRewards()
+        public void MvpHasFiveCompleteFiveStageJobsWithRewards()
         {
             var db = Load();
             Assert.GreaterOrEqual(db.missions.Count, 5);
@@ -32,6 +32,7 @@ namespace MyFutureCity.Tests
             Assert.AreEqual(5, db.missions.FindAll(m => m.jobId == "teacher").Count);
             Assert.AreEqual(5, db.missions.FindAll(m => m.jobId == "doctor").Count);
             Assert.AreEqual(5, db.missions.FindAll(m => m.jobId == "environment").Count);
+            Assert.AreEqual(5, db.missions.FindAll(m => m.jobId == "farmer").Count);
             foreach (var m in db.missions)
             {
                 Assert.GreaterOrEqual(m.objectives.Count, 1);
