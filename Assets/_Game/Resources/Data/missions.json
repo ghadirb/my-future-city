@@ -41,6 +41,13 @@
       "descriptionFa": "تجهیزات ایمنی را آماده کن و ایستگاه آتش‌نشانی محله را دوباره فعال کن.",
       "badgeId": "badge_safety_helper",
       "badgeNameFa": "نشان یاور ایمنی"
+    },
+    {
+      "id": "transport",
+      "nameFa": "راننده و حمل‌ونقل",
+      "descriptionFa": "پایانهٔ محله را آماده کن تا رفت‌وآمد و تحویل بسته‌ها دوباره آغاز شود.",
+      "badgeId": "badge_transit_helper",
+      "badgeNameFa": "نشان یاور سفر"
     }
   ],
   "buildings": [
@@ -68,6 +75,11 @@
       "id": "fire_station",
       "nameFa": "ایستگاه آتش‌نشانی",
       "descriptionFa": "ایستگاه آتش‌نشانی محله برای بازگشت به خدمت به تجهیزات و بررسی ایمنی نیاز دارد."
+    },
+    {
+      "id": "transit",
+      "nameFa": "پایانهٔ محله",
+      "descriptionFa": "پایانهٔ کوچک محله برای حرکت دوباره به مسیرهای آماده و امکانات سفر نیاز دارد."
     }
   ],
   "missions": [
@@ -586,6 +598,92 @@
       "repeatCoins": 0,
       "offerTextFa": "سه کارت ایمنی را پیدا کن تا خانواده‌ها بدانند ایستگاه آتش‌نشانی دوباره آمادهٔ کمک است.",
       "completeTextFa": "تبریک! ایستگاه آتش‌نشانی فعال شد و تو نشان یاور ایمنی را گرفتی."
+    },
+    {
+      "id": "transit_01_passes",
+      "jobId": "transport",
+      "nameFa": "کارت‌های سفر",
+      "descriptionFa": "دو کارت سفر را پیدا کن و به لیلا، رانندهٔ محله، برگردان.",
+      "startNpcId": "npc_driver",
+      "requiresMissionId": "fire_05_open_station",
+      "objectives": [
+        { "type": "collect", "targetId": "transit_pass", "count": 2, "textFa": "دو کارت سفر را پیدا کن" },
+        { "type": "talk", "targetId": "npc_driver", "count": 1, "textFa": "کارت‌ها را به لیلا بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 6,
+      "offerTextFa": "سلام! من لیلا، رانندهٔ محله هستم. دو کارت سفر گم شده‌اند؛ کمکم می‌کنی؟",
+      "completeTextFa": "ممنون! حالا می‌توانیم بخش تحویل بسته‌های پایانه را آماده کنیم."
+    },
+    {
+      "id": "transit_02_parcels",
+      "jobId": "transport",
+      "nameFa": "بسته‌های مسیر",
+      "descriptionFa": "بسته‌ها را پیدا کن و آن‌ها را در دو جایگاه پایانه تحویل بده.",
+      "startNpcId": "npc_driver",
+      "requiresMissionId": "transit_01_passes",
+      "objectives": [
+        { "type": "collect", "targetId": "parcel", "count": 3, "textFa": "سه بسته را پیدا کن" },
+        { "type": "interact", "targetId": "parcel_bay", "count": 2, "textFa": "بسته‌ها را در دو جایگاه تحویل بده", "buildingId": "transit", "buildingProgress": 15 },
+        { "type": "talk", "targetId": "npc_driver", "count": 1, "textFa": "تحویل بسته‌ها را به لیلا بگو" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه بسته را پیدا کن و سپس آن‌ها را در دو جایگاه پایانه تحویل بده.",
+      "completeTextFa": "بسته‌ها سر جایشان هستند؛ حالا مسیرهای حرکت را آماده می‌کنیم."
+    },
+    {
+      "id": "transit_03_routes",
+      "jobId": "transport",
+      "nameFa": "مسیرهای روشن",
+      "descriptionFa": "سه تابلو مسیر را آماده کن تا همه راه درست را پیدا کنند.",
+      "startNpcId": "npc_driver",
+      "requiresMissionId": "transit_02_parcels",
+      "objectives": [
+        { "type": "interact", "targetId": "route_sign", "count": 3, "textFa": "سه تابلو مسیر را آماده کن", "buildingId": "transit", "buildingProgress": 20 },
+        { "type": "talk", "targetId": "npc_driver", "count": 1, "textFa": "تابلوها را به لیلا نشان بده" }
+      ],
+      "reward": { "coins": 35, "xp": 65, "badgeId": "badge_transit_helper", "buildingId": "transit", "buildingProgress": 40 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه تابلو مسیر هنوز آماده نیست. آن‌ها را تنظیم کن تا پایانه بازسازی شود.",
+      "completeTextFa": "پایانه بازسازی شد! فقط بخش انتظار و دعوت از مسافران باقی مانده است."
+    },
+    {
+      "id": "transit_04_seats",
+      "jobId": "transport",
+      "nameFa": "صندلی‌های انتظار",
+      "descriptionFa": "دو جای نشستن را آماده کن تا سفر برای همه راحت‌تر شود.",
+      "startNpcId": "npc_driver",
+      "requiresMissionId": "transit_03_routes",
+      "objectives": [
+        { "type": "interact", "targetId": "terminal_seat", "count": 2, "textFa": "دو صندلی انتظار را آماده کن", "buildingId": "transit", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_driver", "count": 1, "textFa": "آماده شدن صندلی‌ها را به لیلا بگو" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "transit", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "دو صندلی انتظار را مرتب کن تا مسافران جای راحتی داشته باشند.",
+      "completeTextFa": "پایانه آماده‌تر شد؛ وقت بازگشایی رسمی آن است."
+    },
+    {
+      "id": "transit_05_open_terminal",
+      "jobId": "transport",
+      "nameFa": "بازگشایی پایانه",
+      "descriptionFa": "کارت‌های سفر را جمع کن تا پایانه رسماً فعالیتش را آغاز کند.",
+      "startNpcId": "npc_driver",
+      "requiresMissionId": "transit_04_seats",
+      "objectives": [
+        { "type": "collect", "targetId": "travel_card", "count": 3, "textFa": "سه کارت سفر را جمع کن", "buildingId": "transit", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_driver", "count": 1, "textFa": "برای بازگشایی به لیلا خبر بده" }
+      ],
+      "reward": { "coins": 45, "xp": 80, "badgeId": "badge_transit_helper", "buildingId": "transit", "buildingProgress": 10 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "سه کارت سفر را پیدا کن تا مردم بدانند پایانهٔ محله دوباره آمادهٔ حرکت است.",
+      "completeTextFa": "تبریک! پایانه فعال شد و تو نشان یاور سفر را گرفتی."
     }
   ]
 }

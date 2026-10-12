@@ -491,6 +491,31 @@ namespace MyFutureCity.EditorTools
             fireVisual.renovatingObjects = new[] { fireWork };
             fireVisual.restoredObjects = new[] { fireOpen };
 
+            // ----- transit terminal (dynamic: restored by the transport job) -----
+            var transitRoot = MakeBuilding(landmarks.transform, "TransitTerminal", new Vector3(-35, 0, -28), new Vector3(8, 4.5f, 7), Lit("TransitAbandoned", 0.5f, 0.5f, 0.48f), Lit("RoofTransit", 0.25f, 0.48f, 0.75f), +1);
+            zones.Add(new Zone(-35, -28, 6, 6));
+            var transitBody = transitRoot.transform.Find("Body").GetComponent<Renderer>();
+            var transitVisual = transitRoot.AddComponent<BuildingVisual>();
+            transitVisual.buildingId = "transit";
+            transitVisual.bodyRenderers = new[] { transitBody };
+            transitVisual.abandonedMaterial = Lit("TransitAbandoned", 0.5f, 0.5f, 0.48f);
+            transitVisual.renovatingMaterial = Lit("TransitRenovating", 0.68f, 0.65f, 0.45f);
+            transitVisual.restoredMaterial = Lit("TransitRestored", 0.52f, 0.78f, 0.95f);
+            var transitClosed = Empty("TransitClosedProps", transitRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "TransitClosedSign", transitClosed.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("TransitClosedSign", 0.5f, 0.18f, 0.15f), false);
+            Prim(PrimitiveType.Cube, "TransitBarrier", transitClosed.transform, new Vector3(-2.8f, 0.55f, -4f), new Vector3(1.8f, 1.1f, 0.18f), Lit("TransitBarrier", 0.7f, 0.38f, 0.15f), false);
+            var transitWork = Empty("TransitWorkProps", transitRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "TransitWorkSign", transitWork.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("TransitWorkSign", 0.95f, 0.72f, 0.18f), false);
+            var transitOpen = Empty("TransitOpenProps", transitRoot.transform, Vector3.zero);
+            var transitBlue = Lit("TransitBlue", 0.22f, 0.55f, 0.92f);
+            Prim(PrimitiveType.Cube, "TransitOpenSign", transitOpen.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), transitBlue, false);
+            Prim(PrimitiveType.Cube, "Bus", transitOpen.transform, new Vector3(-1.5f, 0.78f, -4.15f), new Vector3(3.5f, 1.1f, 1.2f), Lit("BusYellow", 0.96f, 0.7f, 0.16f), false);
+            for (int i = -1; i <= 1; i += 2)
+                Prim(PrimitiveType.Cylinder, "Wheel" + i, transitOpen.transform, new Vector3(-1.5f + i * 1.1f, 0.28f, -4.8f), new Vector3(0.25f, 0.28f, 0.25f), Lit("Wheel", 0.12f, 0.12f, 0.15f), false);
+            transitVisual.abandonedObjects = new[] { transitClosed };
+            transitVisual.renovatingObjects = new[] { transitWork };
+            transitVisual.restoredObjects = new[] { transitOpen };
+
             // Repair points around the school
             var brokenMat = Lit("Broken", 0.9f, 0.25f, 0.2f);
             var fixedMat = Lit("Fixed", 0.3f, 0.85f, 0.4f);
@@ -598,6 +623,20 @@ namespace MyFutureCity.EditorTools
             var firefighterAnim = firefighterRoot.AddComponent<ProceduralWalkAnimator>();
             firefighterAnim.leftArm = firefighterHuman.leftArm; firefighterAnim.rightArm = firefighterHuman.rightArm; firefighterAnim.leftLeg = firefighterHuman.leftLeg; firefighterAnim.rightLeg = firefighterHuman.rightLeg;
             zones.Add(new Zone(-19, -7, 3, 3));
+
+            var driverRoot = Empty("NPC_Leila", null, new Vector3(-25, 0, -23));
+            driverRoot.transform.rotation = Quaternion.Euler(0, 100f, 0);
+            var driverHuman = BuildHuman(driverRoot.transform, Lit("DriverShirt", 0.22f, 0.5f, 0.9f), Lit("DriverHair", 0.18f, 0.1f, 0.06f), false);
+            var driver = driverRoot.AddComponent<NpcInteractable>();
+            driver.npcId = "npc_driver";
+            driver.displayNameFa = "لیلا، راننده";
+            driver.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", driverRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var driverCol = driverRoot.AddComponent<CapsuleCollider>();
+            driverCol.height = 1.9f; driverCol.radius = 0.4f; driverCol.center = new Vector3(0, 0.95f, 0);
+            var driverAnim = driverRoot.AddComponent<ProceduralWalkAnimator>();
+            driverAnim.leftArm = driverHuman.leftArm; driverAnim.rightArm = driverHuman.rightArm; driverAnim.leftLeg = driverHuman.leftLeg; driverAnim.rightLeg = driverHuman.rightLeg;
+            zones.Add(new Zone(-25, -23, 3, 3));
 
             // ----- pickups -----
             var pickups = Empty("Pickups", null, Vector3.zero);
@@ -835,6 +874,40 @@ namespace MyFutureCity.EditorTools
             Vector3[] safetyCardPos = { new Vector3(-9, 0.42f, 35), new Vector3(19, 0.42f, -8), new Vector3(34, 0.42f, 33) };
             for (int i = 0; i < safetyCardPos.Length; i++)
                 AddPickupMarker(pickups.transform, zones, safetyCardPos[i], "SafetyCard", "fire_05_open_station", "safety_card", "کارت ایمنی", i, safetyCardMat, beacon);
+
+            // ----- transport job: unlocks after the fire station becomes active -----
+            var passMat = Lit("TransitPass", 0.25f, 0.75f, 0.85f);
+            Vector3[] passPos = { new Vector3(-5, 0.42f, 36), new Vector3(31, 0.42f, -31) };
+            for (int i = 0; i < passPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, passPos[i], "TransitPass", "transit_01_passes", "transit_pass", "کارت سفر", i, passMat, beacon);
+
+            var parcelMat = Lit("Parcel", 0.82f, 0.55f, 0.24f);
+            Vector3[] parcelPos = { new Vector3(-9, 0.42f, 20), new Vector3(5, 0.42f, -8), new Vector3(31, 0.42f, 3) };
+            for (int i = 0; i < parcelPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, parcelPos[i], "Parcel", "transit_02_parcels", "parcel", "بسته", i, parcelMat, beacon);
+
+            var bayPending = Lit("BayPending", 0.72f, 0.4f, 0.18f);
+            var bayReady = Lit("BayReady", 0.25f, 0.68f, 0.9f);
+            Vector3[] bayPos = { new Vector3(-39, 0, -20), new Vector3(-39, 0, -34) };
+            for (int i = 0; i < bayPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, bayPos[i], "ParcelBay", "transit_02_parcels", "parcel_bay", "تحویل بسته", i, bayPending, bayReady, beacon);
+
+            var routePending = Lit("RoutePending", 0.78f, 0.42f, 0.18f);
+            var routeReady = Lit("RouteReady", 0.22f, 0.65f, 0.95f);
+            Vector3[] routePos = { new Vector3(-28, 0, -20), new Vector3(-22, 0, -28), new Vector3(-28, 0, -37) };
+            for (int i = 0; i < routePos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, routePos[i], "RouteSign", "transit_03_routes", "route_sign", "تنظیم مسیر", i, routePending, routeReady, beacon);
+
+            var seatPending = Lit("SeatPending", 0.65f, 0.45f, 0.28f);
+            var seatReady = Lit("SeatReady", 0.25f, 0.7f, 0.55f);
+            Vector3[] seatPos = { new Vector3(-21, 0, -34), new Vector3(-21, 0, -24) };
+            for (int i = 0; i < seatPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, seatPos[i], "TerminalSeat", "transit_04_seats", "terminal_seat", "آماده‌سازی صندلی", i, seatPending, seatReady, beacon);
+
+            var travelCardMat = Lit("TravelCard", 0.92f, 0.4f, 0.68f);
+            Vector3[] travelCardPos = { new Vector3(-16, 0.42f, 35), new Vector3(12, 0.42f, -16), new Vector3(34, 0.42f, -17) };
+            for (int i = 0; i < travelCardPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, travelCardPos[i], "TravelCard", "transit_05_open_terminal", "travel_card", "کارت سفر", i, travelCardMat, beacon);
 
             // ----- trees (scenery) -----
             var rnd = new System.Random(12345);
