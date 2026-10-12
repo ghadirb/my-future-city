@@ -8,7 +8,7 @@ Confirmed Unity project at `C:\github\my-future-city`: an offline, Persian-langu
 ## Confirmed environment
 
 - Unity: `6000.3.11f1` (`ProjectSettings/ProjectVersion.txt`).
-- Render pipeline: Built-in Render Pipeline (confirmed by `Mobile/Diffuse` / `Unlit/Color` use; no SRP package).
+- Render pipeline: Built-in Render Pipeline with an `Unlit/Color` base palette (no SRP package). This avoids the Android lighting variance observed with `Mobile/Diffuse`.
 - Input: legacy Input Manager plus direct touch handling (confirmed in runtime code; no Input System package).
 - UI: uGUI, code-built at runtime, with bundled Vazirmatn font and a local Persian shaping helper.
 - Target: Android, IL2CPP, API 24 minimum, universal ARMv7/ARM64/x86_64 APK (`BuildScript.cs`).

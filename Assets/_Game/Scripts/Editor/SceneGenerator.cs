@@ -74,9 +74,15 @@ namespace MyFutureCity.EditorTools
             return m;
         }
 
+        /// <summary>
+        /// Creates the base palette for the low-poly world.  These objects deliberately use
+        /// an unlit shader: the target scene has no real-time shadows, and Mobile/Diffuse
+        /// produced radically different (often nearly black) colours on the Android build.
+        /// Unlit colours make landmarks and interaction targets readable on every device.
+        /// </summary>
         private static Material Lit(string name, float r, float g, float b)
         {
-            return Mat(name, new Color(r, g, b), "Mobile/Diffuse");
+            return Mat(name, new Color(r, g, b), "Unlit/Color");
         }
 
         private static Material Glow(string name, float r, float g, float b)
@@ -243,8 +249,8 @@ namespace MyFutureCity.EditorTools
         {
             var scene = NewEmptyScene();
             RenderSettings.ambientMode = AmbientMode.Flat;
-            // Mobile/Diffuse adds direct and ambient light.  Keeping both below one avoids
-            // clipped white surfaces on Android while retaining the cheerful low-poly palette.
+            // World materials are deliberately unlit; retaining a mild sky/sun setup leaves
+            // future lit accents possible without allowing device lighting to darken the city.
             RenderSettings.ambientLight = new Color(0.16f, 0.18f, 0.22f);
             AddSun(new Color(1f, 0.95f, 0.85f), 0.65f);
 
