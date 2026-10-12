@@ -3,7 +3,7 @@
 <!-- unity-onboarding:generated:start -->
 ## Summary
 
-Confirmed Unity project at `C:\github\my-future-city`: an offline, Persian-language, low-poly Android city-adventure MVP. The current playable content is the five-stage Engineer chain, generated into a menu and one neighbourhood scene by an Editor script.
+Confirmed Unity project at `C:\github\my-future-city`: an offline, Persian-language, low-poly Android city-adventure MVP. Current playable content contains two five-stage jobs (Engineer and Teacher), generated into a menu and one neighbourhood scene by an Editor script.
 
 ## Confirmed environment
 

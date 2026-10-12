@@ -245,6 +245,39 @@ namespace MyFutureCity.EditorTools
             return root;
         }
 
+        private static void AddPickupMarker(Transform parent, List<Zone> zones, Vector3 position, string name, string missionId, string targetId, string displayNameFa, int order, Material material, Material beacon)
+        {
+            var root = Empty(name + order, parent, position);
+            var visual = Empty("Visual", root.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "Item", visual.transform, Vector3.zero, new Vector3(0.62f, 0.62f, 0.24f), material, false);
+            Prim(PrimitiveType.Cylinder, "Beacon", visual.transform, new Vector3(0, 2f, 0), new Vector3(0.09f, 1.35f, 0.09f), beacon, false);
+            var item = root.AddComponent<PickupInteractable>();
+            item.missionId = missionId;
+            item.targetId = targetId;
+            item.displayNameFa = displayNameFa;
+            item.order = order;
+            item.spin = visual.transform;
+            item.radius = 2.4f;
+            zones.Add(new Zone(position.x, position.z, 2, 2));
+        }
+
+        private static void AddTaskSpot(Transform parent, List<Zone> zones, Vector3 position, string name, string missionId, string targetId, string promptFa, int order, Material pendingMaterial, Material completedMaterial, Material beacon)
+        {
+            var root = Empty(name + order, parent, position);
+            var pending = Prim(PrimitiveType.Cube, "Pending", root.transform, new Vector3(0, 0.45f, 0), new Vector3(0.85f, 0.85f, 0.22f), pendingMaterial, false);
+            Prim(PrimitiveType.Cylinder, "Beacon", pending.transform, new Vector3(0, 1.9f, 0), new Vector3(0.09f, 1.3f, 0.09f), beacon, false);
+            var completed = Prim(PrimitiveType.Cube, "Completed", root.transform, new Vector3(0, 0.45f, 0), new Vector3(0.85f, 0.85f, 0.22f), completedMaterial, false);
+            var task = root.AddComponent<RepairInteractable>();
+            task.missionId = missionId;
+            task.targetId = targetId;
+            task.order = order;
+            task.promptFa = promptFa;
+            task.radius = 2.4f;
+            task.brokenVisual = pending;
+            task.fixedVisual = completed;
+            zones.Add(new Zone(position.x, position.z, 2, 2));
+        }
+
         private static void GenerateNeighborhood()
         {
             var scene = NewEmptyScene();
@@ -395,6 +428,20 @@ namespace MyFutureCity.EditorTools
             npcAnim.leftArm = npcHuman.leftArm; npcAnim.rightArm = npcHuman.rightArm; npcAnim.leftLeg = npcHuman.leftLeg; npcAnim.rightLeg = npcHuman.rightLeg;
             zones.Add(new Zone(24, 8.5f, 3, 3));
 
+            var teacherRoot = Empty("NPC_Noori", null, new Vector3(-13, 0, 27));
+            teacherRoot.transform.rotation = Quaternion.Euler(0, 210f, 0);
+            var teacherHuman = BuildHuman(teacherRoot.transform, Lit("TeacherShirt", 0.75f, 0.35f, 0.75f), Lit("TeacherHair", 0.18f, 0.1f, 0.06f), false);
+            var teacher = teacherRoot.AddComponent<NpcInteractable>();
+            teacher.npcId = "npc_teacher";
+            teacher.displayNameFa = "خانم نوری";
+            teacher.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", teacherRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var teacherCol = teacherRoot.AddComponent<CapsuleCollider>();
+            teacherCol.height = 1.9f; teacherCol.radius = 0.4f; teacherCol.center = new Vector3(0, 0.95f, 0);
+            var teacherAnim = teacherRoot.AddComponent<ProceduralWalkAnimator>();
+            teacherAnim.leftArm = teacherHuman.leftArm; teacherAnim.rightArm = teacherHuman.rightArm; teacherAnim.leftLeg = teacherHuman.leftLeg; teacherAnim.rightLeg = teacherHuman.rightLeg;
+            zones.Add(new Zone(-13, 27, 3, 3));
+
             // ----- pickups -----
             var pickups = Empty("Pickups", null, Vector3.zero);
             var toolRed = Lit("ToolboxRed", 0.85f, 0.15f, 0.15f);
@@ -461,6 +508,40 @@ namespace MyFutureCity.EditorTools
                 pp.missionId = "eng_05_open_school"; pp.targetId = "school_cleanup"; pp.displayNameFa = "کیسهٔ زباله"; pp.order = i; pp.spin = pv.transform; pp.radius = 2.4f;
                 zones.Add(new Zone(cleanupPos[i].x, cleanupPos[i].z, 2, 2));
             }
+
+            // ----- teacher job: unlocked only after the school becomes active -----
+            var bookMat = Lit("LibraryBook", 0.3f, 0.5f, 0.95f);
+            Vector3[] bookPos = { new Vector3(-5, 0.42f, 31), new Vector3(17, 0.42f, 30) };
+            for (int i = 0; i < bookPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, bookPos[i], "LibraryBook", "teach_01_books", "library_book", "کتاب", i, bookMat, beacon);
+
+            var deskPending = Lit("DeskPending", 0.75f, 0.55f, 0.3f);
+            var deskReady = Lit("DeskReady", 0.3f, 0.8f, 0.55f);
+            Vector3[] deskPos = { new Vector3(-34, 0, 28), new Vector3(-28, 0, 28), new Vector3(-22, 0, 28) };
+            for (int i = 0; i < deskPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, deskPos[i], "ClassroomDesk", "teach_02_classroom", "classroom_setup", "مرتب کردن", i, deskPending, deskReady, beacon);
+
+            var seedMat = Lit("GardenSeed", 0.95f, 0.7f, 0.2f);
+            Vector3[] seedPos = { new Vector3(-7, 0.42f, 13), new Vector3(6, 0.42f, 23), new Vector3(17, 0.42f, 8) };
+            for (int i = 0; i < seedPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, seedPos[i], "GardenSeed", "teach_03_garden", "garden_seed", "بستهٔ بذر", i, seedMat, beacon);
+
+            var soilMat = Lit("GardenSoil", 0.5f, 0.35f, 0.18f);
+            var plantMat = Lit("GardenPlant", 0.25f, 0.8f, 0.35f);
+            Vector3[] gardenPos = { new Vector3(-38, 0, 13), new Vector3(-38, 0, 19) };
+            for (int i = 0; i < gardenPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, gardenPos[i], "GardenPlot", "teach_03_garden", "school_garden", "کاشت بذر", i, soilMat, plantMat, beacon);
+
+            var cardMat = Lit("LessonCard", 0.95f, 0.55f, 0.25f);
+            var boardMat = Lit("LessonReady", 0.25f, 0.65f, 0.95f);
+            Vector3[] boardPos = { new Vector3(-33, 0, 7), new Vector3(-27, 0, 7), new Vector3(-21, 0, 7) };
+            for (int i = 0; i < boardPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, boardPos[i], "LessonCard", "teach_04_lesson_board", "lesson_board", "قرار دادن کارت", i, cardMat, boardMat, beacon);
+
+            var invitationMat = Lit("Invitation", 0.95f, 0.4f, 0.6f);
+            Vector3[] invitationPos = { new Vector3(-4, 0.42f, -24), new Vector3(13, 0.42f, -8), new Vector3(30, 0.42f, 4) };
+            for (int i = 0; i < invitationPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, invitationPos[i], "Invitation", "teach_05_open_class", "class_invitation", "دعوت‌نامه", i, invitationMat, beacon);
 
             // ----- trees (scenery) -----
             var rnd = new System.Random(12345);

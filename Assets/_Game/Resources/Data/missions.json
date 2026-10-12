@@ -6,6 +6,13 @@
       "descriptionFa": "ابزار جمع کن، چیزهای خراب را تعمیر کن و شهر را دوباره بساز.",
       "badgeId": "badge_engineer_apprentice",
       "badgeNameFa": "نشان شاگرد مهندس"
+    },
+    {
+      "id": "teacher",
+      "nameFa": "معلم",
+      "descriptionFa": "کلاس را آماده کن، به بچه\u200cها کمک کن و مدرسهٔ شهر را زنده نگه دار.",
+      "badgeId": "badge_teacher_helper",
+      "badgeNameFa": "نشان یاور معلم"
     }
   ],
   "buildings": [
@@ -101,6 +108,92 @@
       "repeatCoins": 0,
       "offerTextFa": "فقط محوطهٔ مدرسه مانده است. سه کیسه زباله را جمع کن تا روز اول مدرسه را شروع کنیم.",
       "completeTextFa": "آفرین! مدرسه آماده و فعال شد. شهر با کمک تو جای بهتری برای یادگرفتن است."
+    },
+    {
+      "id": "teach_01_books",
+      "jobId": "teacher",
+      "nameFa": "کتاب\u200cهای کتابخانه",
+      "descriptionFa": "دو کتاب گمشده را پیدا کن و به خانم نوری برگردان.",
+      "startNpcId": "npc_teacher",
+      "requiresMissionId": "eng_05_open_school",
+      "objectives": [
+        { "type": "collect", "targetId": "library_book", "count": 2, "textFa": "دو کتاب گمشده را پیدا کن" },
+        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "کتاب\u200cها را به خانم نوری بده" }
+      ],
+      "reward": { "coins": 15, "xp": 25, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 5,
+      "offerTextFa": "سلام! من نوری، معلم مدرسه هستم. دو کتاب از کتابخانه بیرون افتاده؛ پیدایشان می\u200cکنی؟",
+      "completeTextFa": "ممنون! حالا بچه\u200cها دوباره کتاب\u200cهایشان را دارند."
+    },
+    {
+      "id": "teach_02_classroom",
+      "jobId": "teacher",
+      "nameFa": "چیدمان کلاس",
+      "descriptionFa": "سه میز کلاس را مرتب کن تا کلاس برای دانش\u200cآموزها آماده شود.",
+      "startNpcId": "npc_teacher",
+      "requiresMissionId": "teach_01_books",
+      "objectives": [
+        { "type": "interact", "targetId": "classroom_setup", "count": 3, "textFa": "سه میز کلاس را مرتب کن" },
+        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "آماده شدن کلاس را خبر بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 7,
+      "offerTextFa": "کلاس تازه باز شده، اما میزها هنوز مرتب نیستند. کمک کن سه میز را آماده کنیم.",
+      "completeTextFa": "کلاس خیلی مرتب شد؛ بچه\u200cها با خوشحالی وارد می\u200cشوند."
+    },
+    {
+      "id": "teach_03_garden",
+      "jobId": "teacher",
+      "nameFa": "باغچهٔ یادگیری",
+      "descriptionFa": "بذرها را پیدا کن و باغچهٔ کوچک مدرسه را آماده کن.",
+      "startNpcId": "npc_teacher",
+      "requiresMissionId": "teach_02_classroom",
+      "objectives": [
+        { "type": "collect", "targetId": "garden_seed", "count": 3, "textFa": "سه بسته بذر پیدا کن" },
+        { "type": "interact", "targetId": "school_garden", "count": 2, "textFa": "دو بخش باغچه را آماده کن" },
+        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "کار باغچه را خبر بده" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "می\u200cخواهیم کنار مدرسه یک باغچهٔ کوچک آموزشی داشته باشیم. بذرها را پیدا کن و دو بخش باغچه را آماده کن.",
+      "completeTextFa": "باغچه آماده شد؛ حالا درس\u200cها را می\u200cتوانیم بیرون از کلاس هم یاد بگیریم."
+    },
+    {
+      "id": "teach_04_lesson_board",
+      "jobId": "teacher",
+      "nameFa": "تابلوی درس امروز",
+      "descriptionFa": "سه کارت آموزشی را روی تابلوی درس قرار بده.",
+      "startNpcId": "npc_teacher",
+      "requiresMissionId": "teach_03_garden",
+      "objectives": [
+        { "type": "interact", "targetId": "lesson_board", "count": 3, "textFa": "سه کارت آموزشی را روی تابلو بچین" },
+        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "تابلوی درس را نشان بده" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "برای درس امروز سه کارت آموزشی داریم. آن\u200cها را به ترتیب روی تابلو قرار بده.",
+      "completeTextFa": "تابلو آماده است؛ کلاس می\u200cتواند شروع شود!"
+    },
+    {
+      "id": "teach_05_open_class",
+      "jobId": "teacher",
+      "nameFa": "دعوت به کلاس",
+      "descriptionFa": "دعوت\u200cنامه\u200cها را جمع کن تا اولین کلاس مدرسه شروع شود.",
+      "startNpcId": "npc_teacher",
+      "requiresMissionId": "teach_04_lesson_board",
+      "objectives": [
+        { "type": "collect", "targetId": "class_invitation", "count": 3, "textFa": "سه دعوت\u200cنامه را جمع کن" },
+        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "برای شروع کلاس به خانم نوری بگو" }
+      ],
+      "reward": { "coins": 40, "xp": 75, "badgeId": "badge_teacher_helper", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": false,
+      "repeatCoins": 0,
+      "offerTextFa": "همه چیز برای اولین کلاس آماده است. سه دعوت\u200cنامه را پیدا کن تا بچه\u200cها را خبر کنیم.",
+      "completeTextFa": "عالی شد! تو نشان یاور معلم را گرفتی و اولین کلاس مدرسه آغاز شد."
     }
   ]
 }
