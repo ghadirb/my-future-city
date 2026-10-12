@@ -8,6 +8,11 @@
 - بیلد ابری: GameCI (`unity-builder@v4`). نیازمند Secret مجوز Unity — **مانع فعلی**.
 - ریسک‌ها: ۱) مجوز Unity، ۲) کامپایل نشدن کد در Unity واقعی (هنوز تست نشده)، ۳) نمایش متن فارسی روی دستگاه، ۴) حجم/زمان بیلد IL2CPP.
 
+## نتیجه واقعی اجرای CI روی GitHub (۱۲ اکتبر ۲۰۲۶)
+- **Validate:** اجرا شد و موفق بود (بررسی مخزن، ۴۴ تست منطق با Mono، type-check با استاب). https://github.com/ghadirb/my-future-city/actions/runs/38220026984
+- **Build Android:** job اصلی `build` **Skipped** شد (Secret مجوز Unity وجود ندارد). وضعیت کلی Run «success» است ولی **هیچ بیلدی انجام نشده**؛ تعداد Artifactها = ۰.
+- **Unity tests:** job `editmode` **Skipped** به همان علت.
+
 ## مرحله ۱ — پروژه و اولین APK — ناقص (مسدود)
 | کار | وضعیت |
 |---|---|
