@@ -246,13 +246,15 @@ namespace MyFutureCity
                 return;
             }
 
-            int pageCount = Mathf.Max(1, Mathf.CeilToInt(eligible.Count / (float)InvestmentPageSize));
-            int page = Mathf.Clamp(requestedPage, 0, pageCount - 1);
+            int pageCount = System.Math.Max(1, (eligible.Count + InvestmentPageSize - 1) / InvestmentPageSize);
+            int page = requestedPage;
+            if (page < 0) page = 0;
+            if (page >= pageCount) page = pageCount - 1;
             var sb = new StringBuilder();
             sb.Append("سکه‌های تو: ").Append(Ctx.Wallet.Coins).Append("\n");
             sb.Append("هر سرمایه‌گذاری تا ۱۰ واحد پیشرفت می‌دهد و هزینه‌اش حداکثر ۱۵ سکه است.\n");
             sb.Append("پیشرفت هر ساختمان از ۲۰۰ محاسبه می‌شود؛ این کار اختیاری است و جای مأموریت‌ها را نمی‌گیرد.\n\n");
-            for (int i = page * InvestmentPageSize; i < Mathf.Min(eligible.Count, (page + 1) * InvestmentPageSize); i++)
+            for (int i = page * InvestmentPageSize; i < System.Math.Min(eligible.Count, (page + 1) * InvestmentPageSize); i++)
             {
                 var building = eligible[i];
                 sb.Append(building.nameFa).Append(": ")
@@ -264,15 +266,15 @@ namespace MyFutureCity
 
             var options = new List<DialogOption>();
             int start = page * InvestmentPageSize;
-            int end = Mathf.Min(eligible.Count, start + InvestmentPageSize);
+            int end = System.Math.Min(eligible.Count, start + InvestmentPageSize);
             for (int i = start; i < end; i++)
             {
                 var building = eligible[i];
                 string buildingId = building.id;
                 string buildingName = building.nameFa;
                 int current = Ctx.City.GetProgress(buildingId);
-                int gain = Mathf.Min(InvestmentStep, CityProgressService.MaxProgress - current);
-                int cost = Mathf.CeilToInt(gain * InvestmentCostPerTen / (float)InvestmentStep);
+                int gain = System.Math.Min(InvestmentStep, CityProgressService.MaxProgress - current);
+                int cost = (gain * InvestmentCostPerTen + InvestmentStep - 1) / InvestmentStep;
                 options.Add(new DialogOption("تقویت: " + buildingName, () =>
                 {
                     if (Ctx.Wallet.Coins < cost)
