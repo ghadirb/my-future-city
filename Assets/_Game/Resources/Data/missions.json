@@ -260,36 +260,36 @@
     {
       "id": "teach_04_lesson_board",
       "jobId": "teacher",
-      "nameFa": "تابلوی درس امروز",
-      "descriptionFa": "سه کارت آموزشی را روی تابلوی درس قرار بده.",
+      "nameFa": "تمرین واقعی تدریس",
+      "descriptionFa": "یک درس کوتاه آماده کن و با توضیح روشن به سه پرسش دانش‌آموزان پاسخ بده.",
       "startNpcId": "npc_teacher",
       "requiresMissionId": "teach_03_garden",
       "objectives": [
-        { "type": "interact", "targetId": "lesson_board", "count": 3, "textFa": "سه کارت آموزشی را روی تابلو بچین" },
+        { "type": "interact", "targetId": "lesson_board", "count": 3, "textFa": "به سه پرسش دانش‌آموزان با توضیح مناسب پاسخ بده" },
         { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "تابلوی درس را نشان بده" }
       ],
       "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
       "repeatable": true,
       "repeatCoins": 10,
-      "offerTextFa": "برای درس امروز سه کارت آموزشی داریم. آن\u200cها را به ترتیب روی تابلو قرار بده.",
-      "completeTextFa": "تابلو آماده است؛ کلاس می\u200cتواند شروع شود!"
+      "offerTextFa": "حالا وقت تدریس است! با سه پرسش واقعی روبه‌رو می‌شوی؛ پاسخ مناسب را انتخاب کن و روش توضیح دادن را تمرین کن.",
+      "completeTextFa": "آفرین! به سه پرسش پاسخ دادی و روش توضیح دادن، برخورد آرام و بررسی یادگیری را تمرین کردی."
     },
     {
       "id": "teach_05_open_class",
       "jobId": "teacher",
-      "nameFa": "دعوت به کلاس",
-      "descriptionFa": "دعوت\u200cنامه\u200cها را جمع کن تا اولین کلاس مدرسه شروع شود.",
+      "nameFa": "برگزاری اولین کلاس",
+      "descriptionFa": "به سه دانش‌آموز کمک کن مفهوم درس را بفهمند و سپس شروع کلاس را به خانم نوری خبر بده.",
       "startNpcId": "npc_teacher",
       "requiresMissionId": "teach_04_lesson_board",
       "objectives": [
-        { "type": "collect", "targetId": "class_invitation", "count": 3, "textFa": "سه دعوت\u200cنامه را جمع کن" },
+        { "type": "interact", "targetId": "classroom_lesson", "count": 3, "textFa": "به سه دانش‌آموز کمک کن مفهوم درس را بفهمند" },
         { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "برای شروع کلاس به خانم نوری بگو" }
       ],
       "reward": { "coins": 40, "xp": 75, "badgeId": "badge_teacher_helper", "buildingId": "", "buildingProgress": 0 },
       "repeatable": true,
       "repeatCoins": 8,
-      "offerTextFa": "همه چیز برای اولین کلاس آماده است. سه دعوت\u200cنامه را پیدا کن تا بچه\u200cها را خبر کنیم.",
-      "completeTextFa": "عالی شد! تو نشان یاور معلم را گرفتی و اولین کلاس مدرسه آغاز شد."
+      "offerTextFa": "دانش‌آموزها منتظرند! با هر کدام گفت‌وگو کن، نیازش را بفهم و بهترین راه کمک به یادگیری‌اش را انتخاب کن.",
+      "completeTextFa": "کلاس اولت را برگزار کردی! تو نشان یاور معلم را گرفتی و به دانش‌آموزان کمک کردی بهتر یاد بگیرند."
     },
     {
       "id": "med_01_first_aid",
