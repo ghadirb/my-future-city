@@ -48,6 +48,27 @@
       "descriptionFa": "پایانهٔ محله را آماده کن تا رفت‌وآمد و تحویل بسته‌ها دوباره آغاز شود.",
       "badgeId": "badge_transit_helper",
       "badgeNameFa": "نشان یاور سفر"
+    },
+    {
+      "id": "vet",
+      "nameFa": "دامپزشک و مراقب حیوانات",
+      "descriptionFa": "از حیوانات محله مراقبت کن، برایشان غذا و پناهگاه بساز و درمانگاه حیوانات را باز کن.",
+      "badgeId": "badge_vet_helper",
+      "badgeNameFa": "نشان یاور حیوانات"
+    },
+    {
+      "id": "merchant",
+      "nameFa": "فروشنده و بازاریاب",
+      "descriptionFa": "بازار محله را بچین، قیمت\u200cها را بنویس و مردم را به خرید دعوت کن.",
+      "badgeId": "badge_market_helper",
+      "badgeNameFa": "نشان یاور بازار"
+    },
+    {
+      "id": "tech",
+      "nameFa": "مهندس فناوری",
+      "descriptionFa": "قطعه\u200cها را جمع کن، پنل خورشیدی و ربات بساز و آزمایشگاه فناوری را روشن کن.",
+      "badgeId": "badge_tech_helper",
+      "badgeNameFa": "نشان یاور فناوری"
     }
   ],
   "buildings": [
@@ -80,6 +101,21 @@
       "id": "transit",
       "nameFa": "پایانهٔ محله",
       "descriptionFa": "پایانهٔ کوچک محله برای حرکت دوباره به مسیرهای آماده و امکانات سفر نیاز دارد."
+    },
+    {
+      "id": "vet_clinic",
+      "nameFa": "درمانگاه حیوانات",
+      "descriptionFa": "درمانگاه کوچک حیوانات محله بسته است و به غذا، پناهگاه و معاینه نیاز دارد."
+    },
+    {
+      "id": "market",
+      "nameFa": "بازار محله",
+      "descriptionFa": "بازار کوچک محله خالی مانده و به غرفه، قیمت\u200cنویسی و قفسه نیاز دارد."
+    },
+    {
+      "id": "tech_lab",
+      "nameFa": "آزمایشگاه فناوری",
+      "descriptionFa": "آزمایشگاه محله خاموش است و برای روشن شدن به قطعه، برق و اینترنت نیاز دارد."
     }
   ],
   "missions": [
@@ -684,6 +720,264 @@
       "repeatCoins": 8,
       "offerTextFa": "سه کارت سفر را پیدا کن تا مردم بدانند پایانهٔ محله دوباره آمادهٔ حرکت است.",
       "completeTextFa": "تبریک! پایانه فعال شد و تو نشان یاور سفر را گرفتی."
+    },
+    {
+      "id": "vet_01_leashes",
+      "jobId": "vet",
+      "nameFa": "قلاده\u200cهای گمشده",
+      "descriptionFa": "دو قلاده را پیدا کن و به دکتر مینا برگردان.",
+      "startNpcId": "npc_vet",
+      "requiresMissionId": "",
+      "objectives": [
+        { "type": "collect", "targetId": "pet_leash", "count": 2, "textFa": "دو قلاده را پیدا کن" },
+        { "type": "talk", "targetId": "npc_vet", "count": 1, "textFa": "قلاده\u200cها را به دکتر مینا بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 6,
+      "offerTextFa": "سلام! من دکتر مینا هستم، دامپزشک محله. دو قلاده گم شده\u200cاند؛ کمکم می\u200cکنی پیدایشان کنم؟",
+      "completeTextFa": "ممنون! حالا می\u200cتوانیم برای حیوانات غذا آماده کنیم."
+    },
+    {
+      "id": "vet_02_feed",
+      "jobId": "vet",
+      "nameFa": "غذای حیوانات",
+      "descriptionFa": "سه کیسه غذا پیدا کن و در دو ایستگاه غذا بگذار.",
+      "startNpcId": "npc_vet",
+      "requiresMissionId": "vet_01_leashes",
+      "objectives": [
+        { "type": "collect", "targetId": "pet_food", "count": 3, "textFa": "سه کیسه غذا را پیدا کن" },
+        { "type": "interact", "targetId": "feed_station", "count": 2, "textFa": "غذا را در دو ایستگاه بگذار", "buildingId": "vet_clinic", "buildingProgress": 15 },
+        { "type": "talk", "targetId": "npc_vet", "count": 1, "textFa": "غذا دادن را به دکتر مینا بگو" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه کیسه غذا را پیدا کن و در دو ایستگاه غذای درمانگاه بگذار.",
+      "completeTextFa": "عالی! حیوانات سیر شدند و خوشحال\u200cاند."
+    },
+    {
+      "id": "vet_03_shelter",
+      "jobId": "vet",
+      "nameFa": "پناهگاه امن",
+      "descriptionFa": "سه پناهگاه کوچک را آماده کن تا حیوانات جای گرم داشته باشند.",
+      "startNpcId": "npc_vet",
+      "requiresMissionId": "vet_02_feed",
+      "objectives": [
+        { "type": "interact", "targetId": "pet_shelter", "count": 3, "textFa": "سه پناهگاه را آماده کن", "buildingId": "vet_clinic", "buildingProgress": 20 },
+        { "type": "talk", "targetId": "npc_vet", "count": 1, "textFa": "پناهگاه\u200cها را به دکتر مینا نشان بده" }
+      ],
+      "reward": { "coins": 35, "xp": 65, "badgeId": "badge_vet_helper", "buildingId": "vet_clinic", "buildingProgress": 40 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه پناهگاه هنوز آماده نیست. آن\u200cها را مرتب کن تا درمانگاه بازسازی شود.",
+      "completeTextFa": "درمانگاه بازسازی شد! فقط معاینه\u200cها و بازگشایی مانده است."
+    },
+    {
+      "id": "vet_04_checkup",
+      "jobId": "vet",
+      "nameFa": "معاینهٔ مهربان",
+      "descriptionFa": "دو حیوان را با مهربانی معاینه کن.",
+      "startNpcId": "npc_vet",
+      "requiresMissionId": "vet_03_shelter",
+      "objectives": [
+        { "type": "interact", "targetId": "pet_checkup", "count": 2, "textFa": "دو حیوان را معاینه کن", "buildingId": "vet_clinic", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_vet", "count": 1, "textFa": "نتیجهٔ معاینه را به دکتر مینا بگو" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "vet_clinic", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "دو حیوان کوچک منتظر معاینه\u200cاند. با مهربانی کارشان را انجام بده.",
+      "completeTextFa": "آفرین! حیوانات سالم هستند و دوستت دارند."
+    },
+    {
+      "id": "vet_05_open_clinic",
+      "jobId": "vet",
+      "nameFa": "بازگشایی درمانگاه",
+      "descriptionFa": "کارت\u200cهای سلامت حیوانات را جمع کن تا درمانگاه رسماً باز شود.",
+      "startNpcId": "npc_vet",
+      "requiresMissionId": "vet_04_checkup",
+      "objectives": [
+        { "type": "collect", "targetId": "pet_card", "count": 3, "textFa": "سه کارت سلامت را جمع کن", "buildingId": "vet_clinic", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_vet", "count": 1, "textFa": "برای بازگشایی به دکتر مینا خبر بده" }
+      ],
+      "reward": { "coins": 45, "xp": 80, "badgeId": "badge_vet_helper", "buildingId": "vet_clinic", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه کارت سلامت را پیدا کن تا درمانگاه حیوانات دوباره باز شود.",
+      "completeTextFa": "تبریک! درمانگاه فعال شد و تو نشان یاور حیوانات را گرفتی."
+    },
+    {
+      "id": "market_01_crates",
+      "jobId": "merchant",
+      "nameFa": "جعبه\u200cهای بازار",
+      "descriptionFa": "دو جعبهٔ خالی را پیدا کن و به خاله سمیرا برگردان.",
+      "startNpcId": "npc_merchant",
+      "requiresMissionId": "",
+      "objectives": [
+        { "type": "collect", "targetId": "market_crate", "count": 2, "textFa": "دو جعبهٔ بازار را پیدا کن" },
+        { "type": "talk", "targetId": "npc_merchant", "count": 1, "textFa": "جعبه\u200cها را به خاله سمیرا بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 6,
+      "offerTextFa": "سلام! من سمیرا هستم، فروشندهٔ بازار محله. دو جعبه گم شده؛ کمکم می\u200cکنی؟",
+      "completeTextFa": "ممنون! حالا می\u200cتوانیم میوه\u200cها را بچینیم."
+    },
+    {
+      "id": "market_02_stalls",
+      "jobId": "merchant",
+      "nameFa": "غرفه\u200cهای رنگی",
+      "descriptionFa": "سه جعبه میوه پیدا کن و دو غرفه را بچین.",
+      "startNpcId": "npc_merchant",
+      "requiresMissionId": "market_01_crates",
+      "objectives": [
+        { "type": "collect", "targetId": "fruit_box", "count": 3, "textFa": "سه جعبه میوه را پیدا کن" },
+        { "type": "interact", "targetId": "stall_table", "count": 2, "textFa": "دو غرفه را بچین", "buildingId": "market", "buildingProgress": 15 },
+        { "type": "talk", "targetId": "npc_merchant", "count": 1, "textFa": "چیدن غرفه\u200cها را به خاله سمیرا بگو" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه جعبه میوه را پیدا کن و روی دو غرفه بچین.",
+      "completeTextFa": "چه غرفه\u200cهای قشنگی! بازار دارد جان می\u200cگیرد."
+    },
+    {
+      "id": "market_03_price_signs",
+      "jobId": "merchant",
+      "nameFa": "تابلوهای قیمت",
+      "descriptionFa": "سه تابلو قیمت را بنویس تا همه راحت\u200cتر خرید کنند.",
+      "startNpcId": "npc_merchant",
+      "requiresMissionId": "market_02_stalls",
+      "objectives": [
+        { "type": "interact", "targetId": "price_sign", "count": 3, "textFa": "سه تابلو قیمت را بنویس", "buildingId": "market", "buildingProgress": 20 },
+        { "type": "talk", "targetId": "npc_merchant", "count": 1, "textFa": "تابلوها را به خاله سمیرا نشان بده" }
+      ],
+      "reward": { "coins": 35, "xp": 65, "badgeId": "badge_market_helper", "buildingId": "market", "buildingProgress": 40 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "تابلوهای قیمت هنوز خالی است. آن\u200cها را بنویس تا بازار بازسازی شود.",
+      "completeTextFa": "بازار بازسازی شد! فقط قفسه\u200cها و دعوت از مردم مانده است."
+    },
+    {
+      "id": "market_04_shelves",
+      "jobId": "merchant",
+      "nameFa": "قفسه\u200cهای مرتب",
+      "descriptionFa": "دو قفسه را مرتب کن تا خرید آسان شود.",
+      "startNpcId": "npc_merchant",
+      "requiresMissionId": "market_03_price_signs",
+      "objectives": [
+        { "type": "interact", "targetId": "shop_shelf", "count": 2, "textFa": "دو قفسه را مرتب کن", "buildingId": "market", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_merchant", "count": 1, "textFa": "مرتب شدن قفسه\u200cها را به خاله سمیرا بگو" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "market", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "دو قفسه به هم ریخته است. مرتبشان کن تا مشتری\u200cها راحت انتخاب کنند.",
+      "completeTextFa": "قفسه\u200cها عالی شدند؛ وقت بازگشایی رسمی است."
+    },
+    {
+      "id": "market_05_open_market",
+      "jobId": "merchant",
+      "nameFa": "بازگشایی بازار",
+      "descriptionFa": "سه کوپن تخفیف را جمع کن تا مردم برای خرید بیایند.",
+      "startNpcId": "npc_merchant",
+      "requiresMissionId": "market_04_shelves",
+      "objectives": [
+        { "type": "collect", "targetId": "coupon", "count": 3, "textFa": "سه کوپن تخفیف را جمع کن", "buildingId": "market", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_merchant", "count": 1, "textFa": "برای بازگشایی به خاله سمیرا خبر بده" }
+      ],
+      "reward": { "coins": 45, "xp": 80, "badgeId": "badge_market_helper", "buildingId": "market", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه کوپن تخفیف را پیدا کن تا مردم بدانند بازار دوباره باز است.",
+      "completeTextFa": "تبریک! بازار فعال شد و تو نشان یاور بازار را گرفتی."
+    },
+    {
+      "id": "tech_01_parts",
+      "jobId": "tech",
+      "nameFa": "قطعه\u200cهای گمشده",
+      "descriptionFa": "دو قطعهٔ الکترونیکی را پیدا کن و به آرش برگردان.",
+      "startNpcId": "npc_tech",
+      "requiresMissionId": "",
+      "objectives": [
+        { "type": "collect", "targetId": "circuit_part", "count": 2, "textFa": "دو قطعهٔ الکترونیکی را پیدا کن" },
+        { "type": "talk", "targetId": "npc_tech", "count": 1, "textFa": "قطعه\u200cها را به آرش بده" }
+      ],
+      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 6,
+      "offerTextFa": "سلام! من آرش هستم، مهندس فناوری محله. دو قطعه گم شده؛ کمکم می\u200cکنی پیدایشان کنم؟",
+      "completeTextFa": "ممنون! حالا می\u200cتوانیم سیم\u200cها را جمع کنیم."
+    },
+    {
+      "id": "tech_02_solar",
+      "jobId": "tech",
+      "nameFa": "برق خورشیدی",
+      "descriptionFa": "سه کابل پیدا کن و دو پنل خورشیدی را وصل کن.",
+      "startNpcId": "npc_tech",
+      "requiresMissionId": "tech_01_parts",
+      "objectives": [
+        { "type": "collect", "targetId": "cable", "count": 3, "textFa": "سه کابل را پیدا کن" },
+        { "type": "interact", "targetId": "solar_panel", "count": 2, "textFa": "دو پنل خورشیدی را وصل کن", "buildingId": "tech_lab", "buildingProgress": 15 },
+        { "type": "talk", "targetId": "npc_tech", "count": 1, "textFa": "وصل شدن پنل\u200cها را به آرش بگو" }
+      ],
+      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه کابل را پیدا کن و با آن\u200cها دو پنل خورشیدی را وصل کن.",
+      "completeTextFa": "عالی! آزمایشگاه از خورشید برق می\u200cگیرد."
+    },
+    {
+      "id": "tech_03_robot",
+      "jobId": "tech",
+      "nameFa": "ربات کوچک",
+      "descriptionFa": "سه ایستگاه ساخت ربات را آماده کن.",
+      "startNpcId": "npc_tech",
+      "requiresMissionId": "tech_02_solar",
+      "objectives": [
+        { "type": "interact", "targetId": "robot_station", "count": 3, "textFa": "سه ایستگاه ربات را آماده کن", "buildingId": "tech_lab", "buildingProgress": 20 },
+        { "type": "talk", "targetId": "npc_tech", "count": 1, "textFa": "ایستگاه\u200cها را به آرش نشان بده" }
+      ],
+      "reward": { "coins": 35, "xp": 65, "badgeId": "badge_tech_helper", "buildingId": "tech_lab", "buildingProgress": 40 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه ایستگاه ساخت ربات هنوز آماده نیست. آن\u200cها را راه بینداز.",
+      "completeTextFa": "آزمایشگاه بازسازی شد! فقط اینترنت و روشن کردن آن مانده است."
+    },
+    {
+      "id": "tech_04_wifi",
+      "jobId": "tech",
+      "nameFa": "اینترنت محله",
+      "descriptionFa": "دو گرهٔ اینترنت را روشن کن.",
+      "startNpcId": "npc_tech",
+      "requiresMissionId": "tech_03_robot",
+      "objectives": [
+        { "type": "interact", "targetId": "wifi_node", "count": 2, "textFa": "دو گرهٔ اینترنت را روشن کن", "buildingId": "tech_lab", "buildingProgress": 10 },
+        { "type": "talk", "targetId": "npc_tech", "count": 1, "textFa": "روشن شدن اینترنت را به آرش بگو" }
+      ],
+      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "tech_lab", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 10,
+      "offerTextFa": "دو گرهٔ اینترنت خاموش است. روشنشان کن تا همه به هم وصل شوند.",
+      "completeTextFa": "اینترنت محله وصل شد؛ وقت راه\u200cاندازی آزمایشگاه است."
+    },
+    {
+      "id": "tech_05_open_lab",
+      "jobId": "tech",
+      "nameFa": "راه\u200cاندازی آزمایشگاه",
+      "descriptionFa": "سه کلید آزمایشگاه را جمع کن تا کار شروع شود.",
+      "startNpcId": "npc_tech",
+      "requiresMissionId": "tech_04_wifi",
+      "objectives": [
+        { "type": "collect", "targetId": "lab_key", "count": 3, "textFa": "سه کلید آزمایشگاه را جمع کن", "buildingId": "tech_lab", "buildingProgress": 5 },
+        { "type": "talk", "targetId": "npc_tech", "count": 1, "textFa": "برای راه\u200cاندازی به آرش خبر بده" }
+      ],
+      "reward": { "coins": 45, "xp": 80, "badgeId": "badge_tech_helper", "buildingId": "tech_lab", "buildingProgress": 10 },
+      "repeatable": true,
+      "repeatCoins": 8,
+      "offerTextFa": "سه کلید آزمایشگاه را پیدا کن تا همه\u200cچیز روشن شود.",
+      "completeTextFa": "تبریک! آزمایشگاه فعال شد و تو نشان یاور فناوری را گرفتی."
     }
   ]
 }

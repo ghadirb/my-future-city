@@ -516,6 +516,77 @@ namespace MyFutureCity.EditorTools
             transitVisual.renovatingObjects = new[] { transitWork };
             transitVisual.restoredObjects = new[] { transitOpen };
 
+            // ----- VetClinic (dynamic: restored by its job) -----
+            var vetRoot = MakeBuilding(landmarks.transform, "VetClinic", new Vector3(36, 0, 4), new Vector3(7, 4.5f, 7), Lit("VetAbandoned", 0.55f, 0.5f, 0.47f), Lit("RoofVet", 0.3f, 0.65f, 0.55f), +1);
+            zones.Add(new Zone(36, 4, 6, 6));
+            var vetBody = vetRoot.transform.Find("Body").GetComponent<Renderer>();
+            var vetVisual = vetRoot.AddComponent<BuildingVisual>();
+            vetVisual.buildingId = "vet_clinic";
+            vetVisual.bodyRenderers = new[] { vetBody };
+            vetVisual.abandonedMaterial = Lit("VetAbandoned", 0.55f, 0.5f, 0.47f);
+            vetVisual.renovatingMaterial = Lit("VetRenovating", 0.72f, 0.66f, 0.45f);
+            vetVisual.restoredMaterial = Lit("VetRestored", 0.55f, 0.85f, 0.7f);
+            var vetClosed = Empty("VetClosedProps", vetRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "VetClosedSign", vetClosed.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("VetClosedSign", 0.5f, 0.18f, 0.15f), false);
+            Prim(PrimitiveType.Cube, "VetFence", vetClosed.transform, new Vector3(-2.6f, 0.5f, -4f), new Vector3(1.8f, 1f, 0.15f), Lit("VetFence", 0.6f, 0.4f, 0.2f), false);
+            var vetWork = Empty("VetWorkProps", vetRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "VetWorkSign", vetWork.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("VetWorkSign", 0.95f, 0.72f, 0.18f), false);
+            var vetOpen = Empty("VetOpenProps", vetRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "VetOpenSign", vetOpen.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("VetOpenSign", 0.55f, 0.85f, 0.7f), false);
+            Prim(PrimitiveType.Sphere, "VetPawBig", vetOpen.transform, new Vector3(1.6f, 0.45f, -4.1f), new Vector3(0.7f, 0.5f, 0.7f), Lit("VetPaw", 0.95f, 0.75f, 0.55f), false);
+            Prim(PrimitiveType.Cube, "VetCross", vetOpen.transform, new Vector3(-2.2f, 3.4f, -3.6f), new Vector3(0.9f, 0.3f, 0.12f), Lit("VetCross", 0.95f, 0.95f, 0.95f), false);
+            Prim(PrimitiveType.Cube, "VetCrossV", vetOpen.transform, new Vector3(-2.2f, 3.4f, -3.6f), new Vector3(0.3f, 0.9f, 0.12f), Lit("VetCross", 0.95f, 0.95f, 0.95f), false);
+            vetVisual.abandonedObjects = new[] { vetClosed };
+            vetVisual.renovatingObjects = new[] { vetWork };
+            vetVisual.restoredObjects = new[] { vetOpen };
+
+            // ----- Market (dynamic: restored by its job) -----
+            var marketRoot = MakeBuilding(landmarks.transform, "Market", new Vector3(12, 0, 36), new Vector3(9, 4f, 6), Lit("MarketAbandoned", 0.55f, 0.5f, 0.45f), Lit("RoofMarket", 0.9f, 0.5f, 0.2f), +1);
+            zones.Add(new Zone(12, 36, 7, 5));
+            var marketBody = marketRoot.transform.Find("Body").GetComponent<Renderer>();
+            var marketVisual = marketRoot.AddComponent<BuildingVisual>();
+            marketVisual.buildingId = "market";
+            marketVisual.bodyRenderers = new[] { marketBody };
+            marketVisual.abandonedMaterial = Lit("MarketAbandoned", 0.55f, 0.5f, 0.45f);
+            marketVisual.renovatingMaterial = Lit("MarketRenovating", 0.75f, 0.65f, 0.4f);
+            marketVisual.restoredMaterial = Lit("MarketRestored", 0.95f, 0.75f, 0.45f);
+            var marketClosed = Empty("MarketClosedProps", marketRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "MarketClosedSign", marketClosed.transform, new Vector3(0, 2.6f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("MarketClosedSign", 0.5f, 0.18f, 0.15f), false);
+            Prim(PrimitiveType.Cube, "MarketBoards", marketClosed.transform, new Vector3(-3f, 0.7f, -4f), new Vector3(2f, 1.4f, 0.15f), Lit("MarketBoards", 0.5f, 0.38f, 0.25f), false);
+            var marketWork = Empty("MarketWorkProps", marketRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "MarketWorkSign", marketWork.transform, new Vector3(0, 2.6f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("MarketWorkSign", 0.95f, 0.72f, 0.18f), false);
+            var marketOpen = Empty("MarketOpenProps", marketRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "MarketOpenSign", marketOpen.transform, new Vector3(0, 2.6f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("MarketOpenSign", 0.95f, 0.75f, 0.45f), false);
+            var awningMat = Lit("MarketAwning", 0.92f, 0.3f, 0.25f);
+            Prim(PrimitiveType.Cube, "MarketAwning", marketOpen.transform, new Vector3(0, 3.1f, -4.0f), new Vector3(6f, 0.25f, 1.6f), awningMat, false);
+            Prim(PrimitiveType.Cube, "MarketCounter", marketOpen.transform, new Vector3(0, 0.55f, -4.3f), new Vector3(5f, 1.1f, 0.8f), Lit("MarketCounter", 0.7f, 0.5f, 0.3f), false);
+            marketVisual.abandonedObjects = new[] { marketClosed };
+            marketVisual.renovatingObjects = new[] { marketWork };
+            marketVisual.restoredObjects = new[] { marketOpen };
+
+            // ----- TechLab (dynamic: restored by its job) -----
+            var techRoot = MakeBuilding(landmarks.transform, "TechLab", new Vector3(-34, 0, 34), new Vector3(8, 4.5f, 7), Lit("TechAbandoned", 0.5f, 0.5f, 0.52f), Lit("RoofTech", 0.4f, 0.35f, 0.7f), +1);
+            zones.Add(new Zone(-34, 34, 6, 6));
+            var techBody = techRoot.transform.Find("Body").GetComponent<Renderer>();
+            var techVisual = techRoot.AddComponent<BuildingVisual>();
+            techVisual.buildingId = "tech_lab";
+            techVisual.bodyRenderers = new[] { techBody };
+            techVisual.abandonedMaterial = Lit("TechAbandoned", 0.5f, 0.5f, 0.52f);
+            techVisual.renovatingMaterial = Lit("TechRenovating", 0.62f, 0.62f, 0.72f);
+            techVisual.restoredMaterial = Lit("TechRestored", 0.6f, 0.55f, 0.95f);
+            var techClosed = Empty("TechClosedProps", techRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "TechClosedSign", techClosed.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("TechClosedSign", 0.5f, 0.18f, 0.15f), false);
+            Prim(PrimitiveType.Cube, "TechCrate", techClosed.transform, new Vector3(-2.8f, 0.45f, -4f), new Vector3(1.2f, 0.9f, 1.2f), Lit("TechCrate", 0.45f, 0.4f, 0.35f), false);
+            var techWork = Empty("TechWorkProps", techRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "TechWorkSign", techWork.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("TechWorkSign", 0.95f, 0.72f, 0.18f), false);
+            var techOpen = Empty("TechOpenProps", techRoot.transform, Vector3.zero);
+            Prim(PrimitiveType.Cube, "TechOpenSign", techOpen.transform, new Vector3(0, 2.7f, -3.58f), new Vector3(2.8f, 0.65f, 0.12f), Lit("TechOpenSign", 0.6f, 0.55f, 0.95f), false);
+            Prim(PrimitiveType.Cylinder, "TechDish", techOpen.transform, new Vector3(2.2f, 5.2f, -0.5f), new Vector3(1.4f, 0.12f, 1.4f), Lit("TechDish", 0.85f, 0.85f, 0.92f), false);
+            Prim(PrimitiveType.Cylinder, "TechLight", techOpen.transform, new Vector3(0, 3.6f, -3.75f), new Vector3(0.26f, 0.18f, 0.26f), Glow("TechLightGlow", 0.6f, 0.5f, 1f), false);
+            techVisual.abandonedObjects = new[] { techClosed };
+            techVisual.renovatingObjects = new[] { techWork };
+            techVisual.restoredObjects = new[] { techOpen };
+
             // Repair points around the school
             var brokenMat = Lit("Broken", 0.9f, 0.25f, 0.2f);
             var fixedMat = Lit("Fixed", 0.3f, 0.85f, 0.4f);
@@ -637,6 +708,48 @@ namespace MyFutureCity.EditorTools
             var driverAnim = driverRoot.AddComponent<ProceduralWalkAnimator>();
             driverAnim.leftArm = driverHuman.leftArm; driverAnim.rightArm = driverHuman.rightArm; driverAnim.leftLeg = driverHuman.leftLeg; driverAnim.rightLeg = driverHuman.rightLeg;
             zones.Add(new Zone(-25, -23, 3, 3));
+
+            var vetNpcRoot = Empty("NPC_Mina", null, new Vector3(30, 0, -4));
+            vetNpcRoot.transform.rotation = Quaternion.Euler(0, 250f, 0);
+            var vetNpcHuman = BuildHuman(vetNpcRoot.transform, Lit("vetNpcShirt", 0.3f, 0.75f, 0.65f), Lit("vetNpcHair", 0.2f, 0.12f, 0.08f), false);
+            var vetNpc = vetNpcRoot.AddComponent<NpcInteractable>();
+            vetNpc.npcId = "npc_vet";
+            vetNpc.displayNameFa = "دکتر مینا، دامپزشک";
+            vetNpc.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", vetNpcRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var vetNpcCol = vetNpcRoot.AddComponent<CapsuleCollider>();
+            vetNpcCol.height = 1.9f; vetNpcCol.radius = 0.4f; vetNpcCol.center = new Vector3(0, 0.95f, 0);
+            var vetNpcAnim = vetNpcRoot.AddComponent<ProceduralWalkAnimator>();
+            vetNpcAnim.leftArm = vetNpcHuman.leftArm; vetNpcAnim.rightArm = vetNpcHuman.rightArm; vetNpcAnim.leftLeg = vetNpcHuman.leftLeg; vetNpcAnim.rightLeg = vetNpcHuman.rightLeg;
+            zones.Add(new Zone(30, -4, 3, 3));
+
+            var merchantNpcRoot = Empty("NPC_Samira", null, new Vector3(17, 0, 24));
+            merchantNpcRoot.transform.rotation = Quaternion.Euler(0, 200f, 0);
+            var merchantNpcHuman = BuildHuman(merchantNpcRoot.transform, Lit("merchantNpcShirt", 0.92f, 0.5f, 0.25f), Lit("merchantNpcHair", 0.25f, 0.15f, 0.1f), false);
+            var merchantNpc = merchantNpcRoot.AddComponent<NpcInteractable>();
+            merchantNpc.npcId = "npc_merchant";
+            merchantNpc.displayNameFa = "خاله سمیرا، فروشنده";
+            merchantNpc.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", merchantNpcRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var merchantNpcCol = merchantNpcRoot.AddComponent<CapsuleCollider>();
+            merchantNpcCol.height = 1.9f; merchantNpcCol.radius = 0.4f; merchantNpcCol.center = new Vector3(0, 0.95f, 0);
+            var merchantNpcAnim = merchantNpcRoot.AddComponent<ProceduralWalkAnimator>();
+            merchantNpcAnim.leftArm = merchantNpcHuman.leftArm; merchantNpcAnim.rightArm = merchantNpcHuman.rightArm; merchantNpcAnim.leftLeg = merchantNpcHuman.leftLeg; merchantNpcAnim.rightLeg = merchantNpcHuman.rightLeg;
+            zones.Add(new Zone(17, 24, 3, 3));
+
+            var techNpcRoot = Empty("NPC_Arash", null, new Vector3(-22, 0, 30));
+            techNpcRoot.transform.rotation = Quaternion.Euler(0, 120f, 0);
+            var techNpcHuman = BuildHuman(techNpcRoot.transform, Lit("techNpcShirt", 0.5f, 0.45f, 0.9f), Lit("techNpcHair", 0.12f, 0.08f, 0.05f), true);
+            var techNpc = techNpcRoot.AddComponent<NpcInteractable>();
+            techNpc.npcId = "npc_tech";
+            techNpc.displayNameFa = "آرش، مهندس فناوری";
+            techNpc.radius = 3f;
+            Prim(PrimitiveType.Sphere, "Marker", techNpcRoot.transform, new Vector3(0, 2.8f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            var techNpcCol = techNpcRoot.AddComponent<CapsuleCollider>();
+            techNpcCol.height = 1.9f; techNpcCol.radius = 0.4f; techNpcCol.center = new Vector3(0, 0.95f, 0);
+            var techNpcAnim = techNpcRoot.AddComponent<ProceduralWalkAnimator>();
+            techNpcAnim.leftArm = techNpcHuman.leftArm; techNpcAnim.rightArm = techNpcHuman.rightArm; techNpcAnim.leftLeg = techNpcHuman.leftLeg; techNpcAnim.rightLeg = techNpcHuman.rightLeg;
+            zones.Add(new Zone(-22, 30, 3, 3));
 
             // ----- pickups -----
             var pickups = Empty("Pickups", null, Vector3.zero);
@@ -908,6 +1021,108 @@ namespace MyFutureCity.EditorTools
             Vector3[] travelCardPos = { new Vector3(-16, 0.42f, 35), new Vector3(12, 0.42f, -16), new Vector3(34, 0.42f, -17) };
             for (int i = 0; i < travelCardPos.Length; i++)
                 AddPickupMarker(pickups.transform, zones, travelCardPos[i], "TravelCard", "transit_05_open_terminal", "travel_card", "کارت سفر", i, travelCardMat, beacon);
+
+            // ----- vet job (free choice from the start) -----
+            var leashMat = Lit("PetLeash", 0.9f, 0.35f, 0.35f);
+            Vector3[] leashPos = { new Vector3(38, 0.42f, -8), new Vector3(34, 0.42f, 13) };
+            for (int i = 0; i < leashPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, leashPos[i], "PetLeash", "vet_01_leashes", "pet_leash", "قلاده", i, leashMat, beacon);
+
+            var petFoodMat = Lit("PetFood", 0.85f, 0.65f, 0.25f);
+            Vector3[] petFoodPos = { new Vector3(33, 0.42f, -24), new Vector3(20, 0.42f, 3), new Vector3(-3, 0.42f, 12) };
+            for (int i = 0; i < petFoodPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, petFoodPos[i], "PetFood", "vet_02_feed", "pet_food", "غذای حیوانات", i, petFoodMat, beacon);
+
+            var feedPending = Lit("FeedPending", 0.72f, 0.45f, 0.2f);
+            var feedReady = Lit("FeedReady", 0.4f, 0.8f, 0.45f);
+            Vector3[] feedPos = { new Vector3(34, 0, -2), new Vector3(38, 0, -2) };
+            for (int i = 0; i < feedPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, feedPos[i], "FeedStation", "vet_02_feed", "feed_station", "گذاشتن غذا", i, feedPending, feedReady, beacon);
+
+            var shelterPending = Lit("ShelterPending", 0.7f, 0.4f, 0.25f);
+            var shelterReady = Lit("ShelterReady", 0.35f, 0.78f, 0.6f);
+            Vector3[] shelterPos = { new Vector3(31, 0, 2), new Vector3(31, 0, 8), new Vector3(31, 0, 12) };
+            for (int i = 0; i < shelterPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, shelterPos[i], "PetShelter", "vet_03_shelter", "pet_shelter", "آماده‌سازی پناهگاه", i, shelterPending, shelterReady, beacon);
+
+            var checkupPending = Lit("CheckupPending", 0.8f, 0.35f, 0.3f);
+            var checkupReady = Lit("CheckupReady", 0.45f, 0.85f, 0.7f);
+            Vector3[] checkupPos = { new Vector3(34, 0, -6), new Vector3(38, 0, -5) };
+            for (int i = 0; i < checkupPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, checkupPos[i], "PetCheckup", "vet_04_checkup", "pet_checkup", "معاینهٔ حیوان", i, checkupPending, checkupReady, beacon);
+
+            var petCardMat = Lit("PetCard", 0.4f, 0.85f, 0.7f);
+            Vector3[] petCardPos = { new Vector3(8, 0.42f, -22), new Vector3(22, 0.42f, 5), new Vector3(36, 0.42f, -24) };
+            for (int i = 0; i < petCardPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, petCardPos[i], "PetCard", "vet_05_open_clinic", "pet_card", "کارت سلامت", i, petCardMat, beacon);
+
+            // ----- merchant job (free choice from the start) -----
+            var crateMarketMat = Lit("MarketCrate", 0.7f, 0.5f, 0.28f);
+            Vector3[] crateMarketPos = { new Vector3(-3, 0.42f, 17), new Vector3(33, 0.42f, 26) };
+            for (int i = 0; i < crateMarketPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, crateMarketPos[i], "MarketCrate", "market_01_crates", "market_crate", "جعبهٔ بازار", i, crateMarketMat, beacon);
+
+            var fruitMat = Lit("FruitBox", 0.95f, 0.5f, 0.2f);
+            Vector3[] fruitPos = { new Vector3(-14, 0.42f, 8), new Vector3(8, 0.42f, 16), new Vector3(-3, 0.42f, -14) };
+            for (int i = 0; i < fruitPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, fruitPos[i], "FruitBox", "market_02_stalls", "fruit_box", "جعبه میوه", i, fruitMat, beacon);
+
+            var stallPending = Lit("StallPending", 0.7f, 0.42f, 0.25f);
+            var stallReady = Lit("StallReady", 0.95f, 0.65f, 0.25f);
+            Vector3[] stallPos = { new Vector3(8, 0, 31), new Vector3(16, 0, 31) };
+            for (int i = 0; i < stallPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, stallPos[i], "StallTable", "market_02_stalls", "stall_table", "چیدن غرفه", i, stallPending, stallReady, beacon);
+
+            var priceSignPending = Lit("PriceSignPending", 0.75f, 0.4f, 0.2f);
+            var priceSignReady = Lit("PriceSignReady", 0.95f, 0.8f, 0.3f);
+            Vector3[] priceSignPos = { new Vector3(3, 0, 36), new Vector3(21, 0, 36), new Vector3(12, 0, 29) };
+            for (int i = 0; i < priceSignPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, priceSignPos[i], "PriceSign", "market_03_price_signs", "price_sign", "نوشتن قیمت", i, priceSignPending, priceSignReady, beacon);
+
+            var shelfPending = Lit("ShelfPending", 0.65f, 0.45f, 0.3f);
+            var shelfReady = Lit("ShelfReady", 0.9f, 0.6f, 0.35f);
+            Vector3[] shelfPos = { new Vector3(6, 0, 33), new Vector3(18, 0, 33) };
+            for (int i = 0; i < shelfPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, shelfPos[i], "ShopShelf", "market_04_shelves", "shop_shelf", "مرتب کردن قفسه", i, shelfPending, shelfReady, beacon);
+
+            var couponMat = Lit("Coupon", 0.95f, 0.3f, 0.55f);
+            Vector3[] couponPos = { new Vector3(-8, 0.42f, 37), new Vector3(22, 0.42f, -4), new Vector3(-30, 0.42f, 26) };
+            for (int i = 0; i < couponPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, couponPos[i], "Coupon", "market_05_open_market", "coupon", "کوپن تخفیف", i, couponMat, beacon);
+
+            // ----- tech job (free choice from the start) -----
+            var circuitMat = Lit("CircuitPart", 0.3f, 0.75f, 0.5f);
+            Vector3[] circuitPos = { new Vector3(-37, 0.42f, -8), new Vector3(-14, 0.42f, 37) };
+            for (int i = 0; i < circuitPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, circuitPos[i], "CircuitPart", "tech_01_parts", "circuit_part", "قطعهٔ الکترونیکی", i, circuitMat, beacon);
+
+            var cableMat = Lit("Cable", 0.25f, 0.35f, 0.9f);
+            Vector3[] cablePos = { new Vector3(-20, 0.42f, -4), new Vector3(14, 0.42f, 22), new Vector3(36, 0.42f, -34) };
+            for (int i = 0; i < cablePos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, cablePos[i], "Cable", "tech_02_solar", "cable", "کابل", i, cableMat, beacon);
+
+            var solarPending = Lit("SolarPending", 0.5f, 0.45f, 0.35f);
+            var solarReady = Lit("SolarReady", 0.3f, 0.6f, 0.95f);
+            Vector3[] solarPos = { new Vector3(-36, 0, 28), new Vector3(-31, 0, 28) };
+            for (int i = 0; i < solarPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, solarPos[i], "SolarPanel", "tech_02_solar", "solar_panel", "وصل پنل خورشیدی", i, solarPending, solarReady, beacon);
+
+            var robotPending = Lit("RobotPending", 0.6f, 0.4f, 0.3f);
+            var robotReady = Lit("RobotReady", 0.55f, 0.5f, 0.95f);
+            Vector3[] robotPos = { new Vector3(-26, 0, 34), new Vector3(-26, 0, 38), new Vector3(-30, 0, 25) };
+            for (int i = 0; i < robotPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, robotPos[i], "RobotStation", "tech_03_robot", "robot_station", "آماده‌سازی ربات", i, robotPending, robotReady, beacon);
+
+            var wifiPending = Lit("WifiPending", 0.55f, 0.35f, 0.3f);
+            var wifiReady = Lit("WifiReady", 0.3f, 0.85f, 0.85f);
+            Vector3[] wifiPos = { new Vector3(-38, 0, 22), new Vector3(-17, 0, 33) };
+            for (int i = 0; i < wifiPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, wifiPos[i], "WifiNode", "tech_04_wifi", "wifi_node", "روشن کردن اینترنت", i, wifiPending, wifiReady, beacon);
+
+            var labKeyMat = Lit("LabKey", 0.9f, 0.8f, 0.25f);
+            Vector3[] labKeyPos = { new Vector3(-12, 0.42f, 14), new Vector3(18, 0.42f, -34), new Vector3(-9, 0.42f, 34) };
+            for (int i = 0; i < labKeyPos.Length; i++)
+                AddPickupMarker(pickups.transform, zones, labKeyPos[i], "LabKey", "tech_05_open_lab", "lab_key", "کلید آزمایشگاه", i, labKeyMat, beacon);
 
             // ----- trees (scenery) -----
             var rnd = new System.Random(12345);
