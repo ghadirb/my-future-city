@@ -119,6 +119,7 @@ namespace MyFutureCity.EditorTools
                 var itemCounts = new Dictionary<string, int>();
                 foreach (var p in Object.FindObjectsByType<PickupInteractable>(FindObjectsSortMode.None)) Bump(itemCounts, p.targetId);
                 foreach (var r in Object.FindObjectsByType<RepairInteractable>(FindObjectsSortMode.None)) Bump(itemCounts, r.targetId);
+                foreach (var t in Object.FindObjectsByType<TeacherLessonInteractable>(FindObjectsSortMode.None)) Bump(itemCounts, t.targetId);
                 var buildingIds = new HashSet<string>();
                 foreach (var b in Object.FindObjectsByType<BuildingVisual>(FindObjectsSortMode.None)) buildingIds.Add(b.buildingId);
 
