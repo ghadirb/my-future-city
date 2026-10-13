@@ -96,4 +96,6 @@ jobs:
           name: MyFutureCity-android-apk
           path: build/Android
           if-no-files-found: error
-          retention-days: 14
+          # APKs are large (~53 MB). Keep a short rolling window so routine builds
+          # cannot exhaust the repository's GitHub Actions artifact quota.
+          retention-days: 3

@@ -81,4 +81,4 @@ jobs:
         with:
           name: unity-editmode-results
           path: ${{ steps.tests.outputs.artifactsPath }}
-          retention-days: 14
+          retention-days: 3
