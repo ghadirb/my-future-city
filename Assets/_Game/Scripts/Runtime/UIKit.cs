@@ -122,13 +122,13 @@ namespace MyFutureCity
             t.text = Core.PersianShaper.Fix(logical, wrapChars);
         }
 
-        public static Button MakeButton(Transform parent, string logical, int size, Color bg, UnityAction onClick)
+        public static Button MakeButton(Transform parent, string logical, int size, Color bg, UnityAction onClick, int wrapChars = 0)
         {
             var img = Box(parent, "Button", bg, true);
             var btn = img.gameObject.AddComponent<Button>();
             btn.targetGraphic = img;
-            var label = Label(img.transform, logical, size, TextAnchor.MiddleCenter, Color.white, 0);
-            Stretch(label.rectTransform, Vector2.zero, Vector2.zero);
+            var label = Label(img.transform, logical, size, TextAnchor.MiddleCenter, Color.white, wrapChars);
+            Stretch(label.rectTransform, new Vector2(12, 4), new Vector2(-12, -4));
             label.resizeTextForBestFit = true;
             label.resizeTextMinSize = 12;
             label.resizeTextMaxSize = size;

@@ -20,7 +20,8 @@ namespace MyFutureCity
         private Text coinsText, levelText, missionTitle, missionObjective, guideText, promptText, toastText;
         private GameObject interactButton, dialogRoot;
         private Text dialogTitle, dialogBody;
-        private RectTransform dialogButtons;
+        private RectTransform dialogButtons, dialogPanel;
+        private GridLayoutGroup dialogGrid;
         private CanvasGroup toastGroup;
         private Coroutine toastRoutine;
         private string lastPrompt = "\u0001";
@@ -122,14 +123,15 @@ namespace MyFutureCity
 
             var row = UIKit.NewRect("Buttons", panel.transform);
             UIKit.Place(row, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 24), new Vector2(920, 80));
-            var layout = row.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = 14f;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = true;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.reverseArrangement = true;     // RTL: first option on the right
+            // Grid layout: cell size is set per dialog in ShowDialog so long Persian labels wrap
+            // inside their buttons instead of overflowing the panel.
+            dialogGrid = row.gameObject.AddComponent<GridLayoutGroup>();
+            dialogGrid.spacing = new Vector2(12f, 10f);
+            dialogGrid.childAlignment = TextAnchor.UpperCenter;
+            dialogGrid.startCorner = GridLayoutGroup.Corner.UpperRight;
+            dialogGrid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             dialogButtons = row;
+            dialogPanel = panel.rectTransform;
             dialogRoot.SetActive(false);
         }
 
@@ -235,15 +237,36 @@ namespace MyFutureCity
             if (options == null || options.Length == 0)
                 options = new[] { new DialogOption(Strings.GotIt, null) };
 
-            for (int i = 0; i < options.Length; i++)
+            // Layout: up to 3 options -> full-width rows; 4+ -> two columns.
+            int n = options.Length;
+            int cols = n >= 4 ? 2 : 1;
+            int rows = (n + cols - 1) / cols;
+            float width = 920f;
+            float cellW = (width - (cols - 1) * dialogGrid.spacing.x) / cols;
+            float cellH = cols == 1 ? 84f : 70f;
+            int wrap = cols == 1 ? 50 : 24;
+            int fontSize = cols == 1 ? 26 : 24;
+            dialogGrid.constraintCount = cols;
+            dialogGrid.cellSize = new Vector2(cellW, cellH);
+            float buttonsH = rows * cellH + (rows - 1) * dialogGrid.spacing.y;
+            var rowRt = dialogButtons;
+            rowRt.sizeDelta = new Vector2(width, buttonsH);
+            float bodyAreaMin = 150f;
+            float panelH = Mathf.Min(620f, 120f + bodyAreaMin + buttonsH + 40f);
+            dialogPanel.sizeDelta = new Vector2(1000f, panelH);
+            // Body fills the space between the title and the buttons.
+            dialogBody.rectTransform.offsetMin = new Vector2(50, 24 + buttonsH + 16);
+            dialogBody.rectTransform.offsetMax = new Vector2(-50, -100);
+
+            for (int i = 0; i < n; i++)
             {
                 var opt = options[i];
-                var btn = UIKit.MakeButton(dialogButtons, opt.Label, 28,
+                var btn = UIKit.MakeButton(dialogButtons, opt.Label, fontSize,
                     i == 0 ? new Color(0.18f, 0.6f, 0.4f) : new Color(0.3f, 0.4f, 0.55f), () =>
                     {
                         CloseDialog();
                         if (opt.OnClick != null) opt.OnClick();
-                    });
+                    }, wrap);
                 btn.name = "Option" + i;
             }
 

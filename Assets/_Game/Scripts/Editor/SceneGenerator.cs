@@ -264,9 +264,37 @@ namespace MyFutureCity.EditorTools
         private static void AddTaskSpot(Transform parent, List<Zone> zones, Vector3 position, string name, string missionId, string targetId, string promptFa, int order, Material pendingMaterial, Material completedMaterial, Material beacon)
         {
             var root = Empty(name + order, parent, position);
-            var pending = Prim(PrimitiveType.Cube, "Pending", root.transform, new Vector3(0, 0.45f, 0), new Vector3(0.85f, 0.85f, 0.22f), pendingMaterial, false);
-            Prim(PrimitiveType.Cylinder, "Beacon", pending.transform, new Vector3(0, 1.9f, 0), new Vector3(0.09f, 1.3f, 0.09f), beacon, false);
-            var completed = Prim(PrimitiveType.Cube, "Completed", root.transform, new Vector3(0, 0.45f, 0), new Vector3(0.85f, 0.85f, 0.22f), completedMaterial, false);
+            GameObject pending, completed;
+            if (targetId == "classroom_lesson")
+            {
+                // A real student character (not a flat card) so the child can see who needs help.
+                var hair = Lit("StudentHair", 0.2f, 0.12f, 0.08f);
+                var waiting = BuildHuman(root.transform, pendingMaterial, hair, false);
+                pending = waiting.root;
+                pending.name = "Pending";
+                pending.transform.localScale = Vector3.one * 0.8f;
+                pending.transform.localRotation = Quaternion.Euler(0, 180f, 0);
+                var happy = BuildHuman(root.transform, completedMaterial, hair, false);
+                completed = happy.root;
+                completed.name = "Completed";
+                completed.transform.localScale = Vector3.one * 0.8f;
+                completed.transform.localRotation = Quaternion.Euler(0, 180f, 0);
+                Prim(PrimitiveType.Sphere, "Marker", pending.transform, new Vector3(0, 2.7f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
+            }
+            else if (targetId == "lesson_board")
+            {
+                // A tall, visible teaching board on legs.
+                pending = Prim(PrimitiveType.Cube, "Pending", root.transform, new Vector3(0, 1.3f, 0), new Vector3(1.7f, 1.1f, 0.14f), pendingMaterial, false);
+                Prim(PrimitiveType.Cube, "Leg", pending.transform, new Vector3(0, -0.8f, 0), new Vector3(0.08f, 1.1f, 0.5f), Lit("BoardLeg", 0.35f, 0.22f, 0.15f), false);
+                Prim(PrimitiveType.Cylinder, "Beacon", pending.transform, new Vector3(0, 1.4f, 0), new Vector3(0.09f, 1.0f, 0.09f), beacon, false);
+                completed = Prim(PrimitiveType.Cube, "Completed", root.transform, new Vector3(0, 1.3f, 0), new Vector3(1.7f, 1.1f, 0.14f), completedMaterial, false);
+            }
+            else
+            {
+                pending = Prim(PrimitiveType.Cube, "Pending", root.transform, new Vector3(0, 0.45f, 0), new Vector3(0.85f, 0.85f, 0.22f), pendingMaterial, false);
+                Prim(PrimitiveType.Cylinder, "Beacon", pending.transform, new Vector3(0, 1.9f, 0), new Vector3(0.09f, 1.3f, 0.09f), beacon, false);
+                completed = Prim(PrimitiveType.Cube, "Completed", root.transform, new Vector3(0, 0.45f, 0), new Vector3(0.85f, 0.85f, 0.22f), completedMaterial, false);
+            }
             if (targetId == "lesson_board" || targetId == "classroom_lesson")
             {
                 var lesson = root.AddComponent<TeacherLessonInteractable>();
@@ -858,13 +886,13 @@ namespace MyFutureCity.EditorTools
             // Teacher practice is real classroom interaction, not another collectible hunt.
             var cardMat = Lit("LessonCard", 0.95f, 0.55f, 0.25f);
             var boardMat = Lit("LessonReady", 0.25f, 0.65f, 0.95f);
-            Vector3[] boardPos = { new Vector3(-33, 0, 7), new Vector3(-27, 0, 7), new Vector3(-21, 0, 7) };
+            Vector3[] boardPos = { new Vector3(-33, 0, 2), new Vector3(-27, 0, 2), new Vector3(-21, 0, 2) };
             for (int i = 0; i < boardPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, boardPos[i], "LessonCard", "teach_04_lesson_board", "lesson_board", "تمرین تدریس", i, cardMat, boardMat, beacon);
 
             var studentMat = Lit("StudentLesson", 0.95f, 0.72f, 0.32f);
             var studentReadyMat = Lit("StudentHelped", 0.3f, 0.8f, 0.55f);
-            Vector3[] studentLessonPos = { new Vector3(-32, 0, 14), new Vector3(-26, 0, 14), new Vector3(-20, 0, 14) };
+            Vector3[] studentLessonPos = { new Vector3(-32, 0, 7.5f), new Vector3(-26, 0, 7.5f), new Vector3(-20, 0, 7.5f) };
             for (int i = 0; i < studentLessonPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, studentLessonPos[i], "StudentLesson", "teach_05_open_class", "classroom_lesson", "کمک به دانش‌آموز", i, studentMat, studentReadyMat, beacon);
 

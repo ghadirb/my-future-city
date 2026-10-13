@@ -56,6 +56,7 @@ namespace UnityEngine
         public float x, y, z;
         public Vector3(float x, float y, float z) { this.x = x; this.y = y; this.z = z; }
         public Vector3(float x, float y) { this.x = x; this.y = y; this.z = 0; }
+        public static Vector3 one { get { return new Vector3(1, 1, 1); } }
         public static Vector3 zero { get { return new Vector3(); } }
         public static Vector3 up { get { return new Vector3(0, 1, 0); } }
         public static Vector3 forward { get { return new Vector3(0, 0, 1); } }
@@ -305,6 +306,16 @@ namespace UnityEngine.UI
         public UnityEngine.Vector2 referenceResolution; public float matchWidthOrHeight;
     }
     public class GraphicRaycaster : UnityEngine.Behaviour { }
+    public class GridLayoutGroup : UnityEngine.Behaviour
+    {
+        public enum Corner { UpperLeft, UpperRight, LowerLeft, LowerRight }
+        public enum Constraint { Flexible, FixedColumnCount, FixedRowCount }
+        public UnityEngine.Vector2 cellSize, spacing;
+        public UnityEngine.TextAnchor childAlignment;
+        public Corner startCorner;
+        public Constraint constraint;
+        public int constraintCount;
+    }
     public class HorizontalLayoutGroup : UnityEngine.Behaviour
     {
         public float spacing; public bool childForceExpandWidth, childForceExpandHeight, childControlWidth, childControlHeight, reverseArrangement;
