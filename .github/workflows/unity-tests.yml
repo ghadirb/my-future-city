@@ -3,6 +3,8 @@ name: Unity tests
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 # game-ci publishes the Unity Test Framework result as a GitHub Check Run.
