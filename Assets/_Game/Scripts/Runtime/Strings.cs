@@ -51,6 +51,15 @@ namespace MyFutureCity
         public const string Fps60 = "۶۰ فریم (روان\u200Cتر)";
         public const string MoreWork = "ادامه بده: ";
         public const string NpcIdle = "امروز کاری ندارم. به شهر سر بزن!";
+        public const string MyReport = "گزارش من";
+        public const string Close = "بستن";
+        public const string SwitchJob = "کار دیگری می\u200Cخواهم";
+        public const string ChooseWork = "چه کاری انجام بدهیم؟ هر کدام را خواستی انتخاب کن.";
+        public const string More = "بیشتر…";
+        public const string TagNew = "جدید";
+        public const string TagAgain = "دوباره";
+        public const string ReportInterest = "علاقه";
+        public const string ReportNotTried = "هنوز امتحان نشده";
         public const string RepeatOffer = "می\u200Cخواهی دوباره تمرینش کنی؟ پاداشش کمتر است.";
 
         public static string StatusFa(Core.MissionStatus s)

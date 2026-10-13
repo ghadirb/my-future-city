@@ -61,6 +61,9 @@ namespace MyFutureCity
 
         private void Update()
         {
+            // Real play time of the running mission feeds the interest report (not counted while a dialog is open).
+            if (Ctx != null && Hud != null && !Hud.IsModalOpen) Ctx.Missions.Tick(Time.deltaTime);
+
             // Android back button / Escape
             if (Input.GetKeyDown(KeyCode.Escape) && Hud != null)
             {
@@ -171,12 +174,19 @@ namespace MyFutureCity
                 }
             }
 
+            var report = new DialogOption(Strings.MyReport, OpenReport);
             if (Ctx.Missions.ActiveMission != null)
                 Hud.ShowDialog(Strings.Missions, sb.ToString(),
                     new DialogOption(Strings.Back, OpenPauseMenu),
+                    report,
                     new DialogOption(Strings.AbandonMission, () => { Ctx.Missions.AbandonActive(); Ctx.SaveNow(); OpenPauseMenu(); }));
             else
-                Hud.ShowDialog(Strings.Missions, sb.ToString(), new DialogOption(Strings.Back, OpenPauseMenu));
+                Hud.ShowDialog(Strings.Missions, sb.ToString(), new DialogOption(Strings.Back, OpenPauseMenu), report);
+        }
+
+        public void OpenReport()
+        {
+            ReportScreen.Show(Ctx, OpenMissionsPanel);
         }
 
         public void OpenCityPanel()

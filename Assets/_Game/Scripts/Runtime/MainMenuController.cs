@@ -33,7 +33,7 @@ namespace MyFutureCity
         {
             var b = UIKit.MakeButton(page, label, 36, enabled ? new Color(0.16f, 0.5f, 0.8f, 0.95f) : new Color(0.4f, 0.4f, 0.4f, 0.6f), onClick);
             b.interactable = enabled;
-            UIKit.Place((RectTransform)b.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, y), new Vector2(460, 84));
+            UIKit.Place((RectTransform)b.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, y), new Vector2(460, 76));
             return b;
         }
 
@@ -50,9 +50,10 @@ namespace MyFutureCity
             Title("My Future City", 34, 160);
             var ctx = GameContext.Instance;
             AddButton(Strings.Continue, 60, LoadGame, ctx.HasProgress);
-            AddButton(Strings.NewGame, -45, OnNewGame, true);
-            AddButton(Strings.Settings, -150, ShowSettings, true);
-            AddButton(Strings.Exit, -255, Application.Quit, true);
+            AddButton(Strings.NewGame, -30, OnNewGame, true);
+            AddButton(Strings.MyReport, -120, () => ReportScreen.Show(GameContext.Instance, null), ctx.HasProgress);
+            AddButton(Strings.Settings, -210, ShowSettings, true);
+            AddButton(Strings.Exit, -300, Application.Quit, true);
         }
 
         private void LoadGame()

@@ -76,8 +76,10 @@ jobs:
             done
           done || true
 
+      # Artifact storage quota errors must not turn a passing test run red.
       - uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true
         with:
           name: unity-editmode-results
           path: ${{ steps.tests.outputs.artifactsPath }}
