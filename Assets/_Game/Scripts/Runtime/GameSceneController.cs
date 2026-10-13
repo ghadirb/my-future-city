@@ -1,4 +1,5 @@
 using System.Text;
+using System.Collections.Generic;
 using MyFutureCity.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -211,9 +212,96 @@ namespace MyFutureCity
             }
 
             if (second != null)
-                Hud.ShowDialog(Strings.MyCity, sb.ToString(), new DialogOption(Strings.Back, OpenPauseMenu), second);
+                Hud.ShowDialog(Strings.MyCity, sb.ToString(),
+                    new DialogOption(Strings.Back, OpenPauseMenu),
+                    new DialogOption("سرمایه‌گذاری شهر", () => OpenInvestmentPanel(0)),
+                    second);
             else
-                Hud.ShowDialog(Strings.MyCity, sb.ToString(), new DialogOption(Strings.Back, OpenPauseMenu));
+                Hud.ShowDialog(Strings.MyCity, sb.ToString(),
+                    new DialogOption(Strings.Back, OpenPauseMenu),
+                    new DialogOption("سرمایه‌گذاری شهر", () => OpenInvestmentPanel(0)));
+        }
+
+        private const int InvestmentPageSize = 2;
+        private const int InvestmentStep = 10;
+        private const int InvestmentCostPerTen = 15;
+
+        private void OpenInvestmentPanel(int requestedPage)
+        {
+            var eligible = new List<BuildingDefinition>();
+            foreach (var building in Ctx.Database.buildings)
+            {
+                int progress = Ctx.City.GetProgress(building.id);
+                // Investments can improve a building only after a mission has started restoring it.
+                // This keeps the economy optional and prevents skipping the job mission chains.
+                if (progress > 0 && progress < CityProgressService.MaxProgress)
+                    eligible.Add(building);
+            }
+
+            if (eligible.Count == 0)
+            {
+                Hud.ShowDialog("سرمایه‌گذاری شهر",
+                    "هنوز ساختمانی برای تقویت آماده نیست. ابتدا با انجام مأموریت‌های شغلی، بازسازی یک ساختمان را شروع کن.",
+                    new DialogOption("بازگشت به شهر", OpenCityPanel));
+                return;
+            }
+
+            int pageCount = System.Math.Max(1, (eligible.Count + InvestmentPageSize - 1) / InvestmentPageSize);
+            int page = requestedPage;
+            if (page < 0) page = 0;
+            if (page >= pageCount) page = pageCount - 1;
+            var sb = new StringBuilder();
+            sb.Append("سکه‌های تو: ").Append(Ctx.Wallet.Coins).Append("\n");
+            sb.Append("هر سرمایه‌گذاری تا ۱۰ واحد پیشرفت می‌دهد و هزینه‌اش حداکثر ۱۵ سکه است.\n");
+            sb.Append("پیشرفت هر ساختمان از ۲۰۰ محاسبه می‌شود؛ این کار اختیاری است و جای مأموریت‌ها را نمی‌گیرد.\n\n");
+            for (int i = page * InvestmentPageSize; i < System.Math.Min(eligible.Count, (page + 1) * InvestmentPageSize); i++)
+            {
+                var building = eligible[i];
+                sb.Append(building.nameFa).Append(": ")
+                  .Append(Ctx.City.GetProgress(building.id)).Append("/")
+                  .Append(CityProgressService.MaxProgress).Append(" — ")
+                  .Append(Strings.BuildingStateFa(Ctx.City.GetState(building.id))).Append("\n");
+            }
+            sb.Append("\nصفحه ").Append(page + 1).Append(" از ").Append(pageCount);
+
+            var options = new List<DialogOption>();
+            int start = page * InvestmentPageSize;
+            int end = System.Math.Min(eligible.Count, start + InvestmentPageSize);
+            for (int i = start; i < end; i++)
+            {
+                var building = eligible[i];
+                string buildingId = building.id;
+                string buildingName = building.nameFa;
+                int current = Ctx.City.GetProgress(buildingId);
+                int gain = System.Math.Min(InvestmentStep, CityProgressService.MaxProgress - current);
+                int cost = (gain * InvestmentCostPerTen + InvestmentStep - 1) / InvestmentStep;
+                options.Add(new DialogOption("تقویت: " + buildingName, () =>
+                {
+                    if (Ctx.Wallet.Coins < cost)
+                    {
+                        Hud.ShowDialog("سکه کافی نیست",
+                            "برای این کار به " + cost + " سکه نیاز داری. با انجام مأموریت‌های بیشتر می‌توانی سکه جمع کنی.",
+                            new DialogOption("بازگشت", () => OpenInvestmentPanel(page)));
+                        return;
+                    }
+
+                    if (!Ctx.Wallet.TrySpend(cost)) { OpenInvestmentPanel(page); return; }
+                    if (!Ctx.City.AddProgress(buildingId, gain))
+                    {
+                        Ctx.Wallet.Add(cost, 0);
+                        OpenInvestmentPanel(page);
+                        return;
+                    }
+
+                    Ctx.SaveNow();
+                    Hud.Toast("پیشرفت " + buildingName + " بیشتر شد!");
+                    OpenInvestmentPanel(page);
+                }));
+            }
+            if (page > 0) options.Add(new DialogOption("صفحه قبل", () => OpenInvestmentPanel(page - 1)));
+            if (page + 1 < pageCount) options.Add(new DialogOption("صفحه بعد", () => OpenInvestmentPanel(page + 1)));
+            options.Add(new DialogOption("بازگشت به شهر", OpenCityPanel));
+            Hud.ShowDialog("سرمایه‌گذاری شهر", sb.ToString(), options.ToArray());
         }
 
         public void OpenSettings()
