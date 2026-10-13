@@ -9,7 +9,7 @@ namespace MyFutureCity.Core
     }
 
     /// <summary>
-    /// Local, rule-based suggestions from gameplay history only. Never claims to measure talent
+    /// Local, rule-based suggestions from gameplay history only (no network, no AI service). Never claims to measure talent
     /// or personality; wording is deliberately soft ("it seems…", "maybe…").
     /// </summary>
     public class Recommender
@@ -34,16 +34,11 @@ namespace MyFutureCity.Core
             if (active != null)
                 return new Suggestion { MissionId = active.id, ReasonFa = ReasonContinue };
 
-            // Favourite job = the one with the most completed runs.
+            // Favourite job = where the child's own play history shows the most interest
+            // (time spent, voluntary repeats, attempts) - see InterestAnalyzer.
             string favJob = null;
-            int best = 0;
-            foreach (var j in db.jobs)
-            {
-                int total = 0;
-                foreach (var m in db.missions)
-                    if (m.jobId == j.id) total += missions.TimesCompleted(m.id);
-                if (total > best) { best = total; favJob = j.id; }
-            }
+            var report = InterestAnalyzer.Analyze(db, missions.Data);
+            if (report.HasData) favJob = report.TopInterestJobId;
 
             if (favJob != null)
             {

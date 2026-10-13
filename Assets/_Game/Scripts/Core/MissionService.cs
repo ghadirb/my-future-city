@@ -43,6 +43,12 @@ namespace MyFutureCity.Core
         }
 
         public MissionDatabase Database { get { return db; } }
+        public SaveData Data { get { return save; } }
+
+        /// <summary>Longest single stretch counted as "playing" (a phone left on a table must not skew the report).</summary>
+        public const float MaxRunSeconds = 1800f;
+        /// <summary>A run abandoned sooner than this, without any progress, is treated as an accidental tap and not recorded.</summary>
+        public const float MinMeaningfulSeconds = 10f;
 
         public MissionStatus GetStatus(string missionId)
         {
@@ -77,12 +83,53 @@ namespace MyFutureCity.Core
             }
         }
 
-        public bool CanStart(string missionId)
+        /// <summary>True if the mission could be started right now were nothing else running.</summary>
+        public bool IsStartable(string missionId)
         {
             var def = db.FindMission(missionId);
-            if (def == null || ActiveMission != null) return false;
+            if (def == null) return false;
             var s = GetStatus(missionId);
             return s == MissionStatus.Available || (s == MissionStatus.Completed && def.repeatable);
+        }
+
+        public bool CanStart(string missionId)
+        {
+            return ActiveMission == null && IsStartable(missionId);
+        }
+
+        /// <summary>
+        /// Everything this NPC can hand out right now: new stages first, then stages the child
+        /// has finished and may play again (every repeat is the child's own choice).
+        /// </summary>
+        public List<MissionDefinition> OfferableForNpc(string npcId)
+        {
+            var list = new List<MissionDefinition>();
+            foreach (var m in db.missions)
+                if (m.startNpcId == npcId && GetStatus(m.id) == MissionStatus.Available) list.Add(m);
+            foreach (var m in db.missions)
+                if (m.startNpcId == npcId && m.repeatable && GetStatus(m.id) == MissionStatus.Completed) list.Add(m);
+            return list;
+        }
+
+        /// <summary>Counts real play time of the active run. Call once per frame while the child is actually playing.</summary>
+        public void Tick(float deltaSeconds)
+        {
+            if (deltaSeconds <= 0f) return;
+            if (deltaSeconds > 1f) deltaSeconds = 1f;      // ignore long hitches (app resume, scene load)
+            foreach (var p in save.missions)
+            {
+                if (!p.active) continue;
+                if (p.activeSeconds < MaxRunSeconds) p.activeSeconds += deltaSeconds;
+                return;
+            }
+        }
+
+        /// <summary>Gives up the current run (no penalty) and starts a different mission in one step.</summary>
+        public bool SwitchTo(string missionId)
+        {
+            if (!IsStartable(missionId)) return false;
+            AbandonActive();
+            return Start(missionId);
         }
 
         public bool Start(string missionId)
@@ -91,6 +138,7 @@ namespace MyFutureCity.Core
             var def = db.FindMission(missionId);
             var p = save.GetMission(missionId, true);
             p.active = true;
+            p.activeSeconds = 0f;
             p.objectiveCounts = new List<int>();
             for (int i = 0; i < def.objectives.Count; i++) p.objectiveCounts.Add(0);
             var h = Started;
@@ -105,7 +153,14 @@ namespace MyFutureCity.Core
             foreach (var p in save.missions)
             {
                 if (!p.active) continue;
+                var def = db.FindMission(p.id);
+                bool hadProgress = false;
+                if (p.objectiveCounts != null)
+                    foreach (var c in p.objectiveCounts) if (c > 0) hadProgress = true;
+                if (def != null && (hadProgress || p.activeSeconds >= MinMeaningfulSeconds))
+                    RecordAttempt(def, false, false, p.activeSeconds);
                 p.active = false;
+                p.activeSeconds = 0f;
                 p.objectiveCounts = new List<int>();
                 RaiseChanged();
                 return true;
@@ -208,6 +263,8 @@ namespace MyFutureCity.Core
             bool first = p.timesCompleted == 0;
             p.active = false;
             p.timesCompleted++;
+            RecordAttempt(def, true, !first, p.activeSeconds);
+            p.activeSeconds = 0f;
 
             var result = new MissionCompletion { Mission = def, FirstTime = first };
             var r = def.reward ?? new RewardDefinition();
@@ -232,6 +289,29 @@ namespace MyFutureCity.Core
 
             var h = Completed;
             if (h != null) h(result);
+        }
+
+        private void RecordAttempt(MissionDefinition def, bool completed, bool replay, float seconds)
+        {
+            if (seconds < 0f) seconds = 0f;
+            if (seconds > MaxRunSeconds) seconds = MaxRunSeconds;
+            save.attemptSeq++;
+            save.attempts.Add(new AttemptRecord
+            {
+                seq = save.attemptSeq,
+                missionId = def.id,
+                jobId = def.jobId,
+                seconds = (int)Math.Round(seconds),
+                completed = completed,
+                replay = replay
+            });
+            if (save.attempts.Count > SaveData.MaxAttempts)
+                save.attempts.RemoveRange(0, save.attempts.Count - SaveData.MaxAttempts);
+
+            var js = save.GetJobStats(def.jobId, true);
+            js.playSeconds += seconds;
+            if (!completed) js.abandoned++;
+            if (completed && replay) js.replays++;
         }
 
         public int CompletedCountForJob(string jobId)

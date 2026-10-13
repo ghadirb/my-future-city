@@ -95,8 +95,8 @@
         { "type": "talk", "targetId": "npc_engineer", "count": 1, "textFa": "جعبه\u200cابزار را به استاد بهروز برگردان" }
       ],
       "reward": { "coins": 10, "xp": 20, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 5,
       "offerTextFa": "سلام! من بهروز هستم، مهندس این محله. جعبه\u200cابزارم یک جایی کنار میدان گم شده. کمکم می\u200cکنی پیدایش کنم؟",
       "completeTextFa": "آفرین! همین ابزار را لازم داشتم. تو یک شاگرد خوب مهندسی هستی."
     },
@@ -129,8 +129,8 @@
         { "type": "talk", "targetId": "npc_engineer", "count": 1, "textFa": "به استاد بهروز خبر بده" }
       ],
       "reward": { "coins": 30, "xp": 60, "badgeId": "badge_engineer_apprentice", "buildingId": "school", "buildingProgress": 25 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "مدرسه سال\u200cهاست متروک مانده. بیا با هم زنده\u200cاش کنیم! سه نقطهٔ خراب دور مدرسه را تعمیر کن.",
       "completeTextFa": "مدرسه دوباره زنده شد! بچه\u200cهای محله از این به بعد می\u200cتوانند آنجا درس بخوانند."
     },
@@ -164,8 +164,8 @@
         { "type": "talk", "targetId": "npc_engineer", "count": 1, "textFa": "آماده شدن مدرسه را به استاد بهروز خبر بده" }
       ],
       "reward": { "coins": 45, "xp": 90, "badgeId": "badge_engineer_apprentice", "buildingId": "school", "buildingProgress": 20 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "فقط محوطهٔ مدرسه مانده است. سه کیسه زباله را جمع کن تا روز اول مدرسه را شروع کنیم.",
       "completeTextFa": "آفرین! مدرسه آماده و فعال شد. شهر با کمک تو جای بهتری برای یادگرفتن است."
     },
@@ -175,7 +175,7 @@
       "nameFa": "کتاب\u200cهای کتابخانه",
       "descriptionFa": "دو کتاب گمشده را پیدا کن و به خانم نوری برگردان.",
       "startNpcId": "npc_teacher",
-      "requiresMissionId": "eng_05_open_school",
+      "requiresMissionId": "",
       "objectives": [
         { "type": "collect", "targetId": "library_book", "count": 2, "textFa": "دو کتاب گمشده را پیدا کن" },
         { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "کتاب\u200cها را به خانم نوری بده" }
@@ -216,8 +216,8 @@
         { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "کار باغچه را خبر بده" }
       ],
       "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "می\u200cخواهیم کنار مدرسه یک باغچهٔ کوچک آموزشی داشته باشیم. بذرها را پیدا کن و دو بخش باغچه را آماده کن.",
       "completeTextFa": "باغچه آماده شد؛ حالا درس\u200cها را می\u200cتوانیم بیرون از کلاس هم یاد بگیریم."
     },
@@ -250,8 +250,8 @@
         { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "برای شروع کلاس به خانم نوری بگو" }
       ],
       "reward": { "coins": 40, "xp": 75, "badgeId": "badge_teacher_helper", "buildingId": "", "buildingProgress": 0 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "همه چیز برای اولین کلاس آماده است. سه دعوت\u200cنامه را پیدا کن تا بچه\u200cها را خبر کنیم.",
       "completeTextFa": "عالی شد! تو نشان یاور معلم را گرفتی و اولین کلاس مدرسه آغاز شد."
     },
@@ -261,7 +261,7 @@
       "nameFa": "کیف‌های کمک‌های اولیه",
       "descriptionFa": "دو کیف کمک‌های اولیه را پیدا کن و به دکتر فرهاد برگردان.",
       "startNpcId": "npc_doctor",
-      "requiresMissionId": "teach_05_open_class",
+      "requiresMissionId": "",
       "objectives": [
         { "type": "collect", "targetId": "medical_kit", "count": 2, "textFa": "دو کیف کمک‌های اولیه را پیدا کن" },
         { "type": "talk", "targetId": "npc_doctor", "count": 1, "textFa": "کیف‌ها را به دکتر فرهاد بده" }
@@ -302,8 +302,8 @@
         { "type": "talk", "targetId": "npc_doctor", "count": 1, "textFa": "پایان تعمیرها را به دکتر خبر بده" }
       ],
       "reward": { "coins": 35, "xp": 65, "badgeId": "badge_health_helper", "buildingId": "clinic", "buildingProgress": 40 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه بخش کلینیک هنوز فرسوده است. آن‌ها را تعمیر کن تا بتوانیم پذیرش را شروع کنیم.",
       "completeTextFa": "کلینیک بازسازی شد! حالا می‌توانیم فضای پذیرش را آماده کنیم."
     },
@@ -336,8 +336,8 @@
         { "type": "talk", "targetId": "npc_doctor", "count": 1, "textFa": "برای بازگشایی کلینیک به دکتر بگو" }
       ],
       "reward": { "coins": 45, "xp": 80, "badgeId": "badge_health_helper", "buildingId": "clinic", "buildingProgress": 10 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه کارت سلامت را پیدا کن تا همه بدانند کلینیک دوباره آمادهٔ کمک است.",
       "completeTextFa": "تبریک! کلینیک فعال شد و تو نشان یاور سلامت را گرفتی."
     },
@@ -347,7 +347,7 @@
       "nameFa": "دستکش‌های پاک‌سازی",
       "descriptionFa": "دو دستکش کار را پیدا کن و به سحر، محیط‌بان محله، برگردان.",
       "startNpcId": "npc_ranger",
-      "requiresMissionId": "med_05_open_clinic",
+      "requiresMissionId": "",
       "objectives": [
         { "type": "collect", "targetId": "work_glove", "count": 2, "textFa": "دو دستکش کار را پیدا کن" },
         { "type": "talk", "targetId": "npc_ranger", "count": 1, "textFa": "دستکش‌ها را به سحر بده" }
@@ -388,8 +388,8 @@
         { "type": "talk", "targetId": "npc_ranger", "count": 1, "textFa": "آماده شدن مخزن‌ها را به سحر بگو" }
       ],
       "reward": { "coins": 35, "xp": 65, "badgeId": "badge_green_helper", "buildingId": "recycling", "buildingProgress": 40 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه مخزن بازیافت هنوز آماده نیست. آن‌ها را فعال کن تا زباله‌ها درست تفکیک شوند.",
       "completeTextFa": "آفرین! ایستگاه بازیافت بازسازی شد و حالا می‌توانیم فضای سبز را بهتر کنیم."
     },
@@ -422,8 +422,8 @@
         { "type": "talk", "targetId": "npc_ranger", "count": 1, "textFa": "برای بازگشایی به سحر خبر بده" }
       ],
       "reward": { "coins": 45, "xp": 80, "badgeId": "badge_green_helper", "buildingId": "recycling", "buildingProgress": 10 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه کارت بازیافت را پیدا کن تا خانواده‌ها را برای شروع کار ایستگاه دعوت کنیم.",
       "completeTextFa": "تبریک! ایستگاه بازیافت فعال شد و تو نشان دوستدار زمین را گرفتی."
     },
@@ -433,7 +433,7 @@
       "nameFa": "بذرهای گمشده",
       "descriptionFa": "دو بسته بذر را پیدا کن و به عمو پروین برگردان.",
       "startNpcId": "npc_farmer",
-      "requiresMissionId": "env_05_open_station",
+      "requiresMissionId": "",
       "objectives": [
         { "type": "collect", "targetId": "farm_seed", "count": 2, "textFa": "دو بسته بذر را پیدا کن" },
         { "type": "talk", "targetId": "npc_farmer", "count": 1, "textFa": "بذرها را به عمو پروین بده" }
@@ -474,8 +474,8 @@
         { "type": "talk", "targetId": "npc_farmer", "count": 1, "textFa": "پایان آبیاری را به عمو پروین بگو" }
       ],
       "reward": { "coins": 35, "xp": 65, "badgeId": "badge_farm_helper", "buildingId": "farm", "buildingProgress": 30 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه بطری آب پیدا کن و بعد دو بخش مزرعه را آبیاری کن تا گیاه‌ها جان بگیرند.",
       "completeTextFa": "مزرعه بازسازی شد! حالا می‌توانیم محصول‌های آماده را برداشت کنیم."
     },
@@ -508,8 +508,8 @@
         { "type": "talk", "targetId": "npc_farmer", "count": 1, "textFa": "برای بازگشایی مزرعه به عمو پروین بگو" }
       ],
       "reward": { "coins": 45, "xp": 80, "badgeId": "badge_farm_helper", "buildingId": "farm", "buildingProgress": 10 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه کارت بازار را پیدا کن تا همه بدانند مزرعهٔ محله دوباره آمادهٔ کار است.",
       "completeTextFa": "تبریک! مزرعه فعال شد و تو نشان دوستدار مزرعه را گرفتی."
     },
@@ -519,7 +519,7 @@
       "nameFa": "کلاه‌های ایمنی",
       "descriptionFa": "دو کلاه ایمنی را پیدا کن و به امین، آتش‌نشان محله، برگردان.",
       "startNpcId": "npc_firefighter",
-      "requiresMissionId": "farm_05_open_farm",
+      "requiresMissionId": "",
       "objectives": [
         { "type": "collect", "targetId": "fire_helmet", "count": 2, "textFa": "دو کلاه ایمنی را پیدا کن" },
         { "type": "talk", "targetId": "npc_firefighter", "count": 1, "textFa": "کلاه‌ها را به امین بده" }
@@ -560,8 +560,8 @@
         { "type": "talk", "targetId": "npc_firefighter", "count": 1, "textFa": "نتیجهٔ بازبینی را به امین بگو" }
       ],
       "reward": { "coins": 35, "xp": 65, "badgeId": "badge_safety_helper", "buildingId": "fire_station", "buildingProgress": 40 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه نقطهٔ ایمنی هنوز نیاز به بررسی دارند. آن‌ها را آماده کن تا ایستگاه بازسازی شود.",
       "completeTextFa": "ایستگاه بازسازی شد! فقط آزمون آژیرها و دعوت از خانواده‌ها باقی مانده است."
     },
@@ -594,8 +594,8 @@
         { "type": "talk", "targetId": "npc_firefighter", "count": 1, "textFa": "برای بازگشایی به امین خبر بده" }
       ],
       "reward": { "coins": 45, "xp": 80, "badgeId": "badge_safety_helper", "buildingId": "fire_station", "buildingProgress": 15 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه کارت ایمنی را پیدا کن تا خانواده‌ها بدانند ایستگاه آتش‌نشانی دوباره آمادهٔ کمک است.",
       "completeTextFa": "تبریک! ایستگاه آتش‌نشانی فعال شد و تو نشان یاور ایمنی را گرفتی."
     },
@@ -605,7 +605,7 @@
       "nameFa": "کارت‌های سفر",
       "descriptionFa": "دو کارت سفر را پیدا کن و به لیلا، رانندهٔ محله، برگردان.",
       "startNpcId": "npc_driver",
-      "requiresMissionId": "fire_05_open_station",
+      "requiresMissionId": "",
       "objectives": [
         { "type": "collect", "targetId": "transit_pass", "count": 2, "textFa": "دو کارت سفر را پیدا کن" },
         { "type": "talk", "targetId": "npc_driver", "count": 1, "textFa": "کارت‌ها را به لیلا بده" }
@@ -646,8 +646,8 @@
         { "type": "talk", "targetId": "npc_driver", "count": 1, "textFa": "تابلوها را به لیلا نشان بده" }
       ],
       "reward": { "coins": 35, "xp": 65, "badgeId": "badge_transit_helper", "buildingId": "transit", "buildingProgress": 40 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه تابلو مسیر هنوز آماده نیست. آن‌ها را تنظیم کن تا پایانه بازسازی شود.",
       "completeTextFa": "پایانه بازسازی شد! فقط بخش انتظار و دعوت از مسافران باقی مانده است."
     },
@@ -680,8 +680,8 @@
         { "type": "talk", "targetId": "npc_driver", "count": 1, "textFa": "برای بازگشایی به لیلا خبر بده" }
       ],
       "reward": { "coins": 45, "xp": 80, "badgeId": "badge_transit_helper", "buildingId": "transit", "buildingProgress": 10 },
-      "repeatable": false,
-      "repeatCoins": 0,
+      "repeatable": true,
+      "repeatCoins": 8,
       "offerTextFa": "سه کارت سفر را پیدا کن تا مردم بدانند پایانهٔ محله دوباره آمادهٔ حرکت است.",
       "completeTextFa": "تبریک! پایانه فعال شد و تو نشان یاور سفر را گرفتی."
     }
