@@ -33,6 +33,8 @@ jobs:
           fi
 
   build:
+    permissions:
+      contents: write
     needs: license-check
     if: needs.license-check.outputs.has_license == 'true'
     runs-on: ubuntu-latest
@@ -91,11 +93,25 @@ jobs:
           echo "$abis" | grep -q 'lib/armeabi-v7a/' || { echo "::error::armeabi-v7a missing (32-bit phones cannot install)"; exit 1; }
           echo "$abis" | grep -q 'lib/arm64-v8a/' || { echo "::error::arm64-v8a missing"; exit 1; }
 
+      # Release assets do not count against the Actions artifact quota, so the APK is always
+      # downloadable (Releases page > "latest-apk") even when the artifact upload is refused.
+      - name: Publish APK to the rolling latest-apk release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk=$(ls build/Android/*.apk | head -n1)
+          gh release delete latest-apk --yes --cleanup-tag || true
+          gh release create latest-apk "$apk" --prerelease \
+            --title "Latest build (${GITHUB_SHA::7})" \
+            --notes "Rolling build of commit ${GITHUB_SHA}. Universal APK: ARMv7 + ARM64 + x86_64." \
+            --target "$GITHUB_SHA"
+
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: MyFutureCity-android-apk
           path: build/Android
           if-no-files-found: error
           # APKs are large (~53 MB). Keep a short rolling window so routine builds
           # cannot exhaust the repository's GitHub Actions artifact quota.
-          retention-days: 3
+          retention-days: 1
