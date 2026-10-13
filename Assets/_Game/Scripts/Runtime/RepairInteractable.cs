@@ -42,6 +42,11 @@ namespace MyFutureCity
             return !isFixed && c.Missions.IsObjectiveCurrent(ObjectiveType.Interact, targetId);
         }
 
+        public override bool MatchesCurrentObjective(GameContext c)
+        {
+            return IsAvailable(c);
+        }
+
         public override void Interact(GameSceneController scene)
         {
             scene.Ctx.Missions.Notify(ObjectiveType.Interact, targetId);

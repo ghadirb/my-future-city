@@ -17,7 +17,7 @@ namespace MyFutureCity
     public class HudController : MonoBehaviour
     {
         private GameSceneController scene;
-        private Text coinsText, levelText, missionTitle, missionObjective, promptText, toastText;
+        private Text coinsText, levelText, missionTitle, missionObjective, guideText, promptText, toastText;
         private GameObject interactButton, dialogRoot;
         private Text dialogTitle, dialogBody;
         private RectTransform dialogButtons;
@@ -56,6 +56,13 @@ namespace MyFutureCity
             UIKit.Place(missionTitle.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-16, -8), new Vector2(430, 36));
             missionObjective = UIKit.Label(mp.transform, "", 22, TextAnchor.UpperRight, white, 36);
             UIKit.Place(missionObjective.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-16, -48), new Vector2(430, 66));
+
+            // Always-visible, screen-relative direction cue.  It works for every mission
+            // objective and avoids asking a child to infer a location from dialogue alone.
+            var guide = UIKit.Box(root, "MissionGuide", new Color(0.05f, 0.22f, 0.34f, 0.82f), false);
+            UIKit.Place(guide.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-20, -240), new Vector2(460, 72));
+            guideText = UIKit.Label(guide.transform, "", 25, TextAnchor.MiddleRight, new Color(1f, 0.92f, 0.3f), 0);
+            UIKit.Stretch(guideText.rectTransform, new Vector2(14, 0), new Vector2(-14, 0));
 
             // Pause button (top left)
             var pause = UIKit.MakeButton(root, Strings.Menu, 30, new Color(0.15f, 0.2f, 0.3f, 0.85f), () => scene.OpenPauseMenu());
@@ -137,6 +144,7 @@ namespace MyFutureCity
                 lastPrompt = p;
                 UIKit.SetText(promptText, p, 0);
             }
+            RefreshGuide();
         }
 
         public void Refresh()
@@ -150,6 +158,7 @@ namespace MyFutureCity
             {
                 UIKit.SetText(missionTitle, Strings.NoActiveMission, 0);
                 UIKit.SetText(missionObjective, Strings.TalkToPeople, 36);
+                UIKit.SetText(guideText, "", 0);
                 return;
             }
             UIKit.SetText(missionTitle, active.nameFa, 0);
@@ -160,6 +169,37 @@ namespace MyFutureCity
             if (obj.RequiredCount > 1)
                 line += " (" + ctx.Missions.GetObjectiveCount(active.id, idx) + " از " + obj.RequiredCount + ")";
             UIKit.SetText(missionObjective, line, 36);
+        }
+
+        private void RefreshGuide()
+        {
+            if (guideText == null || scene.player == null || scene.Ctx.Missions.CurrentObjective == null)
+            {
+                if (guideText != null) UIKit.SetText(guideText, "", 0);
+                return;
+            }
+
+            var target = Interactable.FindObjectiveTarget(scene.player.transform.position, scene.Ctx);
+            if (target == null) { UIKit.SetText(guideText, "", 0); return; }
+
+            Vector3 direction = target.transform.position - scene.player.transform.position;
+            direction.y = 0f;
+            float distance = direction.magnitude;
+            if (distance < 3f)
+            {
+                UIKit.SetText(guideText, Strings.GuidePrefix + Strings.GuideNearby, 0);
+                return;
+            }
+
+            Transform viewpoint = Camera.main != null ? Camera.main.transform : scene.player.transform;
+            Vector3 forward = viewpoint.forward;
+            forward.y = 0f;
+            forward.Normalize();
+            direction.Normalize();
+            float front = Vector3.Dot(forward, direction);
+            float side = Vector3.Cross(forward, direction).y;
+            string arrow = front > 0.5f ? "↑" : front < -0.5f ? "↓" : side > 0f ? "→" : "←";
+            UIKit.SetText(guideText, Strings.GuidePrefix + arrow + "  " + Mathf.RoundToInt(distance) + " متر", 0);
         }
 
         public void Toast(string logical)

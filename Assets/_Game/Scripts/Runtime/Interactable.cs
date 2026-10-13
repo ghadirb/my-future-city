@@ -15,8 +15,27 @@ namespace MyFutureCity
         protected virtual void OnDisable() { All.Remove(this); }
 
         public virtual bool IsAvailable(GameContext ctx) { return true; }
+        /// <summary>True when this object is the next destination for the active mission.</summary>
+        public virtual bool MatchesCurrentObjective(GameContext ctx) { return false; }
         public virtual string GetPrompt(GameContext ctx) { return promptFa; }
         public abstract void Interact(GameSceneController scene);
+
+        /// <summary>Finds the closest usable object that advances the current objective.</summary>
+        public static Interactable FindObjectiveTarget(Vector3 position, GameContext ctx)
+        {
+            Interactable best = null;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < All.Count; i++)
+            {
+                var it = All[i];
+                if (it == null || !it.isActiveAndEnabled || !it.MatchesCurrentObjective(ctx)) continue;
+                Vector3 delta = it.transform.position - position;
+                delta.y = 0f;
+                float distance = delta.sqrMagnitude;
+                if (distance < bestDistance) { bestDistance = distance; best = it; }
+            }
+            return best;
+        }
 
         /// <summary>Nearest available interactable in range that the player is not turned away from.</summary>
         public static Interactable FindBest(Vector3 position, Vector3 forward, GameContext ctx)

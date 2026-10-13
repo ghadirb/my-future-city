@@ -58,6 +58,11 @@ namespace MyFutureCity
             return visible && c.Missions.IsObjectiveCurrent(ObjectiveType.Collect, targetId);
         }
 
+        public override bool MatchesCurrentObjective(GameContext c)
+        {
+            return IsAvailable(c);
+        }
+
         public override string GetPrompt(GameContext c)
         {
             return "برداشتن " + displayNameFa;

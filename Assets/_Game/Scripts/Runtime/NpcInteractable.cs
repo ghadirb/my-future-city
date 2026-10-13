@@ -14,6 +14,11 @@ namespace MyFutureCity
             return "گفت\u200Cوگو با " + displayNameFa;
         }
 
+        public override bool MatchesCurrentObjective(GameContext ctx)
+        {
+            return ctx.Missions.IsObjectiveCurrent(ObjectiveType.Talk, npcId);
+        }
+
         public override void Interact(GameSceneController scene)
         {
             var ctx = scene.Ctx;

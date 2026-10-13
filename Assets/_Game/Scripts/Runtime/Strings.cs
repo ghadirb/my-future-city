@@ -25,9 +25,12 @@ namespace MyFutureCity
         public const string Boy = "پسر";
         public const string ChooseCharacter = "شخصیتت را انتخاب کن";
         public const string ConfirmNewGame = "بازی جدید پیشرفت قبلی را پاک می\u200Cکند. مطمئنی؟";
-        public const string Tutorial = "با جوی\u200Cاستیک سمت چپ راه برو.\nبا کشیدن انگشت روی سمت راست صفحه، دوربین را بچرخان.\nنزدیک آدم\u200Cها و وسیله\u200Cها یک دکمهٔ گرد ظاهر می\u200Cشود؛ آن را بزن.\nاول با استاد بهروز حرف بزن!";
+        public const string Tutorial = "با جوی\u200Cاستیک سمت چپ راه برو.\nبا کشیدن انگشت روی سمت راست صفحه، دوربین را بچرخان.\nفلش راهنما زیر مأموریت، جهت و فاصلهٔ هدف بعدی را نشان می\u200Cدهد.\nنزدیک آدم\u200Cها و وسیله\u200Cها یک دکمهٔ گرد ظاهر می\u200Cشود؛ آن را بزن.\nاول با استاد بهروز حرف بزن!";
         public const string NoActiveMission = "مأموریتی فعال نیست";
         public const string TalkToPeople = "به سراغ آدم\u200Cهای شهر برو";
+        public const string Guide = "راهنما";
+        public const string GuidePrefix = "راهنما: ";
+        public const string GuideNearby = "هدف نزدیک است";
         public const string MissionStarted = "مأموریت شروع شد: ";
         public const string MissionDone = "مأموریت انجام شد!";
         public const string Reward = "پاداش: ";
