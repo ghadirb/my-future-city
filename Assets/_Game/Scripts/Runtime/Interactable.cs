@@ -17,6 +17,10 @@ namespace MyFutureCity
         public virtual bool IsAvailable(GameContext ctx) { return true; }
         /// <summary>True when this object is the next destination for the active mission.</summary>
         public virtual bool MatchesCurrentObjective(GameContext ctx) { return false; }
+        /// <summary>True when the guide arrow / 3D marker should point at this object.</summary>
+        public virtual bool IsGuideTarget(GameContext ctx) { return MatchesCurrentObjective(ctx); }
+        /// <summary>Short logical Persian name shown next to the guide arrow.</summary>
+        public virtual string GuideName { get { return ""; } }
         public virtual string GetPrompt(GameContext ctx) { return promptFa; }
         public abstract void Interact(GameSceneController scene);
 
@@ -28,7 +32,7 @@ namespace MyFutureCity
             for (int i = 0; i < All.Count; i++)
             {
                 var it = All[i];
-                if (it == null || !it.isActiveAndEnabled || !it.MatchesCurrentObjective(ctx)) continue;
+                if (it == null || !it.isActiveAndEnabled || !it.IsGuideTarget(ctx)) continue;
                 Vector3 delta = it.transform.position - position;
                 delta.y = 0f;
                 float distance = delta.sqrMagnitude;

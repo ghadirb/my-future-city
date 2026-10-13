@@ -63,6 +63,8 @@ namespace MyFutureCity
             return IsAvailable(c);
         }
 
+        public override string GuideName { get { return displayNameFa; } }
+
         public override string GetPrompt(GameContext c)
         {
             return "برداشتن " + displayNameFa;

@@ -19,6 +19,18 @@ namespace MyFutureCity
             return ctx.Missions.IsObjectiveCurrent(ObjectiveType.Talk, npcId);
         }
 
+        public override string GuideName { get { return displayNameFa; } }
+
+        /// <summary>With no active mission, guide the child to the nearest NPC who has a mission to offer.</summary>
+        public override bool IsGuideTarget(GameContext ctx)
+        {
+            var ms = ctx.Missions;
+            if (ms.ActiveMission != null) return MatchesCurrentObjective(ctx);
+            foreach (var m in ctx.Database.missions)
+                if (m.startNpcId == npcId && ms.GetStatus(m.id) == MissionStatus.Available) return true;
+            return false;
+        }
+
         public override void Interact(GameSceneController scene)
         {
             var ctx = scene.Ctx;

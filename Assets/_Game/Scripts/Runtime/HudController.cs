@@ -33,6 +33,7 @@ namespace MyFutureCity
             var hud = canvas.gameObject.AddComponent<HudController>();
             hud.scene = owner;
             hud.Build(canvas.transform);
+            GuideMarker.Create(owner);
             return hud;
         }
 
@@ -173,7 +174,7 @@ namespace MyFutureCity
 
         private void RefreshGuide()
         {
-            if (guideText == null || scene.player == null || scene.Ctx.Missions.CurrentObjective == null)
+            if (guideText == null || scene.player == null)
             {
                 if (guideText != null) UIKit.SetText(guideText, "", 0);
                 return;
@@ -187,7 +188,7 @@ namespace MyFutureCity
             float distance = direction.magnitude;
             if (distance < 3f)
             {
-                UIKit.SetText(guideText, Strings.GuidePrefix + Strings.GuideNearby, 0);
+                UIKit.SetText(guideText, Strings.GuidePrefix + Strings.GuideNearby + (string.IsNullOrEmpty(target.GuideName) ? "" : "  (" + target.GuideName + ")"), 0);
                 return;
             }
 
@@ -199,7 +200,8 @@ namespace MyFutureCity
             float front = Vector3.Dot(forward, direction);
             float side = Vector3.Cross(forward, direction).y;
             string arrow = front > 0.5f ? "↑" : front < -0.5f ? "↓" : side > 0f ? "→" : "←";
-            UIKit.SetText(guideText, Strings.GuidePrefix + arrow + "  " + Mathf.RoundToInt(distance) + " متر", 0);
+            string who = string.IsNullOrEmpty(target.GuideName) ? "" : "  (" + target.GuideName + ")";
+            UIKit.SetText(guideText, Strings.GuidePrefix + arrow + "  " + Mathf.RoundToInt(distance) + " متر" + who, 0);
         }
 
         public void Toast(string logical)

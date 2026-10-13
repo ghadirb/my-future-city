@@ -226,7 +226,7 @@ namespace UnityEngine
     public class GUIStyle { public int fontSize; public bool wordWrap; public GUIStyleState normal = new GUIStyleState(); }
     public static class GUI { public static void Label(Rect r, string t, GUIStyle s) { } }
     public static class Screen { public static int width; public static int height; public static float dpi; public static int sleepTimeout; }
-    public static class Time { public static float deltaTime, unscaledDeltaTime, unscaledTime, timeScale; }
+    public static class Time { public static float deltaTime, unscaledDeltaTime, unscaledTime, time, timeScale; }
     public static class Input
     {
         public static int touchCount;
