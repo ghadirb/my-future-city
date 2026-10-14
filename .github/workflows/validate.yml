@@ -20,10 +20,28 @@ jobs:
           sudo apt-get install -y -qq mono-mcs mono-runtime
 
       - name: Core logic unit tests (real test sources, run under Mono)
-        run: ./tools/run-logic-tests.sh
+        run: |
+          set -o pipefail
+          ./tools/run-logic-tests.sh 2>&1 | tee logic-tests.log
+
+      - name: Show logic test errors as annotations
+        if: failure()
+        run: |
+          grep -E "error CS|FAIL|Failed:|Unhandled|Exception" logic-tests.log | head -40 | while IFS= read -r line; do
+            echo "::error title=logic-tests::${line}"
+          done
 
       - name: Type-check Unity scripts against local API stubs
-        run: ./tools/typecheck-unity-code.sh
+        run: |
+          set -o pipefail
+          ./tools/typecheck-unity-code.sh 2>&1 | tee typecheck.log
+
+      - name: Show type-check errors as annotations
+        if: failure()
+        run: |
+          grep -E "error CS" typecheck.log | head -40 | while IFS= read -r line; do
+            echo "::error title=typecheck::${line}"
+          done
 
       - name: Summary
         if: always()
