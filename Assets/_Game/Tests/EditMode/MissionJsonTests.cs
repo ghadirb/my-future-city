@@ -38,6 +38,7 @@ namespace MyFutureCity.Tests
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "engineer").Count);
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "doctor").Count);
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "farmer").Count);
+            Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "environment").Count);
         }
 
         [Test]

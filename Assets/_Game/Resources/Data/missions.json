@@ -660,7 +660,7 @@
       "id": "env_01_gloves",
       "jobId": "environment",
       "nameFa": "دستکش‌های پاک‌سازی",
-      "descriptionFa": "دو دستکش کار را پیدا کن و به سحر، محیط‌بان محله، برگردان.",
+      "descriptionFa": "دو دستکش کار را پیدا کن؛ بعد وسیلهٔ ایمن مناسب و برنامهٔ پاک‌سازی را انتخاب کن.",
       "startNpcId": "npc_ranger",
       "requiresMissionId": "",
       "objectives": [
@@ -669,6 +669,12 @@
           "targetId": "work_glove",
           "count": 2,
           "textFa": "دو دستکش کار را پیدا کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "ranger_prep",
+          "count": 1,
+          "textFa": "آماده‌سازی ایمنی: وسایل و برنامهٔ پاک‌سازی را انتخاب کن"
         },
         {
           "type": "talk",
@@ -693,7 +699,7 @@
       "id": "env_02_cleanup",
       "jobId": "environment",
       "nameFa": "پاک‌سازی محله",
-      "descriptionFa": "کیسه‌های زباله را جمع کن و آن‌ها را به ایستگاه بازیافت تحویل بده.",
+      "descriptionFa": "کیسه‌های زباله را جمع کن و با روش ایمن و انتخاب درست تحویل ایستگاه بازیافت بده.",
       "startNpcId": "npc_ranger",
       "requiresMissionId": "env_01_gloves",
       "objectives": [
@@ -707,7 +713,7 @@
           "type": "interact",
           "targetId": "cleanup_station",
           "count": 3,
-          "textFa": "زباله‌ها را به ایستگاه تحویل بده",
+          "textFa": "زباله‌ها را ایمن و درست به ایستگاه تحویل بده",
           "buildingId": "recycling",
           "buildingProgress": 10
         },
@@ -734,7 +740,7 @@
       "id": "env_03_sorting",
       "jobId": "environment",
       "nameFa": "تفکیک هوشمند",
-      "descriptionFa": "سه مخزن بازیافت را برای تفکیک زباله‌ها آماده کن.",
+      "descriptionFa": "زباله‌ها را بر اساس جنس تشخیص بده و در سه مخزن درست تفکیک کن.",
       "startNpcId": "npc_ranger",
       "requiresMissionId": "env_02_cleanup",
       "objectives": [
@@ -742,7 +748,7 @@
           "type": "interact",
           "targetId": "sorting_bin",
           "count": 3,
-          "textFa": "سه مخزن تفکیک را آماده کن",
+          "textFa": "سه مخزن را با تفکیک درست زباله آماده کن",
           "buildingId": "recycling",
           "buildingProgress": 20
         },
@@ -769,7 +775,7 @@
       "id": "env_04_green_space",
       "jobId": "environment",
       "nameFa": "فضای سبز تازه",
-      "descriptionFa": "دو نهال را در فضای سبز کنار ایستگاه بازیافت بکار.",
+      "descriptionFa": "نهال مناسب را انتخاب کن، درست بکار و برای مراقبتش برنامه بچین.",
       "startNpcId": "npc_ranger",
       "requiresMissionId": "env_03_sorting",
       "objectives": [
@@ -777,7 +783,7 @@
           "type": "interact",
           "targetId": "green_plot",
           "count": 2,
-          "textFa": "دو نهال بکار",
+          "textFa": "دو نهال را درست انتخاب و بکار",
           "buildingId": "recycling",
           "buildingProgress": 5
         },
@@ -804,7 +810,7 @@
       "id": "env_05_open_station",
       "jobId": "environment",
       "nameFa": "بازگشایی ایستگاه بازیافت",
-      "descriptionFa": "کارت‌های بازیافت را جمع کن تا ایستگاه رسماً فعالیتش را آغاز کند.",
+      "descriptionFa": "کارت‌های بازیافت را جمع کن، بعد یک روز کامل محیط‌بانی را اداره کن: برنامه، آموزش و بررسی نتیجه.",
       "startNpcId": "npc_ranger",
       "requiresMissionId": "env_04_green_space",
       "objectives": [
@@ -815,6 +821,12 @@
           "textFa": "سه کارت بازیافت را جمع کن",
           "buildingId": "recycling",
           "buildingProgress": 5
+        },
+        {
+          "type": "interact",
+          "targetId": "eco_session",
+          "count": 3,
+          "textFa": "یک روز کامل محیط‌بان را اداره کن: برنامه، آموزش همسایه و بررسی نتیجه"
         },
         {
           "type": "talk",
