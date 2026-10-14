@@ -24,6 +24,19 @@ namespace MyFutureCity.Tests
         }
 
         [Test]
+        public void ShippedActivitiesAreValidAndTeacherIsRealWork()
+        {
+            var db = Load();
+            var asset = Resources.Load<TextAsset>("Data/activities");
+            Assert.IsNotNull(asset, "Resources/Data/activities.json is missing");
+            var acts = JsonUtility.FromJson<ActivityDatabase>(asset.text);
+            var errors = ActivityDatabaseValidator.Validate(acts, db);
+            Assert.AreEqual(0, errors.Count, string.Join("; ", errors.ToArray()));
+            // The master addendum: the teacher cannot be completed by collecting things only.
+            Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "teacher").Count);
+        }
+
+        [Test]
         public void TenCompleteFiveStageJobsWithRewards()
         {
             var db = Load();

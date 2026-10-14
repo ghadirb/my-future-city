@@ -95,6 +95,7 @@ namespace MyFutureCity
                 stats = job.InterestPercent + "% \u00B7 " + InterestAnalyzer.FormatMinutes(job.Seconds)
                         + " \u00B7 " + job.StagesDone + "/" + job.StagesTotal;
                 if (job.Replays > 0) stats += " \u00B7 " + job.Replays + " " + Strings.TagAgain;
+                if (job.ActivitiesDone > 0) stats += " \u00B7 " + job.ActivitiesDone + " " + Strings.TagActivities;
             }
             var st = UIKit.Label(parent, stats, 20, TextAnchor.MiddleLeft, new Color(0.85f, 0.9f, 1f), 0);
             UIKit.Place(st.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, y), new Vector2(340, RowH - 6));

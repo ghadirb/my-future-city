@@ -58,6 +58,18 @@ namespace MyFutureCity.EditorTools
                     foreach (var err in MissionDatabaseValidator.Validate(db)) Error(issues, "missions.json: " + err);
             }
 
+            var actJson = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Game/Resources/Data/activities.json");
+            if (actJson == null) Error(issues, "Activity data missing: Assets/_Game/Resources/Data/activities.json");
+            else if (db != null)
+            {
+                try
+                {
+                    var acts = JsonUtility.FromJson<ActivityDatabase>(actJson.text);
+                    foreach (var err in ActivityDatabaseValidator.Validate(acts, db)) Error(issues, "activities.json: " + err);
+                }
+                catch (System.Exception e) { Error(issues, "activities.json is not valid: " + e.Message); }
+            }
+
             if (!File.Exists(SceneGenerator.MenuScenePath)) Error(issues, "Menu scene missing (run Tools > My Future City > Generate Scenes).");
             if (!File.Exists(SceneGenerator.GameScenePath)) Error(issues, "Game scene missing (run Tools > My Future City > Generate Scenes).");
 
@@ -119,7 +131,7 @@ namespace MyFutureCity.EditorTools
                 var itemCounts = new Dictionary<string, int>();
                 foreach (var p in Object.FindObjectsByType<PickupInteractable>(FindObjectsSortMode.None)) Bump(itemCounts, p.targetId);
                 foreach (var r in Object.FindObjectsByType<RepairInteractable>(FindObjectsSortMode.None)) Bump(itemCounts, r.targetId);
-                foreach (var t in Object.FindObjectsByType<TeacherLessonInteractable>(FindObjectsSortMode.None)) Bump(itemCounts, t.targetId);
+                foreach (var t in Object.FindObjectsByType<ActivityInteractable>(FindObjectsSortMode.None)) Bump(itemCounts, t.targetId);
                 var buildingIds = new HashSet<string>();
                 foreach (var b in Object.FindObjectsByType<BuildingVisual>(FindObjectsSortMode.None)) buildingIds.Add(b.buildingId);
 

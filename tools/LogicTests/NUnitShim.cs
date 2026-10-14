@@ -34,8 +34,27 @@ namespace NUnit.Framework
         public static void IsTrue(bool c, string m) { if (!c) Fail("Expected true", m); }
         public static void IsFalse(bool c) { IsFalse(c, null); }
         public static void IsFalse(bool c, string m) { if (c) Fail("Expected false", m); }
-        public static void IsNull(object o) { if (o != null) Fail("Expected null", null); }
-        public static void IsNotNull(object o) { if (o == null) Fail("Expected not null", null); }
+        public static void IsNull(object o) { IsNull(o, null); }
+        public static void IsNull(object o, string m) { if (o != null) Fail("Expected null", m); }
+        public static void IsNotNull(object o) { IsNotNull(o, null); }
+        public static void IsNotNull(object o, string m) { if (o == null) Fail("Expected not null", m); }
         public static void GreaterOrEqual(int a, int b) { if (a < b) Fail("Expected " + a + " >= " + b, null); }
+        public static void Greater(int a, int b) { if (a <= b) Fail("Expected " + a + " > " + b, null); }
+        public static void Less(float a, float b) { if (a >= b) Fail("Expected " + a + " < " + b, null); }
+        public static void Less(int a, int b) { if (a >= b) Fail("Expected " + a + " < " + b, null); }
+    }
+
+    public static class StringAssert
+    {
+        public static void Contains(string expected, string actual)
+        {
+            if (actual == null || actual.IndexOf(expected, StringComparison.Ordinal) < 0)
+                throw new AssertionException("Expected string containing <" + expected + "> but was <" + actual + ">");
+        }
+        public static void DoesNotContain(string expected, string actual)
+        {
+            if (actual != null && actual.IndexOf(expected, StringComparison.Ordinal) >= 0)
+                throw new AssertionException("Expected string not containing <" + expected + "> but was <" + actual + ">");
+        }
     }
 }

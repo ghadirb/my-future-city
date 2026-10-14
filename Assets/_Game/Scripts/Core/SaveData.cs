@@ -37,6 +37,45 @@ namespace MyFutureCity.Core
         public int replays;
     }
 
+    /// <summary>Exact running totals of the real job activities per job (interest log, separate from rewards).</summary>
+    [Serializable]
+    public class ActivityJobStats
+    {
+        public string jobId;
+        public int started;        // scenes begun
+        public int completed;      // scenes finished
+        public int stepsDone;      // decisions accepted
+        public int firstTry;       // decisions accepted without a mistake or a hint
+        public int wrongChoices;
+        public int hints;
+        public int optionalRuns;   // scenes finished while repeating an already completed stage (the child's own choice)
+        public int abandoned;      // scenes left unfinished
+    }
+
+    /// <summary>How often one scene (one spot of one activity) was completed. Proof that the activity was really done.</summary>
+    [Serializable]
+    public class ActivityRecord
+    {
+        public string missionId;
+        public string targetId;
+        public string jobId;
+        public int scene;
+        public int completions;
+    }
+
+    /// <summary>One decision of the child, kept so the report is built from real choices (newest 400 only).</summary>
+    [Serializable]
+    public class ActivityChoice
+    {
+        public int seq;
+        public string missionId;
+        public string targetId;
+        public int scene;
+        public int step;
+        public int option;
+        public bool correct;
+    }
+
     [Serializable]
     public class BuildingProgress
     {
@@ -54,8 +93,9 @@ namespace MyFutureCity.Core
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
         public const int MaxAttempts = 300;
+        public const int MaxActivityChoices = 400;
 
         public int version = CurrentVersion;
         public string characterId = "";
@@ -70,6 +110,35 @@ namespace MyFutureCity.Core
         public int attemptSeq;
         public List<AttemptRecord> attempts = new List<AttemptRecord>();
         public List<JobStats> jobStats = new List<JobStats>();
+        public int activitySeq;
+        public List<ActivityJobStats> activityStats = new List<ActivityJobStats>();
+        public List<ActivityRecord> activityRecords = new List<ActivityRecord>();
+        public List<ActivityChoice> activityChoices = new List<ActivityChoice>();
+
+        public ActivityJobStats GetActivityStats(string jobId, bool create)
+        {
+            if (activityStats == null) activityStats = new List<ActivityJobStats>();
+            for (int i = 0; i < activityStats.Count; i++)
+                if (activityStats[i] != null && activityStats[i].jobId == jobId) return activityStats[i];
+            if (!create) return null;
+            var a = new ActivityJobStats { jobId = jobId };
+            activityStats.Add(a);
+            return a;
+        }
+
+        public ActivityRecord GetActivityRecord(string missionId, string targetId, int scene, bool create)
+        {
+            if (activityRecords == null) activityRecords = new List<ActivityRecord>();
+            for (int i = 0; i < activityRecords.Count; i++)
+            {
+                var r = activityRecords[i];
+                if (r != null && r.missionId == missionId && r.targetId == targetId && r.scene == scene) return r;
+            }
+            if (!create) return null;
+            var n = new ActivityRecord { missionId = missionId, targetId = targetId, scene = scene };
+            activityRecords.Add(n);
+            return n;
+        }
 
         public JobStats GetJobStats(string jobId, bool create)
         {
@@ -122,6 +191,10 @@ namespace MyFutureCity.Core
             if (attempts == null) attempts = new List<AttemptRecord>();
             if (jobStats == null) jobStats = new List<JobStats>();
             if (attemptSeq < 0) attemptSeq = 0;
+            if (activityStats == null) activityStats = new List<ActivityJobStats>();
+            if (activityRecords == null) activityRecords = new List<ActivityRecord>();
+            if (activityChoices == null) activityChoices = new List<ActivityChoice>();
+            if (activitySeq < 0) activitySeq = 0;
             if (settings.cameraSensitivity < 0.2f || settings.cameraSensitivity > 3f) settings.cameraSensitivity = 1f;
             if (settings.targetFps != 30 && settings.targetFps != 60) settings.targetFps = 30;
 
@@ -149,6 +222,29 @@ namespace MyFutureCity.Core
                 if (j.abandoned < 0) j.abandoned = 0;
                 if (j.replays < 0) j.replays = 0;
             }
+
+            activityStats.RemoveAll(a => a == null || string.IsNullOrEmpty(a.jobId));
+            var seenA = new HashSet<string>();
+            activityStats.RemoveAll(a => !seenA.Add(a.jobId));
+            foreach (var a in activityStats)
+            {
+                if (a.started < 0) a.started = 0;
+                if (a.completed < 0) a.completed = 0;
+                if (a.stepsDone < 0) a.stepsDone = 0;
+                if (a.firstTry < 0) a.firstTry = 0;
+                if (a.firstTry > a.stepsDone) a.firstTry = a.stepsDone;
+                if (a.wrongChoices < 0) a.wrongChoices = 0;
+                if (a.hints < 0) a.hints = 0;
+                if (a.optionalRuns < 0) a.optionalRuns = 0;
+                if (a.abandoned < 0) a.abandoned = 0;
+            }
+            activityRecords.RemoveAll(r => r == null || string.IsNullOrEmpty(r.missionId) || string.IsNullOrEmpty(r.targetId));
+            var seenR = new HashSet<string>();
+            activityRecords.RemoveAll(r => !seenR.Add(r.missionId + "|" + r.targetId + "|" + r.scene));
+            foreach (var r in activityRecords) { if (r.completions < 0) r.completions = 0; if (r.scene < 0) r.scene = 0; }
+            activityChoices.RemoveAll(c => c == null || string.IsNullOrEmpty(c.missionId));
+            foreach (var c in activityChoices) { if (c.seq > activitySeq) activitySeq = c.seq; }
+            if (activityChoices.Count > MaxActivityChoices) activityChoices.RemoveRange(0, activityChoices.Count - MaxActivityChoices);
 
             foreach (var m in missions)
             {

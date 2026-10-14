@@ -58,6 +58,7 @@ namespace MyFutureCity
         public const string More = "بیشتر…";
         public const string TagNew = "جدید";
         public const string TagAgain = "دوباره";
+        public const string TagActivities = "فعالیت";
         public const string ReportInterest = "علاقه";
         public const string ReportNotTried = "هنوز امتحان نشده";
         public const string RepeatOffer = "می\u200Cخواهی دوباره تمرینش کنی؟ پاداشش کمتر است.";
