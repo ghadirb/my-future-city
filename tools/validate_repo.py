@@ -48,7 +48,7 @@ except Exception as e:
     err("mission data check failed: %r" % e)
 
 # 3b. real job activities (mirror of ActivityDatabaseValidator): every decision must be a real choice
-REAL_ACTIVITY_JOBS = {"teacher", "doctor", "engineer"}   # jobs already redesigned as real work; extend as more jobs are converted
+REAL_ACTIVITY_JOBS = {"teacher", "doctor", "engineer", "farmer"}   # jobs already redesigned as real work; extend as more jobs are converted
 try:
     acts = json.load(open(os.path.join(ROOT, "Assets/_Game/Resources/Data/activities.json"), encoding="utf-8"))["activities"]
     mission = {m["id"]: m for m in db["missions"]}

@@ -37,6 +37,7 @@ namespace MyFutureCity.Tests
             // Same rule for engineer and doctor: no mission may be finished by collecting or talking alone.
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "engineer").Count);
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "doctor").Count);
+            Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "farmer").Count);
         }
 
         [Test]

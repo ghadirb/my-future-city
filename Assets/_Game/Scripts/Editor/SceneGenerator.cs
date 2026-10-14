@@ -1011,6 +1011,15 @@ namespace MyFutureCity.EditorTools
             for (int i = 0; i < harvestPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, harvestPos[i], "HarvestBasket", "farm_04_harvest", "harvest_basket", "برداشت محصول", i, harvestPending, harvestReady, beacon);
 
+            // stage 1: choose a healthy seed and a dry, cool place to keep it (real decision, see activities.json: seed_choice)
+            var seedPending = Lit("SeedChoicePending", 0.9f, 0.7f, 0.25f);
+            var seedReady = Lit("SeedChoiceReady", 0.3f, 0.75f, 0.35f);
+            AddTaskSpot(repairs.transform, zones, new Vector3(-7, 0, -27), "SeedChoice", "farm_01_seeds", "seed_choice", "انتخاب بذر", 0, seedPending, seedReady, beacon);
+            // stage 5: one full farm day in three parts: plan, sick plant, market (activities.json: farm_session)
+            Vector3[] farmSessionPos = { new Vector3(-7, 0, -31), new Vector3(-7, 0, -35), new Vector3(22, 0, -31) };
+            for (int i = 0; i < farmSessionPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, farmSessionPos[i], "FarmSession", "farm_05_open_farm", "farm_session", "روز کاری مزرعه", i, seedPending, seedReady, beacon);
+
             var marketCardMat = Lit("MarketCard", 0.95f, 0.45f, 0.25f);
             Vector3[] marketCardPos = { new Vector3(-36, 0.42f, 24), new Vector3(17, 0.42f, -35), new Vector3(35, 0.42f, 18) };
             for (int i = 0; i < marketCardPos.Length; i++)

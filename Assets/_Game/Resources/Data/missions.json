@@ -839,7 +839,7 @@
       "id": "farm_01_seeds",
       "jobId": "farmer",
       "nameFa": "بذرهای گمشده",
-      "descriptionFa": "دو بسته بذر را پیدا کن و به عمو پروین برگردان.",
+      "descriptionFa": "دو بسته بذر را پیدا کن؛ بعد بذر سالم و مناسب را انتخاب کن و جای درست نگه‌داری‌اش را مشخص کن.",
       "startNpcId": "npc_farmer",
       "requiresMissionId": "",
       "objectives": [
@@ -848,6 +848,12 @@
           "targetId": "farm_seed",
           "count": 2,
           "textFa": "دو بسته بذر را پیدا کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "seed_choice",
+          "count": 1,
+          "textFa": "بذر سالم را انتخاب کن و جای نگه‌داری‌اش را مشخص کن"
         },
         {
           "type": "talk",
@@ -872,7 +878,7 @@
       "id": "farm_02_soil",
       "jobId": "farmer",
       "nameFa": "خاک آماده",
-      "descriptionFa": "سه بخش خاک مزرعه را برای کاشت آماده کن.",
+      "descriptionFa": "خاک را شُل کن، کود بده و ردیف‌های کاشت را در سه بخش مزرعه آماده کن.",
       "startNpcId": "npc_farmer",
       "requiresMissionId": "farm_01_seeds",
       "objectives": [
@@ -880,7 +886,7 @@
           "type": "interact",
           "targetId": "farm_soil",
           "count": 3,
-          "textFa": "سه بخش خاک را آماده کن",
+          "textFa": "سه بخش خاک را درست آماده کن: شُل کردن، کود و ردیف‌بندی",
           "buildingId": "farm",
           "buildingProgress": 10
         },
@@ -907,7 +913,7 @@
       "id": "farm_03_watering",
       "jobId": "farmer",
       "nameFa": "آبیاری مزرعه",
-      "descriptionFa": "بطری‌های آب را پیدا کن و دو بخش مزرعه را آبیاری کن.",
+      "descriptionFa": "بطری‌های آب را پیدا کن و با انتخاب مقدار و زمان درست، دو بخش مزرعه را آبیاری کن.",
       "startNpcId": "npc_farmer",
       "requiresMissionId": "farm_02_soil",
       "objectives": [
@@ -921,7 +927,7 @@
           "type": "interact",
           "targetId": "water_plot",
           "count": 2,
-          "textFa": "دو بخش مزرعه را آبیاری کن",
+          "textFa": "دو بخش مزرعه را درست آبیاری کن",
           "buildingId": "farm",
           "buildingProgress": 20
         },
@@ -948,7 +954,7 @@
       "id": "farm_04_harvest",
       "jobId": "farmer",
       "nameFa": "برداشت مهربانانه",
-      "descriptionFa": "سه سبد محصول را آماده کن تا چیزی از مزرعه هدر نرود.",
+      "descriptionFa": "محصول رسیده را تشخیص بده، آرام بچین و سه سبد را طوری آماده کن که چیزی هدر نرود.",
       "startNpcId": "npc_farmer",
       "requiresMissionId": "farm_03_watering",
       "objectives": [
@@ -956,7 +962,7 @@
           "type": "interact",
           "targetId": "harvest_basket",
           "count": 3,
-          "textFa": "سه سبد محصول را آماده کن",
+          "textFa": "سه سبد محصول را درست برداشت و آماده کن",
           "buildingId": "farm",
           "buildingProgress": 10
         },
@@ -983,7 +989,7 @@
       "id": "farm_05_open_farm",
       "jobId": "farmer",
       "nameFa": "بازگشایی مزرعه",
-      "descriptionFa": "کارت‌های بازار را جمع کن تا مزرعه رسماً فعالیتش را آغاز کند.",
+      "descriptionFa": "کارت‌های بازار را جمع کن، بعد یک روز کامل مزرعه را اداره کن: برنامه، بوتهٔ بیمار و فروش.",
       "startNpcId": "npc_farmer",
       "requiresMissionId": "farm_04_harvest",
       "objectives": [
@@ -991,7 +997,13 @@
           "type": "collect",
           "targetId": "market_card",
           "count": 3,
-          "textFa": "سه کارت بازار را جمع کن",
+          "textFa": "سه کارت بازار را جمع کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "farm_session",
+          "count": 3,
+          "textFa": "یک روز کامل مزرعه را اداره کن: برنامه‌ریزی، رسیدگی به بوتهٔ بیمار و فروش",
           "buildingId": "farm",
           "buildingProgress": 5
         },
