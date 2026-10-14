@@ -977,6 +977,15 @@ namespace MyFutureCity.EditorTools
             for (int i = 0; i < plantPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, plantPos[i], "GreenPlot", "env_04_green_space", "green_plot", "کاشت نهال", i, plantPending, plantReady, beacon);
 
+            // env_01: safety gear + plan, next to the ranger (activities.json: ranger_prep)
+            var prepPending = Lit("RangerPrepPending", 0.9f, 0.7f, 0.25f);
+            var prepReady = Lit("RangerPrepReady", 0.3f, 0.75f, 0.35f);
+            AddTaskSpot(repairs.transform, zones, new Vector3(12, 0, 24), "RangerPrep", "env_01_gloves", "ranger_prep", "آماده‌سازی ایمنی", 0, prepPending, prepReady, beacon);
+            // env_05: one full ranger day in three parts: plan, teach a neighbour, check the result (activities.json: eco_session)
+            Vector3[] ecoPos = { new Vector3(24, 0, 21), new Vector3(30, 0, 21), new Vector3(36, 0, 30) };
+            for (int i = 0; i < ecoPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, ecoPos[i], "EcoSession", "env_05_open_station", "eco_session", "روز کاری محیط‌بان", i, prepPending, prepReady, beacon);
+
             var recycleCardMat = Lit("RecycleCard", 0.25f, 0.78f, 0.65f);
             Vector3[] recycleCardPos = { new Vector3(-17, 0.42f, -28), new Vector3(8, 0.42f, 36), new Vector3(34, 0.42f, 12) };
             for (int i = 0; i < recycleCardPos.Length; i++)
