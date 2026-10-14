@@ -21,8 +21,23 @@ namespace MyFutureCity.Core
         public int FasterStages;        // stages whose latest run was clearly quicker than the first
         public int ComparedStages;      // stages that were finished at least twice (so a comparison exists)
 
+        // Real job activities (decisions the child made). Kept apart on purpose: taking part, succeeding,
+        // repeating and choosing freely are different things and must never be merged into one score.
+        public int ActivitiesStarted;
+        public int ActivitiesDone;      // participation: scenes really performed
+        public int ActivityStepsDone;
+        public int FirstTryCorrect;     // success: decisions that were right at the first try without a hint
+        public int WrongChoices;
+        public int HintsUsed;
+        public int OptionalActivityRuns;// scenes finished while voluntarily repeating a finished stage
+        public int ActivitiesAbandoned;
+        public int FreeChoices;         // preference decisions (no wrong answer) recorded in the log
+
         public int Attempts { get { return Completed + Abandoned; } }
         public float StageProgress { get { return StagesTotal <= 0 ? 0f : (float)StagesDone / StagesTotal; } }
+        public bool HasActivities { get { return ActivitiesDone > 0; } }
+        public float ActivitySuccessRate { get { return ActivityStepsDone <= 0 ? 0f : (float)FirstTryCorrect / ActivityStepsDone; } }
+        public int ActivitySuccessPercent { get { return (int)Math.Round(ActivitySuccessRate * 100f); } }
         public int InterestPercent { get { return (int)Math.Round(InterestShare * 100f); } }
         public int CompletionPercent { get { return (int)Math.Round(CompletionRate * 100f); } }
     }
@@ -36,6 +51,7 @@ namespace MyFutureCity.Core
         public string TopInterestJobId;      // where the child spends / returns the most
         public string TopSuccessJobId;       // where the child finishes most reliably
         public string MostImprovedJobId;     // where repeats got clearly faster
+        public string MostActivitiesJobId;   // where the child performed the most real activities
         public List<string> LinesFa = new List<string>();
 
         public bool HasData { get { return Confidence != DataConfidence.None; } }
@@ -62,6 +78,8 @@ namespace MyFutureCity.Core
         public const float FasterRatio = 0.85f;
         /// <summary>Success is only compared between jobs the child tried at least this many times.</summary>
         public const int MinAttemptsForSuccess = 2;
+        /// <summary>Activity success is only mentioned after at least this many decisions (too few says nothing).</summary>
+        public const int MinStepsForActivitySuccess = 3;
 
         public static InsightReport Analyze(MissionDatabase db, SaveData save)
         {
@@ -93,6 +111,18 @@ namespace MyFutureCity.Core
                 if (ji.Replays < 0) ji.Replays = 0;
                 ji.CompletionRate = ji.Attempts == 0 ? 0f : (float)ji.Completed / ji.Attempts;
                 CompareFirstAndLatest(save, job.id, ji);
+                var ast = save.GetActivityStats(job.id, false);
+                if (ast != null)
+                {
+                    ji.ActivitiesStarted = ast.started;
+                    ji.ActivitiesDone = ast.completed;
+                    ji.ActivityStepsDone = ast.stepsDone;
+                    ji.FirstTryCorrect = ast.firstTry;
+                    ji.WrongChoices = ast.wrongChoices;
+                    ji.HintsUsed = ast.hints;
+                    ji.OptionalActivityRuns = ast.optionalRuns;
+                    ji.ActivitiesAbandoned = ast.abandoned;
+                }
                 report.Jobs.Add(ji);
             }
 
@@ -135,6 +165,7 @@ namespace MyFutureCity.Core
             report.TopInterestJobId = report.Jobs[0].JobId;
             report.TopSuccessJobId = PickMostSuccessful(report);
             report.MostImprovedJobId = PickMostImproved(report);
+            report.MostActivitiesJobId = PickMostActivities(report);
             BuildLines(report);
             return report;
         }
@@ -190,6 +221,17 @@ namespace MyFutureCity.Core
             return a.Completed > b.Completed;
         }
 
+        private static string PickMostActivities(InsightReport r)
+        {
+            JobInsight best = null;
+            foreach (var j in r.Jobs)
+            {
+                if (j.ActivitiesDone <= 0) continue;
+                if (best == null || j.ActivitiesDone > best.ActivitiesDone) best = j;
+            }
+            return best == null ? null : best.JobId;
+        }
+
         private static string PickMostImproved(InsightReport r)
         {
             JobInsight best = null;
@@ -234,10 +276,27 @@ namespace MyFutureCity.Core
                 r.LinesFa.Add("بیشترین وقتت صرف «" + top.NameFa + "» شده، ولی در «" + succ.NameFa
                               + "» موفق‌تر بوده‌ای؛ شاید هر دو را بیشتر امتحان کنی.");
 
+            // Wording stays descriptive ("did"), never a verdict ("is talented").
+            var act = r.Find(r.MostActivitiesJobId);
+            if (act != null)
+                r.LinesFa.Add("در «" + act.NameFa + "» " + act.ActivitiesDone + " فعالیت واقعی کار را خودت انجام داده‌ای"
+                              + (act.OptionalActivityRuns > 0 ? " و " + act.OptionalActivityRuns + " بار آن را با میل خودت تکرار کرده‌ای." : "."));
+
+            JobInsight steady = null;
+            foreach (var j in r.Jobs)
+            {
+                if (j.ActivityStepsDone < MinStepsForActivitySuccess) continue;
+                if (steady == null || j.ActivitySuccessRate > steady.ActivitySuccessRate) steady = j;
+            }
+            if (steady != null && steady.ActivitySuccessRate >= 0.5f)
+                r.LinesFa.Add("در «" + steady.NameFa + "» بیشتر تصمیم‌ها را در همان تلاش اول درست انتخاب کرده‌ای.");
+
             int untried = 0;
-            foreach (var j in r.Jobs) if (j.Attempts == 0) untried++;
+            JobInsight firstUntried = null;
+            foreach (var j in r.Jobs)
+                if (j.Attempts == 0) { untried++; if (firstUntried == null) firstUntried = j; }
             if (untried > 0)
-                r.LinesFa.Add(untried + " شغل را هنوز امتحان نکرده‌ای.");
+                r.LinesFa.Add(untried + " شغل را هنوز امتحان نکرده‌ای؛ برای شناخت بهتر علاقه‌ات می‌توانی «" + firstUntried.NameFa + "» را هم امتحان کنی.");
 
             if (r.Confidence == DataConfidence.Low) r.LinesFa.Add(TextLowData);
         }

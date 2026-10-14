@@ -26,6 +26,8 @@ namespace MyFutureCity
         public Wallet Wallet { get; private set; }
         public CityProgressService City { get; private set; }
         public MissionService Missions { get; private set; }
+        public ActivityDatabase ActivityData { get; private set; }
+        public ActivityService Activities { get; private set; }
         public Recommender Recommender { get; private set; }
         public readonly HashSet<string> DismissedSuggestions = new HashSet<string>();
 
@@ -39,12 +41,15 @@ namespace MyFutureCity
             ctx.Wallet = new Wallet(save);
             ctx.City = new CityProgressService(ctx.Database, save);
             ctx.Missions = new MissionService(ctx.Database, save, ctx.Wallet, ctx.City);
+            ctx.ActivityData = ActivityDataLoader.Load(ctx.Database);
+            ctx.Activities = new ActivityService(ctx.ActivityData, save, ctx.Missions);
             ctx.Recommender = new Recommender(ctx.Database, ctx.Missions);
 
             // Persist after meaningful events only (never every frame).
             ctx.Missions.Started += m => ctx.SaveNow();
             ctx.Missions.ObjectiveAdvanced += (m, i) => ctx.SaveNow();
             ctx.Missions.Completed += c => ctx.SaveNow();
+            ctx.Activities.SceneCompleted += a => ctx.SaveNow();
             return ctx;
         }
 
