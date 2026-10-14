@@ -40,6 +40,23 @@ namespace MyFutureCity.Core
             this.save = save;
             this.wallet = wallet;
             this.city = city;
+            DeactivateUnknownMissions();
+        }
+
+        /// <summary>
+        /// A save made before a mission was renamed or removed may still mark it "active". Such a ghost run
+        /// could never be finished, so it is switched off (its completed history is kept as it is).
+        /// </summary>
+        private void DeactivateUnknownMissions()
+        {
+            foreach (var p in save.missions)
+            {
+                if (p == null || !p.active) continue;
+                if (db.FindMission(p.id) != null) continue;
+                p.active = false;
+                p.activeSeconds = 0f;
+                p.objectiveCounts = new List<int>();
+            }
         }
 
         public MissionDatabase Database { get { return db; } }

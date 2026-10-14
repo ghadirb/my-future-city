@@ -54,7 +54,7 @@ namespace MyFutureCity.Core
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
         public const int MaxAttempts = 300;
 
         public int version = CurrentVersion;
@@ -70,6 +70,10 @@ namespace MyFutureCity.Core
         public int attemptSeq;
         public List<AttemptRecord> attempts = new List<AttemptRecord>();
         public List<JobStats> jobStats = new List<JobStats>();
+        /// <summary>What the child really did inside each profession (separate from rewards).</summary>
+        public ActivityData activity = new ActivityData();
+        /// <summary>The lesson the child is currently teaching (teacher profession).</summary>
+        public string teachingLessonId = "";
 
         public JobStats GetJobStats(string jobId, bool create)
         {
@@ -104,6 +108,32 @@ namespace MyFutureCity.Core
             return b;
         }
 
+        private void SanitizeActivity()
+        {
+            if (activity == null) activity = new ActivityData();
+            if (activity.events == null) activity.events = new List<ActivityEvent>();
+            if (activity.counters == null) activity.counters = new List<ActivityCounter>();
+            activity.events.RemoveAll(e => e == null || string.IsNullOrEmpty(e.jobId) || string.IsNullOrEmpty(e.activityId));
+            foreach (var e in activity.events)
+            {
+                if (e.missionId == null) e.missionId = "";
+                if (e.detail == null) e.detail = "";
+                if (e.seq > activity.seq) activity.seq = e.seq;
+            }
+            if (activity.seq < 0) activity.seq = 0;
+            if (activity.events.Count > ActivityLog.MaxEvents)
+                activity.events.RemoveRange(0, activity.events.Count - ActivityLog.MaxEvents);
+            activity.counters.RemoveAll(c => c == null || string.IsNullOrEmpty(c.jobId) || string.IsNullOrEmpty(c.activityId));
+            var seen = new HashSet<string>();
+            activity.counters.RemoveAll(c => !seen.Add(c.jobId + "|" + c.activityId));
+            foreach (var c in activity.counters)
+            {
+                if (c.count < 0) c.count = 0;
+                if (c.firstTry < 0) c.firstTry = 0;
+                if (c.neededHelp < 0) c.neededHelp = 0;
+            }
+        }
+
         /// <summary>
         /// Repairs partial / damaged data so the game never has to crash on a bad save.
         /// Safe to call repeatedly.
@@ -122,6 +152,8 @@ namespace MyFutureCity.Core
             if (attempts == null) attempts = new List<AttemptRecord>();
             if (jobStats == null) jobStats = new List<JobStats>();
             if (attemptSeq < 0) attemptSeq = 0;
+            if (teachingLessonId == null) teachingLessonId = "";
+            SanitizeActivity();
             if (settings.cameraSensitivity < 0.2f || settings.cameraSensitivity > 3f) settings.cameraSensitivity = 1f;
             if (settings.targetFps != 30 && settings.targetFps != 60) settings.targetFps = 30;
 

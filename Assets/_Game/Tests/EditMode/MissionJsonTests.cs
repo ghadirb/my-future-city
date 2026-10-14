@@ -47,6 +47,52 @@ namespace MyFutureCity.Tests
             }
         }
 
+        private static LessonDatabase LoadLessons()
+        {
+            var asset = Resources.Load<TextAsset>("Data/lessons");
+            Assert.IsNotNull(asset, "Resources/Data/lessons.json is missing");
+            return JsonUtility.FromJson<LessonDatabase>(asset.text);
+        }
+
+        [Test]
+        public void ShippedLessonDataIsValid()
+        {
+            var errors = LessonDatabaseValidator.Validate(LoadLessons());
+            Assert.AreEqual(0, errors.Count, string.Join("; ", errors.ToArray()));
+        }
+
+        [Test]
+        public void TeacherStagesRequireRealTeachingWork()
+        {
+            var db = Load();
+            var teacher = db.missions.FindAll(m => m.jobId == "teacher");
+            Assert.AreEqual(5, teacher.Count);
+            for (int i = 0; i < teacher.Count; i++)
+            {
+                var m = teacher[i];
+                bool teaches = m.objectives.Exists(o => o.ParsedType() == ObjectiveType.Interact &&
+                                                         TeacherLessonInteractable.IsTeachingTarget(o.targetId));
+                Assert.IsTrue(teaches, m.id + " has no real teaching activity");
+                if (i > 0)
+                    Assert.IsFalse(m.objectives.Exists(o => o.ParsedType() == ObjectiveType.Collect),
+                                   m.id + " must not be an item hunt");
+            }
+            Assert.IsTrue(teacher[0].objectives.Exists(o => o.targetId == "lesson_topic"), "stage 1 must let the child choose a lesson");
+            Assert.IsTrue(teacher[4].objectives.Exists(o => o.targetId == "teach_full"), "stage 5 must run a whole lesson");
+        }
+
+        [Test]
+        public void ActivityDataSurvivesJsonRoundTrip()
+        {
+            var s = new SaveData { teachingLessonId = "lesson_math" };
+            new ActivityLog(s).Record("teacher", "m", ActivityIds.HelpStudent, "h1", ActivityResult.NeededHelp);
+            var back = JsonUtility.FromJson<SaveData>(JsonUtility.ToJson(s));
+            back.Sanitize();
+            Assert.AreEqual("lesson_math", back.teachingLessonId);
+            Assert.AreEqual(1, back.activity.events.Count);
+            Assert.AreEqual(1, back.activity.counters[0].neededHelp);
+        }
+
         [Test]
         public void SaveDataSurvivesJsonRoundTrip()
         {

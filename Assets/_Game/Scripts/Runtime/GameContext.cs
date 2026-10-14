@@ -27,6 +27,9 @@ namespace MyFutureCity
         public CityProgressService City { get; private set; }
         public MissionService Missions { get; private set; }
         public Recommender Recommender { get; private set; }
+        public LessonDatabase Lessons { get; private set; }
+        public ActivityLog Activity { get; private set; }
+        public TeachingService Teaching { get; private set; }
         public readonly HashSet<string> DismissedSuggestions = new HashSet<string>();
 
         public bool HasProgress { get { return !string.IsNullOrEmpty(Save.characterId); } }
@@ -40,11 +43,15 @@ namespace MyFutureCity
             ctx.City = new CityProgressService(ctx.Database, save);
             ctx.Missions = new MissionService(ctx.Database, save, ctx.Wallet, ctx.City);
             ctx.Recommender = new Recommender(ctx.Database, ctx.Missions);
+            ctx.Lessons = LessonDataLoader.Load();
+            ctx.Activity = new ActivityLog(save);
+            ctx.Teaching = new TeachingService(ctx.Lessons, save, ctx.Activity, new System.Random());
 
             // Persist after meaningful events only (never every frame).
             ctx.Missions.Started += m => ctx.SaveNow();
             ctx.Missions.ObjectiveAdvanced += (m, i) => ctx.SaveNow();
             ctx.Missions.Completed += c => ctx.SaveNow();
+            ctx.Activity.Recorded += () => ctx.SaveNow();
             return ctx;
         }
 

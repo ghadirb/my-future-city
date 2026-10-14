@@ -265,7 +265,9 @@ namespace MyFutureCity.EditorTools
         {
             var root = Empty(name + order, parent, position);
             GameObject pending, completed;
-            if (targetId == "classroom_lesson")
+            bool isTeaching = TeacherLessonInteractable.IsTeachingTarget(targetId);
+            bool studentVisual = targetId == TeacherLessonInteractable.TargetStudents || targetId == TeacherLessonInteractable.TargetHelp;
+            if (studentVisual)
             {
                 // A real student character (not a flat card) so the child can see who needs help.
                 var hair = Lit("StudentHair", 0.2f, 0.12f, 0.08f);
@@ -281,9 +283,9 @@ namespace MyFutureCity.EditorTools
                 completed.transform.localRotation = Quaternion.Euler(0, 180f, 0);
                 Prim(PrimitiveType.Sphere, "Marker", pending.transform, new Vector3(0, 2.7f, 0), new Vector3(0.3f, 0.3f, 0.3f), beacon, false);
             }
-            else if (targetId == "lesson_board")
+            else if (isTeaching)
             {
-                // A tall, visible teaching board on legs.
+                // A tall, visible teaching board on legs (lesson choice, concept board, class situation).
                 pending = Prim(PrimitiveType.Cube, "Pending", root.transform, new Vector3(0, 1.3f, 0), new Vector3(1.7f, 1.1f, 0.14f), pendingMaterial, false);
                 Prim(PrimitiveType.Cube, "Leg", pending.transform, new Vector3(0, -0.8f, 0), new Vector3(0.08f, 1.1f, 0.5f), Lit("BoardLeg", 0.35f, 0.22f, 0.15f), false);
                 Prim(PrimitiveType.Cylinder, "Beacon", pending.transform, new Vector3(0, 1.4f, 0), new Vector3(0.09f, 1.0f, 0.09f), beacon, false);
@@ -295,7 +297,7 @@ namespace MyFutureCity.EditorTools
                 Prim(PrimitiveType.Cylinder, "Beacon", pending.transform, new Vector3(0, 1.9f, 0), new Vector3(0.09f, 1.3f, 0.09f), beacon, false);
                 completed = Prim(PrimitiveType.Cube, "Completed", root.transform, new Vector3(0, 0.45f, 0), new Vector3(0.85f, 0.85f, 0.22f), completedMaterial, false);
             }
-            if (targetId == "lesson_board" || targetId == "classroom_lesson")
+            if (isTeaching)
             {
                 var lesson = root.AddComponent<TeacherLessonInteractable>();
                 lesson.missionId = missionId;
@@ -860,41 +862,44 @@ namespace MyFutureCity.EditorTools
                 zones.Add(new Zone(cleanupPos[i].x, cleanupPos[i].z, 2, 2));
             }
 
-            // ----- teacher job: unlocked only after the school becomes active -----
+            // ----- teacher job: real teaching, not an item hunt -----
+            // Stage 1 starts with a short preparation (books, desks); everything after that is teaching work.
             var bookMat = Lit("LibraryBook", 0.3f, 0.5f, 0.95f);
             Vector3[] bookPos = { new Vector3(-5, 0.42f, 31), new Vector3(17, 0.42f, 30) };
             for (int i = 0; i < bookPos.Length; i++)
-                AddPickupMarker(pickups.transform, zones, bookPos[i], "LibraryBook", "teach_01_books", "library_book", "کتاب", i, bookMat, beacon);
+                AddPickupMarker(pickups.transform, zones, bookPos[i], "LibraryBook", "teach_01_prepare_class", "library_book", "کتاب", i, bookMat, beacon);
 
             var deskPending = Lit("DeskPending", 0.75f, 0.55f, 0.3f);
             var deskReady = Lit("DeskReady", 0.3f, 0.8f, 0.55f);
-            Vector3[] deskPos = { new Vector3(-34, 0, 28), new Vector3(-28, 0, 28), new Vector3(-22, 0, 28) };
+            Vector3[] deskPos = { new Vector3(-34, 0, 28), new Vector3(-28, 0, 28) };
             for (int i = 0; i < deskPos.Length; i++)
-                AddTaskSpot(repairs.transform, zones, deskPos[i], "ClassroomDesk", "teach_02_classroom", "classroom_setup", "مرتب کردن", i, deskPending, deskReady, beacon);
+                AddTaskSpot(repairs.transform, zones, deskPos[i], "ClassroomDesk", "teach_01_prepare_class", "classroom_setup", "مرتب کردن", i, deskPending, deskReady, beacon);
 
-            var seedMat = Lit("GardenSeed", 0.95f, 0.7f, 0.2f);
-            Vector3[] seedPos = { new Vector3(-7, 0.42f, 13), new Vector3(6, 0.42f, 23), new Vector3(17, 0.42f, 8) };
-            for (int i = 0; i < seedPos.Length; i++)
-                AddPickupMarker(pickups.transform, zones, seedPos[i], "GardenSeed", "teach_03_garden", "garden_seed", "بستهٔ بذر", i, seedMat, beacon);
-
-            var soilMat = Lit("GardenSoil", 0.5f, 0.35f, 0.18f);
-            var plantMat = Lit("GardenPlant", 0.25f, 0.8f, 0.35f);
-            Vector3[] gardenPos = { new Vector3(-38, 0, 13), new Vector3(-38, 0, 19) };
-            for (int i = 0; i < gardenPos.Length; i++)
-                AddTaskSpot(repairs.transform, zones, gardenPos[i], "GardenPlot", "teach_03_garden", "school_garden", "کاشت بذر", i, soilMat, plantMat, beacon);
-
-            // Teacher practice is real classroom interaction, not another collectible hunt.
-            var cardMat = Lit("LessonCard", 0.95f, 0.55f, 0.25f);
-            var boardMat = Lit("LessonReady", 0.25f, 0.65f, 0.95f);
-            Vector3[] boardPos = { new Vector3(-33, 0, 2), new Vector3(-27, 0, 2), new Vector3(-21, 0, 2) };
-            for (int i = 0; i < boardPos.Length; i++)
-                AddTaskSpot(repairs.transform, zones, boardPos[i], "LessonCard", "teach_04_lesson_board", "lesson_board", "تمرین تدریس", i, cardMat, boardMat, beacon);
-
+            // Teaching spots of different stages share places in the school yard; each one is only visible
+            // while its own stage is running (see TeacherLessonInteractable.Refresh).
+            var boardMat = Lit("LessonBoard", 0.95f, 0.55f, 0.25f);
+            var boardReadyMat = Lit("LessonReady", 0.25f, 0.65f, 0.95f);
             var studentMat = Lit("StudentLesson", 0.95f, 0.72f, 0.32f);
             var studentReadyMat = Lit("StudentHelped", 0.3f, 0.8f, 0.55f);
-            Vector3[] studentLessonPos = { new Vector3(-32, 0, 7.5f), new Vector3(-26, 0, 7.5f), new Vector3(-20, 0, 7.5f) };
-            for (int i = 0; i < studentLessonPos.Length; i++)
-                AddTaskSpot(repairs.transform, zones, studentLessonPos[i], "StudentLesson", "teach_05_open_class", "classroom_lesson", "کمک به دانش‌آموز", i, studentMat, studentReadyMat, beacon);
+            Vector3 boardA = new Vector3(-33, 0, 2), boardB = new Vector3(-27, 0, 2), boardC = new Vector3(-21, 0, 2);
+            Vector3 studentA = new Vector3(-32, 0, 7.5f), studentB = new Vector3(-26, 0, 7.5f), studentC = new Vector3(-20, 0, 7.5f);
+
+            // 1 prepare: choose today's lesson topic
+            AddTaskSpot(repairs.transform, zones, boardB, "LessonTopic1", "teach_01_prepare_class", "lesson_topic", "انتخاب موضوع درس", 0, boardMat, boardReadyMat, beacon);
+            // 2 teach: show + explain the concept, then listen to a student
+            AddTaskSpot(repairs.transform, zones, boardA, "TeachBoard", "teach_02_teach_lesson", "teach_board", "ارائه درس", 0, boardMat, boardReadyMat, beacon);
+            AddTaskSpot(repairs.transform, zones, boardB, "TeachBoard", "teach_02_teach_lesson", "teach_board", "توضیح ساده", 1, boardMat, boardReadyMat, beacon);
+            AddTaskSpot(repairs.transform, zones, studentB, "TeachStudent", "teach_02_teach_lesson", "teach_students", "گوش دادن به دانش‌آموز", 0, studentMat, studentReadyMat, beacon);
+            // 3 help two students who are stuck
+            AddTaskSpot(repairs.transform, zones, studentA, "HelpStudent", "teach_03_help_student", "teach_help", "کمک به دانش‌آموز", 0, studentMat, studentReadyMat, beacon);
+            AddTaskSpot(repairs.transform, zones, studentC, "HelpStudent", "teach_03_help_student", "teach_help", "کمک به دانش‌آموز", 1, studentMat, studentReadyMat, beacon);
+            // 4 manage the class: three situations
+            AddTaskSpot(repairs.transform, zones, boardA, "ClassSituation", "teach_04_manage_class", "teach_activity", "فعالیت کلاس", 0, boardMat, boardReadyMat, beacon);
+            AddTaskSpot(repairs.transform, zones, boardB, "ClassSituation", "teach_04_manage_class", "teach_activity", "فعالیت کلاس", 1, boardMat, boardReadyMat, beacon);
+            AddTaskSpot(repairs.transform, zones, boardC, "ClassSituation", "teach_04_manage_class", "teach_activity", "فعالیت کلاس", 2, boardMat, boardReadyMat, beacon);
+            // 5 a whole lesson: choose the topic, then run it
+            AddTaskSpot(repairs.transform, zones, boardA, "LessonTopic5", "teach_05_full_session", "lesson_topic", "انتخاب موضوع درس", 0, boardMat, boardReadyMat, beacon);
+            AddTaskSpot(repairs.transform, zones, boardC, "FullSession", "teach_05_full_session", "teach_full", "شروع جلسهٔ کامل", 0, boardMat, boardReadyMat, beacon);
 
             // ----- doctor job: unlocks after the first class, then reopens the clinic -----
             var kitMat = Lit("MedicalKit", 0.96f, 0.95f, 0.95f);

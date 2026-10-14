@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MyFutureCity.Core;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,8 +12,8 @@ namespace MyFutureCity
     /// </summary>
     public static class ReportScreen
     {
-        private const float PanelW = 1100f, PanelH = 660f;
-        private const float BarW = 400f, RowH = 46f;
+        private const float PanelW = 1100f, PanelH = 700f;
+        private const float BarW = 400f, RowH = 36f;
 
         public static void Show(GameContext ctx, Action onClose)
         {
@@ -47,18 +48,31 @@ namespace MyFutureCity
                     y -= RowH;
                 }
 
-                // Short sentences under the bars (most important first).
-                var sb = new System.Text.StringBuilder();
-                int shown = 0;
+                // Short sentences under the bars: the general interest lines first, then what the child really
+                // did while teaching (read from the activity log, never from coins or scores).
+                var all = new List<string>();
                 foreach (var line in report.LinesFa)
                 {
-                    if (shown >= 5) break;
-                    if (shown > 0) sb.Append('\n');
-                    sb.Append(line);
-                    shown++;
+                    if (all.Count >= 3) break;
+                    all.Add(line);
                 }
-                var lines = UIKit.Label(panel.transform, sb.ToString(), 22, TextAnchor.UpperRight, new Color(0.85f, 0.95f, 1f), 78);
-                UIKit.Place(lines.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-40, y - 14f), new Vector2(PanelW - 80, 150));
+                var activity = ActivityAnalyzer.TeacherLinesFa(ctx.Save, ctx.Lessons);
+                foreach (var line in activity)
+                {
+                    if (all.Count >= 5) break;
+                    all.Add(line);
+                }
+                var sb = new System.Text.StringBuilder();
+                for (int i = 0; i < all.Count; i++)
+                {
+                    if (i > 0) sb.Append('\n');
+                    sb.Append(all[i]);
+                }
+                var lines = UIKit.Label(panel.transform, sb.ToString(), 20, TextAnchor.UpperRight, new Color(0.85f, 0.95f, 1f), 88);
+                UIKit.Place(lines.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-40, y - 10f), new Vector2(PanelW - 80, 130));
+
+                var note = UIKit.Label(panel.transform, ActivityAnalyzer.TextNote, 16, TextAnchor.LowerCenter, new Color(0.7f, 0.78f, 0.9f), 100);
+                UIKit.Place(note.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 88), new Vector2(PanelW - 80, 26));
             }
 
             var close = UIKit.MakeButton(panel.transform, Strings.Close, 32, new Color(0.18f, 0.6f, 0.4f), () =>
@@ -74,17 +88,17 @@ namespace MyFutureCity
         private static void BuildRow(Transform parent, JobInsight job, bool isTop, float y)
         {
             // job name (right side, Persian reading order)
-            var name = UIKit.Label(parent, job.NameFa, 26, TextAnchor.MiddleRight, isTop ? new Color(1f, 0.9f, 0.4f) : Color.white, 0);
+            var name = UIKit.Label(parent, job.NameFa, 24, TextAnchor.MiddleRight, isTop ? new Color(1f, 0.9f, 0.4f) : Color.white, 0);
             UIKit.Place(name.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-40, y), new Vector2(250, RowH - 6));
 
             // bar track + fill
             var track = UIKit.Box(parent, "Track", new Color(1f, 1f, 1f, 0.12f), false);
-            UIKit.Place(track.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-300, y - 8f), new Vector2(BarW, RowH - 22f));
+            UIKit.Place(track.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-300, y - 8f), new Vector2(BarW, RowH - 16f));
             if (job.InterestShare > 0.001f)
             {
                 var fill = UIKit.Box(track.transform, "Fill", isTop ? new Color(1f, 0.78f, 0.2f) : new Color(0.3f, 0.65f, 0.95f), false);
                 UIKit.Place(fill.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), Vector2.zero,
-                    new Vector2(Mathf.Max(8f, BarW * job.InterestShare), RowH - 22f));
+                    new Vector2(Mathf.Max(8f, BarW * job.InterestShare), RowH - 16f));
             }
 
             // numbers (left side)
@@ -96,7 +110,7 @@ namespace MyFutureCity
                         + " \u00B7 " + job.StagesDone + "/" + job.StagesTotal;
                 if (job.Replays > 0) stats += " \u00B7 " + job.Replays + " " + Strings.TagAgain;
             }
-            var st = UIKit.Label(parent, stats, 20, TextAnchor.MiddleLeft, new Color(0.85f, 0.9f, 1f), 0);
+            var st = UIKit.Label(parent, stats, 18, TextAnchor.MiddleLeft, new Color(0.85f, 0.9f, 1f), 0);
             UIKit.Place(st.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, y), new Vector2(340, RowH - 6));
         }
     }

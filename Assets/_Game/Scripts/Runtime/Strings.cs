@@ -62,6 +62,26 @@ namespace MyFutureCity
         public const string ReportNotTried = "هنوز امتحان نشده";
         public const string RepeatOffer = "می\u200Cخواهی دوباره تمرینش کنی؟ پاداشش کمتر است.";
 
+
+        // ---- teacher: real teaching flow ----
+        public const string NoLessons = "درسی برای تدریس پیدا نشد.";
+        public const string ChooseLessonTitle = "انتخاب موضوع درس";
+        public const string ChooseLessonBody = "امروز چه درسی می\u200Cدهی؟ هر موضوعی را که دوست داری انتخاب کن.";
+        public const string LessonChosen = "موضوع درس: ";
+        public const string TryAgain = "دوباره انتخاب می\u200Cکنم";
+        public const string TryAnotherWay = "یک بار دیگر فکر کنیم";
+        public const string RightWayTitle = "راه مناسب این بود";
+        public const string GreatTeaching = "آفرین!";
+        public const string AlternativeExplanation = "توضیح دیگر: ";
+        public const string BestChoice = "انتخاب مناسب: ";
+        public const string LessonTopicPrefix = "درس «";
+        public const string SessionEndTitle = "پایان جلسه";
+        public const string TeachPresent = "ارائه مفهوم";
+        public const string TeachExplain = "توضیح ساده";
+        public const string TeachCheck = "پاسخ دانش\u200Cآموز";
+        public const string TeachHelp = "کمک به دانش\u200Cآموز";
+        public const string TeachManage = "مدیریت کلاس";
+
         public static string StatusFa(Core.MissionStatus s)
         {
             switch (s)

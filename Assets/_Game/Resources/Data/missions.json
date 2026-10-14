@@ -10,9 +10,9 @@
     {
       "id": "teacher",
       "nameFa": "معلم",
-      "descriptionFa": "کلاس را آماده کن، به بچه\u200cها کمک کن و مدرسهٔ شهر را زنده نگه دار.",
+      "descriptionFa": "کلاس را آماده کن، درس بده، به دانش\u200cآموزها کمک کن و کلاس را اداره کن.",
       "badgeId": "badge_teacher_helper",
-      "badgeNameFa": "نشان یاور معلم"
+      "badgeNameFa": "نشان معلم"
     },
     {
       "id": "doctor",
@@ -206,90 +206,193 @@
       "completeTextFa": "آفرین! مدرسه آماده و فعال شد. شهر با کمک تو جای بهتری برای یادگرفتن است."
     },
     {
-      "id": "teach_01_books",
+      "id": "teach_01_prepare_class",
       "jobId": "teacher",
-      "nameFa": "کتاب\u200cهای کتابخانه",
-      "descriptionFa": "دو کتاب گمشده را پیدا کن و به خانم نوری برگردان.",
+      "nameFa": "آماده کردن کلاس",
+      "descriptionFa": "کلاس را برای دانش\u200cآموزان آماده کن و موضوع درس امروز را انتخاب کن.",
       "startNpcId": "npc_teacher",
       "requiresMissionId": "",
       "objectives": [
-        { "type": "collect", "targetId": "library_book", "count": 2, "textFa": "دو کتاب گمشده را پیدا کن" },
-        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "کتاب\u200cها را به خانم نوری بده" }
+        {
+          "type": "collect",
+          "targetId": "library_book",
+          "count": 2,
+          "textFa": "دو کتاب درسی را از کتابخانه بیاور"
+        },
+        {
+          "type": "interact",
+          "targetId": "classroom_setup",
+          "count": 2,
+          "textFa": "دو میز کلاس را برای دانش\u200cآموزان بچین"
+        },
+        {
+          "type": "interact",
+          "targetId": "lesson_topic",
+          "count": 1,
+          "textFa": "موضوع درس امروز را انتخاب کن"
+        },
+        {
+          "type": "talk",
+          "targetId": "npc_teacher",
+          "count": 1,
+          "textFa": "به خانم نوری بگو کلاس آماده است"
+        }
       ],
-      "reward": { "coins": 15, "xp": 25, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "reward": {
+        "coins": 15,
+        "xp": 25,
+        "badgeId": "",
+        "buildingId": "",
+        "buildingProgress": 0
+      },
       "repeatable": true,
       "repeatCoins": 5,
-      "offerTextFa": "سلام! من نوری، معلم مدرسه هستم. دو کتاب از کتابخانه بیرون افتاده؛ پیدایشان می\u200cکنی؟",
-      "completeTextFa": "ممنون! حالا بچه\u200cها دوباره کتاب\u200cهایشان را دارند."
+      "offerTextFa": "سلام! من نوری هستم، معلم مدرسه. بیا کلاس را آماده کنیم: کتاب\u200cها را بیاور، میزها را بچین و بعد موضوع درس امروز را خودت انتخاب کن.",
+      "completeTextFa": "کلاس آماده است و موضوع درس را خودت انتخاب کردی. حالا وقت درس دادن است!"
     },
     {
-      "id": "teach_02_classroom",
+      "id": "teach_02_teach_lesson",
       "jobId": "teacher",
-      "nameFa": "چیدمان کلاس",
-      "descriptionFa": "سه میز کلاس را مرتب کن تا کلاس برای دانش\u200cآموزها آماده شود.",
+      "nameFa": "تدریس یک درس",
+      "descriptionFa": "یک مفهوم را با وسیلهٔ آموزشی نشان بده، به زبان ساده توضیح بده و به پاسخ دانش\u200cآموز گوش بده.",
       "startNpcId": "npc_teacher",
-      "requiresMissionId": "teach_01_books",
+      "requiresMissionId": "teach_01_prepare_class",
       "objectives": [
-        { "type": "interact", "targetId": "classroom_setup", "count": 3, "textFa": "سه میز کلاس را مرتب کن" },
-        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "آماده شدن کلاس را خبر بده" }
+        {
+          "type": "interact",
+          "targetId": "teach_board",
+          "count": 2,
+          "textFa": "مفهوم را روی تخته نشان بده و به زبان ساده توضیح بده"
+        },
+        {
+          "type": "interact",
+          "targetId": "teach_students",
+          "count": 1,
+          "textFa": "به پاسخ دانش\u200cآموز گوش بده و درس را ادامه بده"
+        },
+        {
+          "type": "talk",
+          "targetId": "npc_teacher",
+          "count": 1,
+          "textFa": "به خانم نوری بگو درس را چطور پیش بردی"
+        }
       ],
-      "reward": { "coins": 20, "xp": 35, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "reward": {
+        "coins": 20,
+        "xp": 35,
+        "badgeId": "",
+        "buildingId": "",
+        "buildingProgress": 0
+      },
       "repeatable": true,
       "repeatCoins": 7,
-      "offerTextFa": "کلاس تازه باز شده، اما میزها هنوز مرتب نیستند. کمک کن سه میز را آماده کنیم.",
-      "completeTextFa": "کلاس خیلی مرتب شد؛ بچه\u200cها با خوشحالی وارد می\u200cشوند."
+      "offerTextFa": "حالا نوبت درس دادن است! مفهوم را با یک وسیله نشان بده، ساده توضیح بده و ببین دانش\u200cآموزها چه جواب می\u200cدهند.",
+      "completeTextFa": "تو یک درس را ارائه کردی، توضیح دادی و با توجه به پاسخ دانش\u200cآموز ادامه دادی. معلم خوبی هستی!"
     },
     {
-      "id": "teach_03_garden",
+      "id": "teach_03_help_student",
       "jobId": "teacher",
-      "nameFa": "باغچهٔ یادگیری",
-      "descriptionFa": "بذرها را پیدا کن و باغچهٔ کوچک مدرسه را آماده کن.",
+      "nameFa": "کمک به دانش\u200cآموز",
+      "descriptionFa": "دو دانش\u200cآموز که درس را نفهمیده\u200cاند منتظر کمک تو هستند.",
       "startNpcId": "npc_teacher",
-      "requiresMissionId": "teach_02_classroom",
+      "requiresMissionId": "teach_02_teach_lesson",
       "objectives": [
-        { "type": "collect", "targetId": "garden_seed", "count": 3, "textFa": "سه بسته بذر پیدا کن" },
-        { "type": "interact", "targetId": "school_garden", "count": 2, "textFa": "دو بخش باغچه را آماده کن" },
-        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "کار باغچه را خبر بده" }
+        {
+          "type": "interact",
+          "targetId": "teach_help",
+          "count": 2,
+          "textFa": "برای دو دانش\u200cآموز بهترین توضیح را انتخاب کن"
+        },
+        {
+          "type": "talk",
+          "targetId": "npc_teacher",
+          "count": 1,
+          "textFa": "به خانم نوری بگو به دانش\u200cآموزها کمک کردی"
+        }
       ],
-      "reward": { "coins": 25, "xp": 45, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "reward": {
+        "coins": 25,
+        "xp": 45,
+        "badgeId": "",
+        "buildingId": "",
+        "buildingProgress": 0
+      },
       "repeatable": true,
       "repeatCoins": 8,
-      "offerTextFa": "می\u200cخواهیم کنار مدرسه یک باغچهٔ کوچک آموزشی داشته باشیم. بذرها را پیدا کن و دو بخش باغچه را آماده کن.",
-      "completeTextFa": "باغچه آماده شد؛ حالا درس\u200cها را می\u200cتوانیم بیرون از کلاس هم یاد بگیریم."
+      "offerTextFa": "دو دانش\u200cآموز مشکل دارند. گوش بده چه می\u200cگویند و روش مناسب را برای توضیح دادن انتخاب کن. اگر روش اول کمک نکرد، می\u200cتوانی روش دیگری را امتحان کنی.",
+      "completeTextFa": "به دو دانش\u200cآموز کمک کردی؛ وقتی یک توضیح کار نمی\u200cکند، معلم خوب روش دیگری را امتحان می\u200cکند."
     },
     {
-      "id": "teach_04_lesson_board",
+      "id": "teach_04_manage_class",
       "jobId": "teacher",
-      "nameFa": "تمرین واقعی تدریس",
-      "descriptionFa": "یک درس کوتاه آماده کن و با توضیح روشن به سه پرسش دانش‌آموزان پاسخ بده.",
+      "nameFa": "مدیریت کلاس",
+      "descriptionFa": "در سه موقعیت کلاسی، فعالیت مناسب را انتخاب کن.",
       "startNpcId": "npc_teacher",
-      "requiresMissionId": "teach_03_garden",
+      "requiresMissionId": "teach_03_help_student",
       "objectives": [
-        { "type": "interact", "targetId": "lesson_board", "count": 3, "textFa": "به سه پرسش دانش‌آموزان با توضیح مناسب پاسخ بده" },
-        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "تابلوی درس را نشان بده" }
+        {
+          "type": "interact",
+          "targetId": "teach_activity",
+          "count": 3,
+          "textFa": "در سه موقعیت کلاسی، فعالیت مناسب را انتخاب کن"
+        },
+        {
+          "type": "talk",
+          "targetId": "npc_teacher",
+          "count": 1,
+          "textFa": "به خانم نوری بگو کلاس را اداره کردی"
+        }
       ],
-      "reward": { "coins": 30, "xp": 55, "badgeId": "", "buildingId": "", "buildingProgress": 0 },
+      "reward": {
+        "coins": 30,
+        "xp": 55,
+        "badgeId": "",
+        "buildingId": "",
+        "buildingProgress": 0
+      },
       "repeatable": true,
       "repeatCoins": 10,
-      "offerTextFa": "حالا وقت تدریس است! با سه پرسش واقعی روبه‌رو می‌شوی؛ پاسخ مناسب را انتخاب کن و روش توضیح دادن را تمرین کن.",
-      "completeTextFa": "آفرین! به سه پرسش پاسخ دادی و روش توضیح دادن، برخورد آرام و بررسی یادگیری را تمرین کردی."
+      "offerTextFa": "کلاس فقط توضیح دادن نیست؛ باید بین توضیح، تمرین و بررسی جواب\u200cها تعادل باشد. سه موقعیت پیش می\u200cآید؛ تصمیم با توست.",
+      "completeTextFa": "کلاس را خوب اداره کردی: بین توضیح، تمرین و بررسی تعادل ایجاد کردی."
     },
     {
-      "id": "teach_05_open_class",
+      "id": "teach_05_full_session",
       "jobId": "teacher",
-      "nameFa": "برگزاری اولین کلاس",
-      "descriptionFa": "به سه دانش‌آموز کمک کن مفهوم درس را بفهمند و سپس شروع کلاس را به خانم نوری خبر بده.",
+      "nameFa": "اداره یک جلسهٔ کامل",
+      "descriptionFa": "یک درس کامل را از شروع تا پایان اجرا کن و نشان معلمی بگیر.",
       "startNpcId": "npc_teacher",
-      "requiresMissionId": "teach_04_lesson_board",
+      "requiresMissionId": "teach_04_manage_class",
       "objectives": [
-        { "type": "interact", "targetId": "classroom_lesson", "count": 3, "textFa": "به سه دانش‌آموز کمک کن مفهوم درس را بفهمند" },
-        { "type": "talk", "targetId": "npc_teacher", "count": 1, "textFa": "برای شروع کلاس به خانم نوری بگو" }
+        {
+          "type": "interact",
+          "targetId": "lesson_topic",
+          "count": 1,
+          "textFa": "موضوع درس را انتخاب کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "teach_full",
+          "count": 1,
+          "textFa": "درس را شروع کن، توضیح بده، تمرین انتخاب کن و به دانش\u200cآموزان کمک کن"
+        },
+        {
+          "type": "talk",
+          "targetId": "npc_teacher",
+          "count": 1,
+          "textFa": "نتیجهٔ جلسه را به خانم نوری بگو"
+        }
       ],
-      "reward": { "coins": 40, "xp": 75, "badgeId": "badge_teacher_helper", "buildingId": "", "buildingProgress": 0 },
+      "reward": {
+        "coins": 40,
+        "xp": 75,
+        "badgeId": "badge_teacher_helper",
+        "buildingId": "",
+        "buildingProgress": 0
+      },
       "repeatable": true,
       "repeatCoins": 8,
-      "offerTextFa": "دانش‌آموزها منتظرند! با هر کدام گفت‌وگو کن، نیازش را بفهم و بهترین راه کمک به یادگیری‌اش را انتخاب کن.",
-      "completeTextFa": "کلاس اولت را برگزار کردی! تو نشان یاور معلم را گرفتی و به دانش‌آموزان کمک کردی بهتر یاد بگیرند."
+      "offerTextFa": "وقتش رسیده یک جلسهٔ کامل را خودت اداره کنی: موضوع را انتخاب کن، درس بده، تمرین بگذار، جواب\u200cها را بررسی کن و به کسی که کمک می\u200cخواهد کمک کن.",
+      "completeTextFa": "جلسهٔ کامل را اداره کردی! نشان معلم را گرفتی."
     },
     {
       "id": "med_01_first_aid",
