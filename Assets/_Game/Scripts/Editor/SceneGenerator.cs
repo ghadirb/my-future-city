@@ -1063,6 +1063,13 @@ namespace MyFutureCity.EditorTools
             for (int i = 0; i < alarmPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, alarmPos[i], "Alarm", "fire_04_alarms", "fire_alarm", "آزمون آژیر", i, alarmPending, alarmReady, beacon);
 
+            // fire_01: gear + radio + inspection plan, next to Amin (activities.json: fire_prep)
+            AddTaskSpot(repairs.transform, zones, new Vector3(-17, 0, -10), "FirePrep", "fire_01_helmets", "fire_prep", "آماده‌سازی آتش‌نشان", 0, safetyPending, safetyReady, beacon);
+            // fire_05: one full firefighter day in three parts: plan, teach a neighbour, check the result (activities.json: fire_session)
+            Vector3[] fireSessionPos = { new Vector3(-24, 0, -11), new Vector3(-30, 0, -11), new Vector3(-36, 0, -11) };
+            for (int i = 0; i < fireSessionPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, fireSessionPos[i], "FireSession", "fire_05_open_station", "fire_session", "روز کاری آتش‌نشان", i, safetyPending, safetyReady, beacon);
+
             var safetyCardMat = Lit("SafetyCard", 0.95f, 0.45f, 0.25f);
             Vector3[] safetyCardPos = { new Vector3(-9, 0.42f, 35), new Vector3(19, 0.42f, -8), new Vector3(34, 0.42f, 33) };
             for (int i = 0; i < safetyCardPos.Length; i++)

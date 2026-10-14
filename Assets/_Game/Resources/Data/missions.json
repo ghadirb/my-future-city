@@ -1042,7 +1042,7 @@
       "id": "fire_01_helmets",
       "jobId": "firefighter",
       "nameFa": "کلاه‌های ایمنی",
-      "descriptionFa": "دو کلاه ایمنی را پیدا کن و به امین، آتش‌نشان محله، برگردان.",
+      "descriptionFa": "دو کلاه ایمنی را پیدا کن؛ بعد تجهیزات ایمنی درست و بی‌سیم را آماده کن.",
       "startNpcId": "npc_firefighter",
       "requiresMissionId": "",
       "objectives": [
@@ -1051,6 +1051,12 @@
           "targetId": "fire_helmet",
           "count": 2,
           "textFa": "دو کلاه ایمنی را پیدا کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "fire_prep",
+          "count": 1,
+          "textFa": "آماده‌سازی: لباس، بی‌سیم و برنامهٔ بازبینی را انتخاب کن"
         },
         {
           "type": "talk",
@@ -1075,7 +1081,7 @@
       "id": "fire_02_hoses",
       "jobId": "firefighter",
       "nameFa": "شلنگ‌های آماده",
-      "descriptionFa": "شلنگ‌های آب را پیدا کن و آن‌ها را روی دو جایگاه ایستگاه نصب کن.",
+      "descriptionFa": "شلنگ‌ها را پیدا کن، بازرسی کن و درست روی جایگاه‌ها به شیر آب وصل کن.",
       "startNpcId": "npc_firefighter",
       "requiresMissionId": "fire_01_helmets",
       "objectives": [
@@ -1089,7 +1095,7 @@
           "type": "interact",
           "targetId": "hose_rack",
           "count": 2,
-          "textFa": "دو جایگاه شلنگ را آماده کن",
+          "textFa": "دو جایگاه شلنگ را درست بازرسی و وصل کن",
           "buildingId": "fire_station",
           "buildingProgress": 15
         },
@@ -1116,7 +1122,7 @@
       "id": "fire_03_safety",
       "jobId": "firefighter",
       "nameFa": "بازبینی ایمنی",
-      "descriptionFa": "سه نقطهٔ ایمنی ایستگاه را بررسی کن تا دوباره آمادهٔ خدمت شود.",
+      "descriptionFa": "کپسول، دتکتور دود و راه خروج ایستگاه را درست بازرسی کن.",
       "startNpcId": "npc_firefighter",
       "requiresMissionId": "fire_02_hoses",
       "objectives": [
@@ -1124,7 +1130,7 @@
           "type": "interact",
           "targetId": "safety_check",
           "count": 3,
-          "textFa": "سه نقطهٔ ایمنی را بررسی کن",
+          "textFa": "سه نقطهٔ ایمنی را بازرسی و درست کن",
           "buildingId": "fire_station",
           "buildingProgress": 20
         },
@@ -1151,7 +1157,7 @@
       "id": "fire_04_alarms",
       "jobId": "firefighter",
       "nameFa": "آزمون آژیرها",
-      "descriptionFa": "دو آژیر ایمنی را آزمایش کن تا همه بدانند ایستگاه آماده است.",
+      "descriptionFa": "آژیرها را درست آزمایش کن و رفتار درست هنگام حریق را یاد بگیر.",
       "startNpcId": "npc_firefighter",
       "requiresMissionId": "fire_03_safety",
       "objectives": [
@@ -1159,7 +1165,7 @@
           "type": "interact",
           "targetId": "fire_alarm",
           "count": 2,
-          "textFa": "دو آژیر را آزمایش کن",
+          "textFa": "دو آژیر را درست آزمایش کن",
           "buildingId": "fire_station",
           "buildingProgress": 10
         },
@@ -1186,7 +1192,7 @@
       "id": "fire_05_open_station",
       "jobId": "firefighter",
       "nameFa": "بازگشایی ایستگاه",
-      "descriptionFa": "کارت‌های ایمنی را جمع کن تا ایستگاه آتش‌نشانی رسماً فعالیتش را آغاز کند.",
+      "descriptionFa": "کارت‌های ایمنی را جمع کن، بعد یک روز کامل آتش‌نشانی را اداره کن: برنامه، آموزش و بررسی نتیجه.",
       "startNpcId": "npc_firefighter",
       "requiresMissionId": "fire_04_alarms",
       "objectives": [
@@ -1197,6 +1203,12 @@
           "textFa": "سه کارت ایمنی را جمع کن",
           "buildingId": "fire_station",
           "buildingProgress": 5
+        },
+        {
+          "type": "interact",
+          "targetId": "fire_session",
+          "count": 3,
+          "textFa": "یک روز کامل آتش‌نشان را اداره کن: برنامه، آموزش همسایه و بررسی نتیجه"
         },
         {
           "type": "talk",
