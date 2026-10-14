@@ -131,7 +131,7 @@ namespace MyFutureCity.Tests
             Assert.IsNull(s.Choose(99));
             Assert.AreEqual(0, s.Attempts);
             s.Choose(s.CorrectDisplayIndex);
-            Assert.IsNull(s.Choose(0), "a finished step cannot be answered again");
+            Assert.IsNull(s.Choose(0));      // a finished step cannot be answered again
             Assert.AreEqual(1, s.Attempts);
         }
 
