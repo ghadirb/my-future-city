@@ -123,7 +123,7 @@
       "id": "eng_01_toolbox",
       "jobId": "engineer",
       "nameFa": "جعبه‌ابزار گمشده",
-      "descriptionFa": "استاد بهروز جعبه‌ابزارش را گم کرده. پیدایش کن و به او برگردان.",
+      "descriptionFa": "جعبه‌ابزار استاد را پیدا کن؛ بعد مدرسه را مثل یک مهندس بازدید کن.",
       "startNpcId": "npc_engineer",
       "requiresMissionId": "",
       "objectives": [
@@ -134,10 +134,16 @@
           "textFa": "جعبه‌ابزار استاد را پیدا کن"
         },
         {
+          "type": "interact",
+          "targetId": "site_check",
+          "count": 1,
+          "textFa": "ساختمان مدرسه را بازدید کن و ایمنی و ابزار درست را انتخاب کن"
+        },
+        {
           "type": "talk",
           "targetId": "npc_engineer",
           "count": 1,
-          "textFa": "جعبه‌ابزار را به استاد بهروز برگردان"
+          "textFa": "نتیجهٔ بازدید را به استاد بهروز بگو"
         }
       ],
       "reward": {
@@ -156,7 +162,7 @@
       "id": "eng_02_planks",
       "jobId": "engineer",
       "nameFa": "جمع‌آوری تخته",
-      "descriptionFa": "برای تعمیر مدرسه به چند تخته چوب نیاز داریم.",
+      "descriptionFa": "تخته‌ها را جمع کن و برای حصار و سقف مصالح درست انتخاب کن.",
       "startNpcId": "npc_engineer",
       "requiresMissionId": "eng_01_toolbox",
       "objectives": [
@@ -167,10 +173,16 @@
           "textFa": "تخته چوب پیدا کن"
         },
         {
+          "type": "interact",
+          "targetId": "material_choice",
+          "count": 2,
+          "textFa": "برای حصار و سقف مصالح مناسب انتخاب کن"
+        },
+        {
           "type": "talk",
           "targetId": "npc_engineer",
           "count": 1,
-          "textFa": "تخته‌ها را به استاد بهروز بده"
+          "textFa": "مصالح انتخاب‌شده را به استاد بهروز بگو"
         }
       ],
       "reward": {
@@ -189,17 +201,15 @@
       "id": "eng_03_repair_school",
       "jobId": "engineer",
       "nameFa": "تعمیر مدرسه",
-      "descriptionFa": "مدرسه را دوباره زنده کن تا بچه‌های محله بتوانند درس بخوانند.",
+      "descriptionFa": "پنجره، در و نردهٔ مدرسه را تشخیص بده، درست تعمیر کن و آزمایش کن.",
       "startNpcId": "npc_engineer",
       "requiresMissionId": "eng_02_planks",
       "objectives": [
         {
           "type": "interact",
-          "targetId": "school_repair",
+          "targetId": "school_fix",
           "count": 3,
-          "textFa": "نقطه‌های خراب مدرسه را تعمیر کن",
-          "buildingId": "school",
-          "buildingProgress": 25
+          "textFa": "سه ایراد مدرسه را تشخیص بده و درست تعمیر کن"
         },
         {
           "type": "talk",
@@ -213,18 +223,18 @@
         "xp": 60,
         "badgeId": "badge_engineer_apprentice",
         "buildingId": "school",
-        "buildingProgress": 25
+        "buildingProgress": 50
       },
       "repeatable": true,
       "repeatCoins": 8,
-      "offerTextFa": "مدرسه سال‌هاست متروک مانده. بیا با هم زنده‌اش کنیم! سه نقطهٔ خراب دور مدرسه را تعمیر کن.",
+      "offerTextFa": "مدرسه سال‌هاست متروک مانده. سه ایراد دارد: پنجره، در و نرده. هر کدام را تشخیص بده و درست تعمیر کن.",
       "completeTextFa": "مدرسه دوباره زنده شد! بچه‌های محله از این به بعد می‌توانند آنجا درس بخوانند."
     },
     {
       "id": "eng_04_paint_school",
       "jobId": "engineer",
       "nameFa": "رنگ تازه برای مدرسه",
-      "descriptionFa": "دو قوطی رنگ پیدا کن و بخش‌های فرسودهٔ مدرسه را رنگ‌آمیزی کن.",
+      "descriptionFa": "رنگ را پیدا کن، دیوار را آماده کن و درست رنگ‌آمیزی کن.",
       "startNpcId": "npc_engineer",
       "requiresMissionId": "eng_03_repair_school",
       "objectives": [
@@ -236,11 +246,9 @@
         },
         {
           "type": "interact",
-          "targetId": "school_paint",
+          "targetId": "school_finish",
           "count": 2,
-          "textFa": "دیوارهای مدرسه را رنگ‌آمیزی کن",
-          "buildingId": "school",
-          "buildingProgress": 10
+          "textFa": "دیوار را آماده کن و درست رنگ‌آمیزی کن"
         },
         {
           "type": "talk",
@@ -254,18 +262,18 @@
         "xp": 70,
         "badgeId": "",
         "buildingId": "school",
-        "buildingProgress": 20
+        "buildingProgress": 30
       },
       "repeatable": true,
       "repeatCoins": 10,
-      "offerTextFa": "مدرسه جان گرفته، اما هنوز رنگ و روی شادی ندارد. دو قوطی رنگ پیدا کن و دو بخش فرسوده را رنگ بزن.",
+      "offerTextFa": "مدرسه جان گرفته، اما هنوز رنگ شادی ندارد. اول دیوار را آماده کن و بعد درست رنگ بزن.",
       "completeTextFa": "چه رنگ‌های شادی! مدرسه حالا خیلی دوست‌داشتنی‌تر شده است."
     },
     {
       "id": "eng_05_open_school",
       "jobId": "engineer",
       "nameFa": "آماده‌سازی روز اول مدرسه",
-      "descriptionFa": "محوطهٔ مدرسه را پاک‌سازی کن تا برای بازگشت بچه‌ها آماده شود.",
+      "descriptionFa": "محوطه را پاک کن، ایمنی را بازرسی کن و گزارش پایانی را بنویس.",
       "startNpcId": "npc_engineer",
       "requiresMissionId": "eng_04_paint_school",
       "objectives": [
@@ -273,9 +281,13 @@
           "type": "collect",
           "targetId": "school_cleanup",
           "count": 3,
-          "textFa": "سه کیسهٔ زباله را جمع کن",
-          "buildingId": "school",
-          "buildingProgress": 10
+          "textFa": "سه کیسهٔ زباله را جمع کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "safety_check",
+          "count": 3,
+          "textFa": "بازرسی ایمنی، آزمایش تعمیرها و گزارش پایانی را انجام بده"
         },
         {
           "type": "talk",
@@ -289,11 +301,11 @@
         "xp": 90,
         "badgeId": "badge_engineer_apprentice",
         "buildingId": "school",
-        "buildingProgress": 20
+        "buildingProgress": 30
       },
       "repeatable": true,
       "repeatCoins": 8,
-      "offerTextFa": "فقط محوطهٔ مدرسه مانده است. سه کیسه زباله را جمع کن تا روز اول مدرسه را شروع کنیم.",
+      "offerTextFa": "فقط بازرسی نهایی مانده است. محوطه را پاک کن، تعمیرها را بیازمای و گزارش بده.",
       "completeTextFa": "آفرین! مدرسه آماده و فعال شد. شهر با کمک تو جای بهتری برای یادگرفتن است."
     },
     {
