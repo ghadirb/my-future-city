@@ -927,24 +927,31 @@ namespace MyFutureCity.EditorTools
             var supplyReady = Lit("SupplyReady", 0.3f, 0.75f, 0.9f);
             Vector3[] supplyPos = { new Vector3(-8.5f, 0, 36), new Vector3(8.5f, 0, 36) };
             for (int i = 0; i < supplyPos.Length; i++)
-                AddTaskSpot(repairs.transform, zones, supplyPos[i], "ClinicSupply", "med_02_supplies", "clinic_supplies", "چیدن تجهیزات", i, supplyPending, supplyReady, beacon);
+                AddTaskSpot(repairs.transform, zones, supplyPos[i], "FirstAidCase", "med_02_supplies", "first_aid_case", "کمک‌های اولیه", i, supplyPending, supplyReady, beacon);
 
             var repairPending = Lit("ClinicRepairPending", 0.78f, 0.28f, 0.2f);
             var repairReady = Lit("ClinicRepairReady", 0.3f, 0.82f, 0.5f);
             Vector3[] clinicRepairPos = { new Vector3(-8.5f, 0, 22), new Vector3(0, 0, 21.5f), new Vector3(8.5f, 0, 22) };
             for (int i = 0; i < clinicRepairPos.Length; i++)
-                AddTaskSpot(repairs.transform, zones, clinicRepairPos[i], "ClinicRepair", "med_03_repair_clinic", "clinic_repair", "تعمیر کلینیک", i, repairPending, repairReady, beacon);
+                AddTaskSpot(repairs.transform, zones, clinicRepairPos[i], "TriageCase", "med_03_repair_clinic", "triage_case", "بررسی بیمار", i, repairPending, repairReady, beacon);
 
             var roomPending = Lit("RoomPending", 0.72f, 0.55f, 0.42f);
             var roomReady = Lit("RoomReady", 0.42f, 0.8f, 0.7f);
             Vector3[] roomPos = { new Vector3(-7, 0, 18), new Vector3(7, 0, 18) };
             for (int i = 0; i < roomPos.Length; i++)
-                AddTaskSpot(repairs.transform, zones, roomPos[i], "WaitingRoom", "med_04_waiting_room", "waiting_room", "آماده‌سازی سالن", i, roomPending, roomReady, beacon);
+                AddTaskSpot(repairs.transform, zones, roomPos[i], "PatientCare", "med_04_waiting_room", "patient_care", "مراقبت از بیمار", i, roomPending, roomReady, beacon);
 
-            var healthCardMat = Lit("HealthCard", 0.3f, 0.85f, 0.8f);
-            Vector3[] healthCardPos = { new Vector3(-31, 0.42f, -5), new Vector3(17, 0.42f, -23), new Vector3(34, 0.42f, -28) };
-            for (int i = 0; i < healthCardPos.Length; i++)
-                AddPickupMarker(pickups.transform, zones, healthCardPos[i], "HealthCard", "med_05_open_clinic", "health_card", "کارت سلامت", i, healthCardMat, beacon);
+            // med_01: assessing a simple situation (the kits above are only the introduction)
+            var checkPending = Lit("PatientCheckPending", 0.95f, 0.6f, 0.35f);
+            var checkReady = Lit("PatientCheckReady", 0.4f, 0.8f, 0.85f);
+            AddTaskSpot(repairs.transform, zones, new Vector3(0, 0, 17), "PatientCheck", "med_01_first_aid", "patient_check", "بررسی کودک آسیب‌دیده", 0, checkPending, checkReady, beacon);
+
+            // med_05: one complete visit in three parts (reception, care, explanation)
+            var visitPending = Lit("VisitPending", 0.55f, 0.7f, 0.95f);
+            var visitReady = Lit("VisitReady", 0.45f, 0.85f, 0.55f);
+            Vector3[] visitPos = { new Vector3(-12, 0, 19), new Vector3(0, 0, 14), new Vector3(12, 0, 19) };
+            for (int i = 0; i < visitPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, visitPos[i], "ClinicSession", "med_05_open_clinic", "clinic_session", "ویزیت کامل", i, visitPending, visitReady, beacon);
 
             // ----- environment job: unlocks after the clinic becomes active -----
             var gloveMat = Lit("WorkGlove", 0.95f, 0.72f, 0.2f);
