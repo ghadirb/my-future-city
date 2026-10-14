@@ -24,6 +24,12 @@ jobs:
           set -o pipefail
           ./tools/run-logic-tests.sh 2>&1 | tee logic-tests.log
 
+      - name: Report logic test totals
+        if: always()
+        run: |
+          line=$(grep -E "^Passed:" logic-tests.log | tail -1)
+          echo "::notice title=logic-tests::${line:-no result line}"
+
       - name: Show logic test errors as annotations
         if: failure()
         run: |
