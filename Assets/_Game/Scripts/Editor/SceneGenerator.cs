@@ -1104,6 +1104,13 @@ namespace MyFutureCity.EditorTools
             for (int i = 0; i < seatPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, seatPos[i], "TerminalSeat", "transit_04_seats", "terminal_seat", "آماده‌سازی صندلی", i, seatPending, seatReady, beacon);
 
+            // transit_01: plan the first trip + solve a travel-card problem, next to Leila (activities.json: travel_plan)
+            AddTaskSpot(repairs.transform, zones, new Vector3(-30, 0, -23), "TravelPlan", "transit_01_passes", "travel_plan", "برنامهٔ سفر", 0, routePending, routeReady, beacon);
+            // transit_05: one full terminal day in three parts: plan, passengers, check the result (activities.json: transit_session)
+            Vector3[] transitSessionPos = { new Vector3(-17, 0, -22), new Vector3(-17, 0, -28), new Vector3(-17, 0, -34) };
+            for (int i = 0; i < transitSessionPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, transitSessionPos[i], "TransitSession", "transit_05_open_terminal", "transit_session", "روز کاری پایانه", i, seatPending, seatReady, beacon);
+
             var travelCardMat = Lit("TravelCard", 0.92f, 0.4f, 0.68f);
             Vector3[] travelCardPos = { new Vector3(-16, 0.42f, 35), new Vector3(12, 0.42f, -16), new Vector3(34, 0.42f, -17) };
             for (int i = 0; i < travelCardPos.Length; i++)

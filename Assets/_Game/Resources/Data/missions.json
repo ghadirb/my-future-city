@@ -1233,7 +1233,7 @@
       "id": "transit_01_passes",
       "jobId": "transport",
       "nameFa": "کارت‌های سفر",
-      "descriptionFa": "دو کارت سفر را پیدا کن و به لیلا، رانندهٔ محله، برگردان.",
+      "descriptionFa": "دو کارت سفر را پیدا کن؛ بعد سفر را برنامه‌ریزی کن و مشکل کارت مسافر را حل کن.",
       "startNpcId": "npc_driver",
       "requiresMissionId": "",
       "objectives": [
@@ -1242,6 +1242,12 @@
           "targetId": "transit_pass",
           "count": 2,
           "textFa": "دو کارت سفر را پیدا کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "travel_plan",
+          "count": 1,
+          "textFa": "برنامهٔ اولین سفر را بچین و مشکل کارت مسافر را حل کن"
         },
         {
           "type": "talk",
@@ -1266,7 +1272,7 @@
       "id": "transit_02_parcels",
       "jobId": "transport",
       "nameFa": "بسته‌های مسیر",
-      "descriptionFa": "بسته‌ها را پیدا کن و آن‌ها را در دو جایگاه پایانه تحویل بده.",
+      "descriptionFa": "بسته‌ها را پیدا کن، درست بچین و با تطبیق آدرس به گیرندهٔ درست تحویل بده.",
       "startNpcId": "npc_driver",
       "requiresMissionId": "transit_01_passes",
       "objectives": [
@@ -1280,7 +1286,7 @@
           "type": "interact",
           "targetId": "parcel_bay",
           "count": 2,
-          "textFa": "بسته‌ها را در دو جایگاه تحویل بده",
+          "textFa": "دو بسته را درست بچین و تحویل بده",
           "buildingId": "transit",
           "buildingProgress": 15
         },
@@ -1307,7 +1313,7 @@
       "id": "transit_03_routes",
       "jobId": "transport",
       "nameFa": "مسیرهای روشن",
-      "descriptionFa": "سه تابلو مسیر را آماده کن تا همه راه درست را پیدا کنند.",
+      "descriptionFa": "تابلوها را بشناس، جهت درست را نشان بده و مسیر ایمن را انتخاب کن.",
       "startNpcId": "npc_driver",
       "requiresMissionId": "transit_02_parcels",
       "objectives": [
@@ -1315,7 +1321,7 @@
           "type": "interact",
           "targetId": "route_sign",
           "count": 3,
-          "textFa": "سه تابلو مسیر را آماده کن",
+          "textFa": "سه تابلو را درست انتخاب و تنظیم کن",
           "buildingId": "transit",
           "buildingProgress": 20
         },
@@ -1342,7 +1348,7 @@
       "id": "transit_04_seats",
       "jobId": "transport",
       "nameFa": "صندلی‌های انتظار",
-      "descriptionFa": "دو جای نشستن را آماده کن تا سفر برای همه راحت‌تر شود.",
+      "descriptionFa": "جای نشستن را برای مسافران مختلف درست تنظیم کن و در موقعیت‌های ایمنی تصمیم بگیر.",
       "startNpcId": "npc_driver",
       "requiresMissionId": "transit_03_routes",
       "objectives": [
@@ -1350,7 +1356,7 @@
           "type": "interact",
           "targetId": "terminal_seat",
           "count": 2,
-          "textFa": "دو صندلی انتظار را آماده کن",
+          "textFa": "دو جای انتظار را برای مسافران درست آماده کن",
           "buildingId": "transit",
           "buildingProgress": 10
         },
@@ -1377,7 +1383,7 @@
       "id": "transit_05_open_terminal",
       "jobId": "transport",
       "nameFa": "بازگشایی پایانه",
-      "descriptionFa": "کارت‌های سفر را جمع کن تا پایانه رسماً فعالیتش را آغاز کند.",
+      "descriptionFa": "کارت‌های سفر را جمع کن، بعد یک روز کامل پایانه را اداره کن: برنامه، مسافران و بررسی نتیجه.",
       "startNpcId": "npc_driver",
       "requiresMissionId": "transit_04_seats",
       "objectives": [
@@ -1388,6 +1394,12 @@
           "textFa": "سه کارت سفر را جمع کن",
           "buildingId": "transit",
           "buildingProgress": 5
+        },
+        {
+          "type": "interact",
+          "targetId": "transit_session",
+          "count": 3,
+          "textFa": "یک روز کامل پایانه را اداره کن: برنامه، راهنمایی مسافران و بررسی نتیجه"
         },
         {
           "type": "talk",
