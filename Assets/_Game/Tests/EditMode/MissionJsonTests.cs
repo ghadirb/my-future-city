@@ -34,7 +34,8 @@ namespace MyFutureCity.Tests
             Assert.AreEqual(0, errors.Count, string.Join("; ", errors.ToArray()));
             // The master addendum: the teacher cannot be completed by collecting things only.
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "teacher").Count);
-            // Same rule for the doctor: no mission may be finished by collecting or talking alone.
+            // Same rule for engineer and doctor: no mission may be finished by collecting or talking alone.
+            Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "engineer").Count);
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "doctor").Count);
         }
 

@@ -658,22 +658,9 @@ namespace MyFutureCity.EditorTools
             var beacon = Glow("Beacon", 1f, 0.9f, 0.2f);
             Vector3[] repairPos = { new Vector3(-31, 0, 9.3f), new Vector3(-21, 0, 9.3f), new Vector3(-16.3f, 0, 14f) };
             var repairs = Empty("RepairPoints", null, Vector3.zero);
+            // stage 3: three real repair jobs (window, door, stair railing); see activities.json (school_fix)
             for (int i = 0; i < repairPos.Length; i++)
-            {
-                var rp = Empty("RepairPoint" + i, repairs.transform, repairPos[i]);
-                var br = Prim(PrimitiveType.Cube, "Broken", rp.transform, new Vector3(0, 0.5f, 0), new Vector3(0.8f, 0.8f, 0.8f), brokenMat, false);
-                Prim(PrimitiveType.Cylinder, "Beacon", br.transform, new Vector3(0, 2.2f, 0), new Vector3(0.12f, 1.6f, 0.12f), beacon, false);
-                var fx = Prim(PrimitiveType.Cube, "Fixed", rp.transform, new Vector3(0, 0.3f, 0), new Vector3(0.6f, 0.6f, 0.6f), fixedMat, false);
-                var ri = rp.AddComponent<RepairInteractable>();
-                ri.missionId = "eng_03_repair_school";
-                ri.targetId = "school_repair";
-                ri.order = i;
-                ri.promptFa = "تعمیر";
-                ri.radius = 2.4f;
-                ri.brokenVisual = br;
-                ri.fixedVisual = fx;
-                zones.Add(new Zone(repairPos[i].x, repairPos[i].z, 2, 2));
-            }
+                AddTaskSpot(repairs.transform, zones, repairPos[i], "SchoolFix", "eng_03_repair_school", "school_fix", "تعمیر مدرسه", i, brokenMat, fixedMat, beacon);
 
             // ----- NPC -----
             var npcRoot = Empty("NPC_Behrooz", null, new Vector3(24, 0, 8.5f));
@@ -858,17 +845,25 @@ namespace MyFutureCity.EditorTools
                 zones.Add(new Zone(paintPos[i].x, paintPos[i].z, 2, 2));
             }
 
+            // stage 4: surface preparation and painting are real decisions (school_finish), not a single tap
             Vector3[] paintSpotPos = { new Vector3(-32.5f, 0, 20.5f), new Vector3(-19.5f, 0, 20.5f) };
+            var finishPending = Lit("FinishPending", 0.9f, 0.6f, 0.3f);
+            var finishReady = Lit("FinishReady", 0.95f, 0.8f, 0.35f);
             for (int i = 0; i < paintSpotPos.Length; i++)
-            {
-                var rp = Empty("PaintSpot" + i, repairs.transform, paintSpotPos[i]);
-                var br = Prim(PrimitiveType.Cube, "FadedWall", rp.transform, new Vector3(0, 0.55f, 0), new Vector3(0.9f, 0.9f, 0.18f), Lit("FadedWall", 0.55f, 0.5f, 0.4f), false);
-                Prim(PrimitiveType.Cylinder, "Beacon", br.transform, new Vector3(0, 1.9f, 0), new Vector3(0.1f, 1.3f, 0.1f), beacon, false);
-                var fx = Prim(PrimitiveType.Cube, "PaintedWall", rp.transform, new Vector3(0, 0.55f, 0), new Vector3(0.9f, 0.9f, 0.18f), Lit("PaintedWall", 0.95f, 0.8f, 0.35f), false);
-                var ri = rp.AddComponent<RepairInteractable>();
-                ri.missionId = "eng_04_paint_school"; ri.targetId = "school_paint"; ri.order = i; ri.promptFa = "رنگ‌آمیزی"; ri.radius = 2.4f; ri.brokenVisual = br; ri.fixedVisual = fx;
-                zones.Add(new Zone(paintSpotPos[i].x, paintSpotPos[i].z, 2, 2));
-            }
+                AddTaskSpot(repairs.transform, zones, paintSpotPos[i], "SchoolFinish", "eng_04_paint_school", "school_finish", "رنگ‌آمیزی درست", i, finishPending, finishReady, beacon);
+
+            // stage 1: inspect the school with safety and the right tool (east side, clear of the repair points)
+            var sitePending = Lit("SitePending", 0.9f, 0.45f, 0.25f);
+            var siteReady = Lit("SiteReady", 0.3f, 0.75f, 0.5f);
+            AddTaskSpot(repairs.transform, zones, new Vector3(-15.5f, 0, 18), "SiteCheck", "eng_01_toolbox", "site_check", "بازدید از ساختمان", 0, sitePending, siteReady, beacon);
+            // stage 2: choose materials for the fence and the roof (west side of the school)
+            Vector3[] materialPos = { new Vector3(-36, 0, 14), new Vector3(-36, 0, 19) };
+            for (int i = 0; i < materialPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, materialPos[i], "MaterialChoice", "eng_02_planks", "material_choice", "انتخاب مصالح", i, sitePending, siteReady, beacon);
+            // stage 5: final safety inspection in three parts (east/back side)
+            Vector3[] engSafetyPos = { new Vector3(-14, 0, 22), new Vector3(-14, 0, 26), new Vector3(-18, 0, 29) };
+            for (int i = 0; i < engSafetyPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, engSafetyPos[i], "SafetyCheck", "eng_05_open_school", "safety_check", "بازرسی ایمنی", i, sitePending, siteReady, beacon);
 
             Vector3[] cleanupPos = { new Vector3(-36, 0.25f, 10), new Vector3(-16, 0.25f, 23), new Vector3(-27, 0.25f, 27) };
             var cleanupMat = Lit("CleanupBag", 0.3f, 0.75f, 0.45f);
