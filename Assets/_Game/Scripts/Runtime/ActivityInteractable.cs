@@ -40,6 +40,17 @@ namespace MyFutureCity
                    (status == MissionStatus.Active && order < ctx.Missions.GetCountByTarget(missionId, targetId));
             if (pendingVisual != null) pendingVisual.SetActive(!done);
             if (completedVisual != null) completedVisual.SetActive(done);
+            UpdateBeacons();
+        }
+
+        /// <summary>The yellow pole/ball only shows on the spot the child should go to next.</summary>
+        private void UpdateBeacons()
+        {
+            if (pendingVisual == null) return;
+            bool current = IsAvailable(ctx);
+            var all = pendingVisual.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < all.Length; i++)
+                if (all[i].name == "Beacon" || all[i].name == "Marker") all[i].gameObject.SetActive(current);
         }
 
         public override bool IsAvailable(GameContext context)
