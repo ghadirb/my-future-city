@@ -1145,6 +1145,13 @@ namespace MyFutureCity.EditorTools
             for (int i = 0; i < checkupPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, checkupPos[i], "PetCheckup", "vet_04_checkup", "pet_checkup", "معاینهٔ حیوان", i, checkupPending, checkupReady, beacon);
 
+            // vet_01: calm a scared dog and fit the leash correctly, next to Dr. Mina (activities.json: pet_intake)
+            AddTaskSpot(repairs.transform, zones, new Vector3(26.5f, 0, -3), "PetIntake", "vet_01_leashes", "pet_intake", "پذیرش حیوان", 0, checkupPending, checkupReady, beacon);
+            // vet_05: one full clinic day in three parts: plan, owners, check the result (activities.json: vet_session)
+            Vector3[] vetSessionPos = { new Vector3(30, 0, -10), new Vector3(34, 0, -10), new Vector3(38, 0, -10) };
+            for (int i = 0; i < vetSessionPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, vetSessionPos[i], "VetSession", "vet_05_open_clinic", "vet_session", "روز کاری درمانگاه", i, shelterPending, shelterReady, beacon);
+
             var petCardMat = Lit("PetCard", 0.4f, 0.85f, 0.7f);
             Vector3[] petCardPos = { new Vector3(8, 0.42f, -22), new Vector3(22, 0.42f, 5), new Vector3(36, 0.42f, -24) };
             for (int i = 0; i < petCardPos.Length; i++)
@@ -1179,6 +1186,13 @@ namespace MyFutureCity.EditorTools
             for (int i = 0; i < shelfPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, shelfPos[i], "ShopShelf", "market_04_shelves", "shop_shelf", "مرتب کردن قفسه", i, shelfPending, shelfReady, beacon);
 
+            // market_01: inspect the goods and decide where they go, next to Samira (activities.json: shop_prep)
+            AddTaskSpot(repairs.transform, zones, new Vector3(22, 0, 29), "ShopPrep", "market_01_crates", "shop_prep", "آماده‌سازی فروشگاه", 0, stallPending, stallReady, beacon);
+            // market_05: one full market day in three parts: customer, payment, end of day (activities.json: market_session)
+            Vector3[] marketSessionPos = { new Vector3(6, 0, 24), new Vector3(11, 0, 24), new Vector3(23, 0, 24) };
+            for (int i = 0; i < marketSessionPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, marketSessionPos[i], "MarketSession", "market_05_open_market", "market_session", "روز کاری بازار", i, shelfPending, shelfReady, beacon);
+
             var couponMat = Lit("Coupon", 0.95f, 0.3f, 0.55f);
             Vector3[] couponPos = { new Vector3(-8, 0.42f, 37), new Vector3(22, 0.42f, -4), new Vector3(-30, 0.42f, 26) };
             for (int i = 0; i < couponPos.Length; i++)
@@ -1212,6 +1226,13 @@ namespace MyFutureCity.EditorTools
             Vector3[] wifiPos = { new Vector3(-38, 0, 22), new Vector3(-17, 0, 33) };
             for (int i = 0; i < wifiPos.Length; i++)
                 AddTaskSpot(repairs.transform, zones, wifiPos[i], "WifiNode", "tech_04_wifi", "wifi_node", "روشن کردن اینترنت", i, wifiPending, wifiReady, beacon);
+
+            // tech_01: check a dead device safely, next to Arash (activities.json: device_check)
+            AddTaskSpot(repairs.transform, zones, new Vector3(-25, 0, 25), "DeviceCheck", "tech_01_parts", "device_check", "بررسی دستگاه", 0, solarPending, solarReady, beacon);
+            // tech_05: one full lab day in three parts: priorities, repair, report (activities.json: lab_session)
+            Vector3[] labSessionPos = { new Vector3(-33, 0, 20), new Vector3(-28, 0, 20), new Vector3(-23, 0, 20) };
+            for (int i = 0; i < labSessionPos.Length; i++)
+                AddTaskSpot(repairs.transform, zones, labSessionPos[i], "LabSession", "tech_05_open_lab", "lab_session", "روز کاری آزمایشگاه", i, robotPending, robotReady, beacon);
 
             var labKeyMat = Lit("LabKey", 0.9f, 0.8f, 0.25f);
             Vector3[] labKeyPos = { new Vector3(-12, 0.42f, 14), new Vector3(18, 0.42f, -34), new Vector3(-9, 0.42f, 34) };

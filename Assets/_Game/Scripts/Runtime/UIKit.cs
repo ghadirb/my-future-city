@@ -10,6 +10,7 @@ namespace MyFutureCity
     {
         private static Font font;
         private static Sprite circle;
+        private static Sprite rounded;
 
         public static Font Font
         {
@@ -44,6 +45,77 @@ namespace MyFutureCity
                 circle = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
                 return circle;
             }
+        }
+
+        /// <summary>A 9-sliced rounded rectangle (24 px corners) so panels and buttons look soft and child-friendly.</summary>
+        public static Sprite RoundedSprite
+        {
+            get
+            {
+                if (rounded != null) return rounded;
+                const int size = 64;
+                const float r = 24f;
+                var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+                tex.wrapMode = TextureWrapMode.Clamp;
+                for (int y = 0; y < size; y++)
+                {
+                    for (int x = 0; x < size; x++)
+                    {
+                        float px = x + 0.5f, py = y + 0.5f;
+                        float cx = Mathf.Clamp(px, r, size - r), cy = Mathf.Clamp(py, r, size - r);
+                        float d = Mathf.Sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
+                        tex.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Clamp01(r - d + 0.5f)));
+                    }
+                }
+                tex.Apply();
+                rounded = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0,
+                    SpriteMeshType.FullRect, new Vector4(r, r, r, r));
+                return rounded;
+            }
+        }
+
+        /// <summary>A vertical colour gradient (top to bottom), stretched over whatever rect it is put on.</summary>
+        public static Sprite VerticalGradient(Color top, Color bottom)
+        {
+            const int h = 64;
+            var tex = new Texture2D(2, h, TextureFormat.RGBA32, false);
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.filterMode = FilterMode.Bilinear;
+            for (int y = 0; y < h; y++)
+            {
+                var c = Color.Lerp(bottom, top, y / (float)(h - 1));
+                tex.SetPixel(0, y, c);
+                tex.SetPixel(1, y, c);
+            }
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, 2, h), new Vector2(0.5f, 0.5f), 100f);
+        }
+
+        /// <summary>A rounded rectangle image (sliced). Child Images should use raycast=false inside buttons.</summary>
+        public static Image Rounded(Transform parent, string name, Color color, bool raycast)
+        {
+            var img = Box(parent, name, color, raycast);
+            img.sprite = RoundedSprite;
+            img.type = Image.Type.Sliced;
+            return img;
+        }
+
+        /// <summary>A circle/ellipse image of the given size at a position (centre anchored).</summary>
+        public static Image Disc(Transform parent, string name, Color color, Vector2 pos, Vector2 size)
+        {
+            var img = Box(parent, name, color, false);
+            img.sprite = CircleSprite;
+            Place(img.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, size);
+            return img;
+        }
+
+        /// <summary>A rounded block at a position (centre anchored), optionally tilted.</summary>
+        public static Image Block(Transform parent, string name, Color color, Vector2 pos, Vector2 size, float tilt = 0f)
+        {
+            var img = Rounded(parent, name, color, false);
+            Place(img.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, size);
+            if (tilt != 0f) img.rectTransform.localRotation = Quaternion.Euler(0f, 0f, tilt);
+            return img;
         }
 
         public static Canvas CreateCanvas(string name, int sortOrder)
@@ -124,7 +196,7 @@ namespace MyFutureCity
 
         public static Button MakeButton(Transform parent, string logical, int size, Color bg, UnityAction onClick, int wrapChars = 0)
         {
-            var img = Box(parent, "Button", bg, true);
+            var img = Rounded(parent, "Button", bg, true);
             var btn = img.gameObject.AddComponent<Button>();
             btn.targetGraphic = img;
             var label = Label(img.transform, logical, size, TextAnchor.MiddleCenter, Color.white, wrapChars);

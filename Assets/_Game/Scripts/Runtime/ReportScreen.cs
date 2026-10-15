@@ -27,13 +27,16 @@ namespace MyFutureCity
             var dim = UIKit.Box(canvas.transform, "Dim", new Color(0f, 0f, 0f, 0.7f), true);
             UIKit.Stretch(dim.rectTransform, Vector2.zero, Vector2.zero);
 
+            // Fit the panel to the screen; the rows scroll if they do not fit (10 jobs do not fit on a phone).
+            float screenH = ((RectTransform)canvas.transform).rect.height;
+            float panelH = screenH > 200f ? Mathf.Min(PanelH, screenH - 20f) : PanelH;
             var panel = UIKit.Box(dim.transform, "Panel", new Color(0.11f, 0.17f, 0.27f, 0.98f), true);
-            UIKit.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PanelW, PanelH));
+            UIKit.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(PanelW, panelH));
 
             var title = UIKit.Label(panel.transform, Strings.MyReport, 44, TextAnchor.MiddleCenter, new Color(1f, 0.85f, 0.4f), 0);
             UIKit.Place(title.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -16), new Vector2(PanelW - 80, 60));
 
-            float y = -86f;
+            float y = -6f;
             if (!report.HasData)
             {
                 var none = UIKit.Label(panel.transform, InterestAnalyzer.TextNoData, 30, TextAnchor.MiddleCenter, Color.white, 48);
@@ -41,9 +44,26 @@ namespace MyFutureCity
             }
             else
             {
+                var viewport = UIKit.Box(panel.transform, "Viewport", new Color(0f, 0f, 0f, 0f), true);
+                UIKit.Stretch(viewport.rectTransform, new Vector2(0, 96), new Vector2(0, -80));
+                viewport.gameObject.AddComponent<RectMask2D>();
+                var content = UIKit.NewRect("Content", viewport.transform);
+                content.anchorMin = new Vector2(0f, 1f);
+                content.anchorMax = new Vector2(1f, 1f);
+                content.pivot = new Vector2(0.5f, 1f);
+                content.anchoredPosition = Vector2.zero;
+                content.sizeDelta = new Vector2(0f, report.Jobs.Count * RowH + 190f);
+                var scroll = viewport.gameObject.AddComponent<ScrollRect>();
+                scroll.viewport = viewport.rectTransform;
+                scroll.content = content;
+                scroll.horizontal = false;
+                scroll.vertical = true;
+                scroll.movementType = ScrollRect.MovementType.Clamped;
+                scroll.scrollSensitivity = 40f;
+
                 foreach (var job in report.Jobs)
                 {
-                    BuildRow(panel.transform, job, job.JobId == report.TopInterestJobId, y);
+                    BuildRow(content, job, job.JobId == report.TopInterestJobId, y);
                     y -= RowH;
                 }
 
@@ -57,7 +77,7 @@ namespace MyFutureCity
                     sb.Append(line);
                     shown++;
                 }
-                var lines = UIKit.Label(panel.transform, sb.ToString(), 22, TextAnchor.UpperRight, new Color(0.85f, 0.95f, 1f), 78);
+                var lines = UIKit.Label(content, sb.ToString(), 22, TextAnchor.UpperRight, new Color(0.85f, 0.95f, 1f), 78);
                 UIKit.Place(lines.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-40, y - 14f), new Vector2(PanelW - 80, 150));
             }
 

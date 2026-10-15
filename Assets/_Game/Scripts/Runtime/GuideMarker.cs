@@ -20,12 +20,49 @@ namespace MyFutureCity
             gm.Build();
         }
 
+        private static Mesh sphereMesh;
+
+        /// <summary>
+        /// A UV sphere built in code. GameObject.CreatePrimitive is deliberately avoided: it adds a SphereCollider,
+        /// and on a device build that native class can be stripped ("Can't add component because class
+        /// 'SphereCollider' doesn't exist!").
+        /// </summary>
+        private static Mesh SphereMesh()
+        {
+            if (sphereMesh != null) return sphereMesh;
+            const int rings = 10, segs = 16;
+            var verts = new Vector3[(rings + 1) * (segs + 1)];
+            var tris = new int[rings * segs * 6];
+            for (int r = 0; r <= rings; r++)
+            {
+                float v = Mathf.PI * r / rings;
+                for (int s = 0; s <= segs; s++)
+                {
+                    float u = 2f * Mathf.PI * s / segs;
+                    verts[r * (segs + 1) + s] = new Vector3(Mathf.Sin(v) * Mathf.Cos(u), Mathf.Cos(v), Mathf.Sin(v) * Mathf.Sin(u)) * 0.5f;
+                }
+            }
+            int t = 0;
+            for (int r = 0; r < rings; r++)
+            {
+                for (int s = 0; s < segs; s++)
+                {
+                    int a = r * (segs + 1) + s, b = a + segs + 1;
+                    tris[t++] = a; tris[t++] = a + 1; tris[t++] = b;
+                    tris[t++] = a + 1; tris[t++] = b + 1; tris[t++] = b;
+                }
+            }
+            sphereMesh = new Mesh { name = "GuideSphere", vertices = verts, triangles = tris };
+            sphereMesh.RecalculateNormals();
+            sphereMesh.RecalculateBounds();
+            return sphereMesh;
+        }
+
         private void Build()
         {
-            var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            sphere.name = "Marker";
-            var col = sphere.GetComponent<Collider>();
-            if (col != null) Destroy(col);
+            var sphere = new GameObject("Marker");
+            sphere.AddComponent<MeshFilter>().sharedMesh = SphereMesh();
+            sphere.AddComponent<MeshRenderer>();
             sphere.transform.SetParent(transform, false);
             Shader sh = Shader.Find("Unlit/Color");
             var r = sphere.GetComponent<Renderer>();

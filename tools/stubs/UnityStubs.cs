@@ -31,6 +31,19 @@ namespace UnityEngine
     public enum TouchPhase { Began, Moved, Stationary, Ended, Canceled }
     public enum TextureFormat { RGBA32 }
     public enum TextureWrapMode { Repeat, Clamp }
+    public enum FilterMode { Point, Bilinear, Trilinear }
+    public enum SpriteMeshType { FullRect, Tight }
+    public struct Vector4 { public Vector4(float x, float y, float z, float w) { } }
+    public class Mesh : Object
+    {
+        public Vector3[] vertices; public int[] triangles;
+        public void RecalculateNormals() { }
+        public void RecalculateBounds() { }
+    }
+    public class MeshFilter : Component { public Mesh sharedMesh; }
+    public class MeshRenderer : Renderer { }
+    public struct TextGenerationSettings { }
+    public class TextGenerator { public float GetPreferredHeight(string s, TextGenerationSettings t) { return 0f; } }
     public enum TextAnchor { UpperLeft, UpperCenter, UpperRight, MiddleLeft, MiddleCenter, MiddleRight, LowerLeft, LowerCenter, LowerRight }
     public enum HorizontalWrapMode { Wrap, Overflow }
     public enum VerticalWrapMode { Truncate, Overflow }
@@ -44,6 +57,7 @@ namespace UnityEngine
         public Vector2(float x, float y) { this.x = x; this.y = y; }
         public static Vector2 zero { get { return new Vector2(0, 0); } }
         public static Vector2 one { get { return new Vector2(1, 1); } }
+        public static Vector2 operator +(Vector2 a, Vector2 b) { return new Vector2(a.x + b.x, a.y + b.y); }
         public float magnitude { get { return 0; } }
         public float sqrMagnitude { get { return 0; } }
         public static Vector2 ClampMagnitude(Vector2 v, float m) { return v; }
@@ -91,8 +105,9 @@ namespace UnityEngine
         public Color(float r, float g, float b) { this.r = r; this.g = g; this.b = b; a = 1; }
         public Color(float r, float g, float b, float a) { this.r = r; this.g = g; this.b = b; this.a = a; }
         public static Color white { get { return new Color(1, 1, 1); } }
+        public static Color Lerp(Color a, Color b, float t) { return a; }
     }
-    public struct Rect { public Rect(float x, float y, float w, float h) { } }
+    public struct Rect { public float width, height; public Rect(float x, float y, float w, float h) { width = w; height = h; } }
     public struct Ray { }
     public struct RaycastHit { public float distance; }
     public struct Touch { public int fingerId; public TouchPhase phase; public Vector2 position; public Vector2 deltaPosition; }
@@ -163,6 +178,7 @@ namespace UnityEngine
     public class RectTransform : Transform
     {
         public Vector2 anchorMin, anchorMax, pivot, anchoredPosition, sizeDelta, offsetMin, offsetMax;
+        public Rect rect { get { return default(Rect); } }
     }
     public static class RectTransformUtility
     {
@@ -200,7 +216,7 @@ namespace UnityEngine
     }
     public class Texture2D : Object
     {
-        public TextureWrapMode wrapMode;
+        public TextureWrapMode wrapMode; public FilterMode filterMode;
         public Texture2D(int w, int h, TextureFormat f, bool mip) { }
         public void SetPixel(int x, int y, Color c) { }
         public void Apply() { }
@@ -208,6 +224,7 @@ namespace UnityEngine
     public class Sprite : Object
     {
         public static Sprite Create(Texture2D t, Rect r, Vector2 pivot, float ppu) { return null; }
+        public static Sprite Create(Texture2D t, Rect r, Vector2 pivot, float ppu, uint extrude, SpriteMeshType m, Vector4 border) { return null; }
     }
     public class Font : Object { public static Font CreateDynamicFontFromOSFont(string n, int s) { return null; } }
     public class TextAsset : Object { public string text; }
@@ -250,7 +267,7 @@ namespace UnityEngine
         public static string ToJson(object o) { return ""; }
     }
     public static class RenderSettings { public static Rendering.AmbientMode ambientMode; public static Color ambientLight; }
-    public class Canvas : Behaviour { public RenderMode renderMode; public int sortingOrder; }
+    public class Canvas : Behaviour { public RenderMode renderMode; public int sortingOrder; public static void ForceUpdateCanvases() { } }
     public class CanvasGroup : Behaviour { public float alpha; public bool blocksRaycasts; }
     public class CanvasRenderer : Component { }
     public class CanvasScalerHolder { }
@@ -268,6 +285,8 @@ namespace UnityEngine.Events
 {
     public delegate void UnityAction();
     public class UnityEvent { public void AddListener(UnityAction a) { } }
+    public delegate void UnityAction<T>(T a);
+    public class UnityEvent<T> { public void AddListener(UnityAction<T> a) { } }
 }
 namespace UnityEngine.SceneManagement
 {
@@ -286,16 +305,39 @@ namespace UnityEngine.EventSystems
 namespace UnityEngine.UI
 {
     public class Graphic : UnityEngine.Behaviour { public UnityEngine.Color color; public bool raycastTarget; public UnityEngine.RectTransform rectTransform { get; } }
-    public class Image : Graphic { public UnityEngine.Sprite sprite; }
+    public class Image : Graphic
+    {
+        public enum Type { Simple, Sliced, Tiled, Filled }
+        public UnityEngine.Sprite sprite; public Type type;
+    }
+    public struct ColorBlock { public UnityEngine.Color normalColor, highlightedColor, pressedColor, selectedColor, disabledColor; }
+    public class Shadow : UnityEngine.Behaviour { public UnityEngine.Color effectColor; public UnityEngine.Vector2 effectDistance; }
+    public class RectMask2D : UnityEngine.Behaviour { }
+    public class ContentSizeFitter : UnityEngine.Behaviour
+    {
+        public enum FitMode { Unconstrained, MinSize, PreferredSize }
+        public FitMode horizontalFit, verticalFit;
+    }
+    public class ScrollRect : UnityEngine.Behaviour
+    {
+        public enum MovementType { Unrestricted, Elastic, Clamped }
+        public UnityEngine.RectTransform viewport, content;
+        public bool horizontal, vertical, inertia; public MovementType movementType; public float scrollSensitivity;
+        public float verticalNormalizedPosition;
+        public UnityEngine.Events.UnityEvent<UnityEngine.Vector2> onValueChanged = new UnityEngine.Events.UnityEvent<UnityEngine.Vector2>();
+    }
     public class Text : Graphic
     {
         public UnityEngine.Font font; public int fontSize; public UnityEngine.TextAnchor alignment; public string text;
         public UnityEngine.HorizontalWrapMode horizontalOverflow; public UnityEngine.VerticalWrapMode verticalOverflow;
         public bool resizeTextForBestFit; public int resizeTextMinSize, resizeTextMaxSize;
+        public float pixelsPerUnit { get { return 1f; } }
+        public UnityEngine.TextGenerator cachedTextGeneratorForLayout { get { return null; } }
+        public UnityEngine.TextGenerationSettings GetGenerationSettings(UnityEngine.Vector2 size) { return default(UnityEngine.TextGenerationSettings); }
     }
     public class Button : UnityEngine.Behaviour
     {
-        public Graphic targetGraphic; public bool interactable; public ButtonClickedEvent onClick;
+        public Graphic targetGraphic; public bool interactable; public ButtonClickedEvent onClick; public ColorBlock colors;
         public class ButtonClickedEvent : UnityEngine.Events.UnityEvent { }
     }
     public class CanvasScaler : UnityEngine.Behaviour
@@ -356,6 +398,7 @@ namespace UnityEditor
     public static class PlayerSettings
     {
         public static string companyName, productName, bundleVersion;
+        public static bool stripEngineCode;
         public static ColorSpaceHolder dummy;
         public static UnityEngine.ColorSpace colorSpace;
         public static UnityEngine.UIOrientation defaultInterfaceOrientation;
