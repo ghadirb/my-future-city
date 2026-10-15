@@ -239,5 +239,52 @@ namespace MyFutureCity.Tests
                 Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag);
             }
         }
+
+        [Test]
+        public void TheChosenCropIsFollowedByEveryLaterFarmerMission()
+        {
+            var db = LoadDb();
+            var acts = LoadActs();
+            foreach (var tag in new[] { "crop=carrot", "crop=herbs", "crop=tomato" })
+            {
+                var w = Create(db, acts);
+                bool pastChoice = false;
+                foreach (var m in db.missions)
+                {
+                    Assert.IsTrue(w.Missions.Start(m.id), m.id);
+                    foreach (var o in m.objectives)
+                    {
+                        if (o.ParsedType() != ObjectiveType.Interact)
+                        {
+                            w.Missions.Notify(o.ParsedType(), o.targetId, o.RequiredCount);
+                            continue;
+                        }
+                        var def = acts.Find(m.id, o.targetId);
+                        Assert.IsNotNull(def, m.id);
+                        bool followsCrop = pastChoice && m.jobId == "farmer" && def.variants != null && def.variants.Count > 0;
+                        int expectedVariant = followsCrop ? def.VariantIndexFor(w.Save.choiceTags) : -1;
+                        if (followsCrop && tag != "crop=tomato")
+                        {
+                            Assert.GreaterOrEqual(expectedVariant, 0, m.id + ": the chosen crop must change this mission (" + tag + ")");
+                            Assert.AreEqual(tag, def.variants[expectedVariant].tag, m.id);
+                            Assert.GreaterOrEqual(def.variants[expectedVariant].scenes.Count, o.RequiredCount, m.id);
+                        }
+                        for (int order = 0; order < o.RequiredCount; order++)
+                        {
+                            var session = w.Activities.Begin(m.id, o.targetId, order);
+                            Assert.IsNotNull(session, m.id + " spot " + order);
+                            if (followsCrop) Assert.AreEqual(expectedVariant, session.VariantIndex, m.id + " spot " + order);
+                            SolvePreferringTag(session, m.id == "farm_01_seeds" ? tag : null);
+                            if (followsCrop && expectedVariant >= 0)
+                                Assert.IsNotNull(w.Save.GetActivityRecord(m.id, o.targetId, 100 * (expectedVariant + 1) + order, false),
+                                    m.id + " spot " + order + ": the crop scene must be saved under its own key");
+                        }
+                    }
+                    Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus(m.id), m.id);
+                    if (m.id == "farm_01_seeds") { pastChoice = true; Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag); }
+                    if (m.id == "farm_04_harvest") break;
+                }
+            }
+        }
     }
 }
