@@ -114,6 +114,19 @@ namespace MyFutureCity.Core
         public List<ActivityJobStats> activityStats = new List<ActivityJobStats>();
         public List<ActivityRecord> activityRecords = new List<ActivityRecord>();
         public List<ActivityChoice> activityChoices = new List<ActivityChoice>();
+        /// <summary>Free choices that shape later activities, as "key=value" (one value per key), e.g. "topic=science".</summary>
+        public List<string> choiceTags = new List<string>();
+
+        public void SetChoiceTag(string tag)
+        {
+            if (string.IsNullOrEmpty(tag)) return;
+            int eq = tag.IndexOf('=');
+            if (eq <= 0) return;
+            if (choiceTags == null) choiceTags = new List<string>();
+            string key = tag.Substring(0, eq + 1);
+            choiceTags.RemoveAll(t => t != null && t.StartsWith(key));
+            choiceTags.Add(tag);
+        }
 
         public ActivityJobStats GetActivityStats(string jobId, bool create)
         {
@@ -242,6 +255,8 @@ namespace MyFutureCity.Core
             var seenR = new HashSet<string>();
             activityRecords.RemoveAll(r => !seenR.Add(r.missionId + "|" + r.targetId + "|" + r.scene));
             foreach (var r in activityRecords) { if (r.completions < 0) r.completions = 0; if (r.scene < 0) r.scene = 0; }
+            if (choiceTags == null) choiceTags = new List<string>();
+            choiceTags.RemoveAll(t => string.IsNullOrEmpty(t) || t.IndexOf('=') <= 0);
             activityChoices.RemoveAll(c => c == null || string.IsNullOrEmpty(c.missionId));
             foreach (var c in activityChoices) { if (c.seq > activitySeq) activitySeq = c.seq; }
             if (activityChoices.Count > MaxActivityChoices) activityChoices.RemoveRange(0, activityChoices.Count - MaxActivityChoices);

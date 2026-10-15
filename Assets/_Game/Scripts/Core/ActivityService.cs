@@ -20,6 +20,9 @@ namespace MyFutureCity.Core
         public ActivityScene Scene { get; private set; }
         public int Order { get; private set; }
         public int SceneIndex { get; private set; }
+        /// <summary>Index of the variant played (-1 = default scenes). Part of the log key so variants never collide.</summary>
+        public int VariantIndex { get; private set; }
+        public int SceneKey { get { return VariantIndex < 0 ? SceneIndex : 100 * (VariantIndex + 1) + SceneIndex; } }
         public int StepIndex { get; private set; }
         public bool Finished { get; private set; }
         public bool Abandoned { get; private set; }
@@ -33,13 +36,15 @@ namespace MyFutureCity.Core
 
         private bool stepHadMistake;
 
-        internal ActivitySession(ActivityService service, ActivityDefinition def, int order, bool replay)
+        internal ActivitySession(ActivityService service, ActivityDefinition def, int order, bool replay, int variantIndex)
         {
             this.service = service;
             Definition = def;
             Order = order;
-            SceneIndex = def.SceneIndexFor(order);
-            Scene = def.scenes[SceneIndex];
+            VariantIndex = variantIndex;
+            var list = variantIndex >= 0 ? def.variants[variantIndex].scenes : def.scenes;
+            SceneIndex = order < 0 ? 0 : order % list.Count;
+            Scene = list[SceneIndex];
             IsReplay = replay;
         }
 
@@ -72,6 +77,7 @@ namespace MyFutureCity.Core
             }
 
             res.Accepted = true;
+            if (!string.IsNullOrEmpty(opt.setsTag)) service.RememberChoice(opt.setsTag);
             StepsDone++;
             var js = service.Stats(Definition.jobId);
             js.stepsDone++;
@@ -151,10 +157,12 @@ namespace MyFutureCity.Core
 
             bool replay = missions.TimesCompleted(missionId) > 0;
             Stats(def.jobId).started++;
-            return new ActivitySession(this, def, order, replay);
+            return new ActivitySession(this, def, order, replay, def.VariantIndexFor(save.choiceTags));
         }
 
         // ----- internal bookkeeping used by ActivitySession -----
+
+        internal void RememberChoice(string tag) { save.SetChoiceTag(tag); }
 
         internal ActivityJobStats Stats(string jobId)
         {
@@ -169,7 +177,7 @@ namespace MyFutureCity.Core
                 seq = save.activitySeq,
                 missionId = s.Definition.missionId,
                 targetId = s.Definition.targetId,
-                scene = s.SceneIndex,
+                scene = s.SceneKey,
                 step = step,
                 option = option,
                 correct = correct
@@ -183,7 +191,7 @@ namespace MyFutureCity.Core
             var js = Stats(s.Definition.jobId);
             js.completed++;
             if (s.IsReplay) js.optionalRuns++;
-            var rec = save.GetActivityRecord(s.Definition.missionId, s.Definition.targetId, s.SceneIndex, true);
+            var rec = save.GetActivityRecord(s.Definition.missionId, s.Definition.targetId, s.SceneKey, true);
             rec.completions++;
             rec.jobId = s.Definition.jobId;
 

@@ -11,6 +11,11 @@ namespace MyFutureCity.Core
         public bool correct;
         /// <summary>Friendly, educational reaction shown after this option is picked.</summary>
         public string feedbackFa;
+        /// <summary>
+        /// Optional "key=value" tag remembered when this option is accepted (e.g. "topic=science"). A later activity can
+        /// have a variant for that tag, so the child's choice really changes what happens next.
+        /// </summary>
+        public string setsTag;
     }
 
     /// <summary>One decision inside a scene. A "free" step has no wrong answer: it records what the child prefers.</summary>
@@ -37,6 +42,14 @@ namespace MyFutureCity.Core
         public List<ActivityStep> steps = new List<ActivityStep>();
     }
 
+    /// <summary>The scenes played instead of the default ones when the child has chosen the matching tag earlier.</summary>
+    [Serializable]
+    public class ActivityVariant
+    {
+        public string tag;
+        public List<ActivityScene> scenes = new List<ActivityScene>();
+    }
+
     /// <summary>
     /// The real work a child does for one mission objective. The first three text fields document the
     /// design rule of the master addendum (what the real job does, what the child does, what skill is practised).
@@ -52,6 +65,21 @@ namespace MyFutureCity.Core
         public string skillFa;
         /// <summary>Spot number N of the objective plays scene N (wraps around).</summary>
         public List<ActivityScene> scenes = new List<ActivityScene>();
+        /// <summary>Optional alternative scene sets chosen by an earlier decision of the child (see ActivityOption.setsTag).</summary>
+        public List<ActivityVariant> variants = new List<ActivityVariant>();
+
+        /// <summary>The first variant whose tag the child has chosen, or null for the default scenes.</summary>
+        public int VariantIndexFor(IList<string> tags)
+        {
+            if (variants == null || tags == null) return -1;
+            for (int i = 0; i < variants.Count; i++)
+            {
+                var v = variants[i];
+                if (v == null || string.IsNullOrEmpty(v.tag) || v.scenes == null || v.scenes.Count == 0) continue;
+                if (tags.Contains(v.tag)) return i;
+            }
+            return -1;
+        }
 
         public ActivityScene SceneFor(int order)
         {
@@ -115,34 +143,55 @@ namespace MyFutureCity.Core
                 if (obj != null && a.scenes.Count < obj.RequiredCount)
                     errors.Add(p + "only " + a.scenes.Count + " scene(s) for " + obj.RequiredCount + " required spots.");
 
-                for (int s = 0; s < a.scenes.Count; s++)
+                ValidateScenes(errors, p, a.scenes);
+                if (a.variants != null)
                 {
-                    var sc = a.scenes[s];
-                    string sp = p + "scene " + s + ": ";
-                    if (sc == null || sc.steps == null || sc.steps.Count == 0) { errors.Add(sp + "has no steps."); continue; }
-                    if (string.IsNullOrEmpty(sc.titleFa)) errors.Add(sp + "missing titleFa.");
-                    for (int t = 0; t < sc.steps.Count; t++)
+                    for (int v = 0; v < a.variants.Count; v++)
                     {
-                        var st = sc.steps[t];
-                        string tp = sp + "step " + t + ": ";
-                        if (st == null) { errors.Add(tp + "is null."); continue; }
-                        if (string.IsNullOrEmpty(st.promptFa)) errors.Add(tp + "missing promptFa.");
-                        if (st.options == null || st.options.Count < 2 || st.options.Count > 3)
-                        { errors.Add(tp + "needs 2 or 3 options."); continue; }
-                        int correct = 0;
-                        foreach (var o in st.options)
-                        {
-                            if (o == null || string.IsNullOrEmpty(o.textFa)) errors.Add(tp + "an option has no text.");
-                            else if (string.IsNullOrEmpty(o.feedbackFa)) errors.Add(tp + "option '" + o.textFa + "' has no feedback.");
-                            if (o != null && o.correct) correct++;
-                        }
-                        if (!st.free && correct == 0) errors.Add(tp + "has no correct option.");
-                        if (!st.free && correct == st.options.Count) errors.Add(tp + "every option is correct (use free:true for preference choices).");
-                        if (!st.free && string.IsNullOrEmpty(st.hintFa)) errors.Add(tp + "missing hintFa.");
+                        var variant = a.variants[v];
+                        string vp = p + "variant " + v + ": ";
+                        if (variant == null || string.IsNullOrEmpty(variant.tag) || variant.tag.IndexOf('=') <= 0)
+                        { errors.Add(vp + "needs a 'key=value' tag."); continue; }
+                        if (variant.scenes == null || variant.scenes.Count == 0) { errors.Add(vp + "has no scenes."); continue; }
+                        if (obj != null && variant.scenes.Count < obj.RequiredCount)
+                            errors.Add(vp + "only " + variant.scenes.Count + " scene(s) for " + obj.RequiredCount + " required spots.");
+                        ValidateScenes(errors, vp, variant.scenes);
                     }
                 }
             }
             return errors;
+        }
+
+        private static void ValidateScenes(List<string> errors, string p, List<ActivityScene> scenes)
+        {
+            for (int s = 0; s < scenes.Count; s++)
+            {
+                var sc = scenes[s];
+                string sp = p + "scene " + s + ": ";
+                if (sc == null || sc.steps == null || sc.steps.Count == 0) { errors.Add(sp + "has no steps."); continue; }
+                if (string.IsNullOrEmpty(sc.titleFa)) errors.Add(sp + "missing titleFa.");
+                for (int t = 0; t < sc.steps.Count; t++)
+                {
+                    var st = sc.steps[t];
+                    string tp = sp + "step " + t + ": ";
+                    if (st == null) { errors.Add(tp + "is null."); continue; }
+                    if (string.IsNullOrEmpty(st.promptFa)) errors.Add(tp + "missing promptFa.");
+                    if (st.options == null || st.options.Count < 2 || st.options.Count > 3)
+                    { errors.Add(tp + "needs 2 or 3 options."); continue; }
+                    int correct = 0;
+                    foreach (var o in st.options)
+                    {
+                        if (o == null || string.IsNullOrEmpty(o.textFa)) errors.Add(tp + "an option has no text.");
+                        else if (string.IsNullOrEmpty(o.feedbackFa)) errors.Add(tp + "option '" + o.textFa + "' has no feedback.");
+                        if (o != null && o.correct) correct++;
+                        if (o != null && !string.IsNullOrEmpty(o.setsTag) && o.setsTag.IndexOf('=') <= 0)
+                            errors.Add(tp + "option '" + o.textFa + "' has a malformed setsTag (needs key=value).");
+                    }
+                    if (!st.free && correct == 0) errors.Add(tp + "has no correct option.");
+                    if (!st.free && correct == st.options.Count) errors.Add(tp + "every option is correct (use free:true for preference choices).");
+                    if (!st.free && string.IsNullOrEmpty(st.hintFa)) errors.Add(tp + "missing hintFa.");
+                }
+            }
         }
 
         /// <summary>
