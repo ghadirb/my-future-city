@@ -371,6 +371,102 @@ namespace MyFutureCity.Tests
             Assert.AreEqual(0, report.Find("farmer").ActivitiesDone);
         }
 
+        // ---------- choices that change what happens next (topic of the lesson) ----------
+
+        private static TeacherWorld CreateWithTopics()
+        {
+            var w = Create();
+            var prep = w.Acts.Find("t1", "prep");
+            var topics = prep.scenes[0].steps[0].options;
+            topics[0].setsTag = "topic=math";
+            topics[1].setsTag = "topic=science";
+            topics[2].setsTag = "topic=nature";
+            var teach = w.Acts.Find("t2", "teach");
+            teach.variants.Add(new ActivityVariant
+            {
+                tag = "topic=science",
+                scenes = new List<ActivityScene>
+                {
+                    new ActivityScene { titleFa = "علوم ۱", steps = new List<ActivityStep> { Step(false, O("غلط", false), O("درست", true)) } },
+                    new ActivityScene { titleFa = "علوم ۲", steps = new List<ActivityStep> { Step(false, O("غلط", false), O("درست", true)) } }
+                }
+            });
+            return w;
+        }
+
+        private static void PlayPrepWithTopic(TeacherWorld w, int topicOption)
+        {
+            Assert.IsTrue(w.Missions.Start("t1"));
+            CollectBooks(w);
+            var s = w.Activities.Begin("t1", "prep", 0);
+            Assert.IsTrue(s.Choose(topicOption).Accepted);
+            Assert.IsTrue(s.Choose(1).Accepted);
+            Assert.IsTrue(s.Finished);
+            w.Missions.Notify(ObjectiveType.Talk, "npc");
+            Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus("t1"));
+        }
+
+        [Test]
+        public void TheChosenLessonTopicChangesTheLessonThatIsPlayed()
+        {
+            var w = CreateWithTopics();
+            PlayPrepWithTopic(w, 1);        // science
+            Assert.IsTrue(w.Missions.Start("t2"));
+            var s = w.Activities.Begin("t2", "teach", 0);
+            Assert.AreEqual("علوم ۱", s.Scene.titleFa);
+            Assert.AreEqual(0, s.VariantIndex);
+            Solve(s);
+            var s2 = w.Activities.Begin("t2", "teach", 1);
+            Assert.AreEqual("علوم ۲", s2.Scene.titleFa, "the second spot continues the chosen topic");
+        }
+
+        [Test]
+        public void TheDefaultLessonIsPlayedWhenNoVariantMatchesTheChoice()
+        {
+            var w = CreateWithTopics();
+            PlayPrepWithTopic(w, 0);        // math has no variant: default lesson
+            Assert.IsTrue(w.Missions.Start("t2"));
+            var s = w.Activities.Begin("t2", "teach", 0);
+            Assert.AreEqual("درس ۱", s.Scene.titleFa);
+            Assert.AreEqual(-1, s.VariantIndex);
+        }
+
+        [Test]
+        public void ChoosingAnotherTopicLaterReplacesTheOldOneAndOldSavesHaveNoTags()
+        {
+            var w = CreateWithTopics();
+            PlayPrepWithTopic(w, 1);
+            Assert.IsTrue(w.Save.choiceTags.Contains("topic=science"));
+            w.Save.SetChoiceTag("topic=nature");
+            Assert.AreEqual(1, w.Save.choiceTags.Count, "only one value per key");
+            Assert.AreEqual("topic=nature", w.Save.choiceTags[0]);
+
+            var old = new SaveData();
+            old.choiceTags = null;          // a save written before tags existed
+            old.Sanitize();
+            Assert.IsNotNull(old.choiceTags);
+        }
+
+        [Test]
+        public void VariantProgressIsLoggedSeparatelyFromTheDefaultScene()
+        {
+            var w = CreateWithTopics();
+            PlayPrepWithTopic(w, 1);
+            w.Missions.Start("t2");
+            Solve(w.Activities.Begin("t2", "teach", 0));
+            Assert.IsNotNull(w.Save.GetActivityRecord("t2", "teach", 100, false), "variant 0 scene 0 is key 100");
+            Assert.IsNull(w.Save.GetActivityRecord("t2", "teach", 0, false), "the default scene was not played");
+        }
+
+        [Test]
+        public void ValidatorRejectsMalformedTagsAndEmptyVariants()
+        {
+            var w = CreateWithTopics();
+            w.Acts.Find("t2", "teach").variants.Add(new ActivityVariant { tag = "science", scenes = new List<ActivityScene>() });
+            var errors = ActivityDatabaseValidator.Validate(w.Acts, w.Db);
+            Assert.IsTrue(errors.Count >= 1);
+        }
+
         [Test]
         public void ReportKeepsParticipationSuccessAndRepeatsSeparate()
         {

@@ -66,19 +66,33 @@ try:
         elif len(a["scenes"]) < obj[0]["count"]: err(p + "fewer scenes than required spots")
         for f in ("realWorldFa", "childDoesFa", "skillFa"):
             if not a.get(f): err(p + "missing " + f)
-        for si, sc in enumerate(a["scenes"]):
-            if not sc.get("titleFa") or not sc["steps"]: err(p + "scene %d incomplete" % si)
-            for ti, st in enumerate(sc["steps"]):
-                q = p + "scene %d step %d: " % (si, ti)
-                ops = st["options"]
-                if not st["promptFa"]: err(q + "no prompt")
-                if not 2 <= len(ops) <= 3: err(q + "needs 2-3 options")
-                if any(not o["textFa"] or not o["feedbackFa"] for o in ops): err(q + "option without text/feedback")
-                good = sum(1 for o in ops if o["correct"])
-                if not st.get("free"):
-                    if good == 0: err(q + "no correct option")
-                    if good == len(ops): err(q + "every option correct (use free)")
-                    if not st.get("hintFa"): err(q + "no hint")
+        def check_scenes(prefix, scenes):
+            for si, sc in enumerate(scenes):
+                if not sc.get("titleFa") or not sc["steps"]: err(prefix + "scene %d incomplete" % si)
+                for ti, st in enumerate(sc["steps"]):
+                    q = prefix + "scene %d step %d: " % (si, ti)
+                    ops = st["options"]
+                    if not st["promptFa"]: err(q + "no prompt")
+                    if not 2 <= len(ops) <= 3: err(q + "needs 2-3 options")
+                    if any(not o["textFa"] or not o["feedbackFa"] for o in ops): err(q + "option without text/feedback")
+                    if any(o.get("setsTag") and "=" not in o["setsTag"][1:] for o in ops): err(q + "malformed setsTag")
+                    good = sum(1 for o in ops if o["correct"])
+                    if not st.get("free"):
+                        if good == 0: err(q + "no correct option")
+                        if good == len(ops): err(q + "every option correct (use free)")
+                        if not st.get("hintFa"): err(q + "no hint")
+        check_scenes(p, a["scenes"])
+        for vi, v in enumerate(a.get("variants", [])):
+            vp = p + "variant %d: " % vi
+            if not v.get("tag") or "=" not in v["tag"][1:]: err(vp + "needs a key=value tag")
+            if not v.get("scenes"): err(vp + "no scenes"); continue
+            if obj and len(v["scenes"]) < obj[0]["count"]: err(vp + "fewer scenes than required spots")
+            check_scenes(vp, v["scenes"])
+        # every tag a variant waits for must be set by some option of the same job
+        for v in a.get("variants", []):
+            if not any(o.get("setsTag") == v.get("tag") for x in acts if x["jobId"] == a["jobId"]
+                       for sc in x["scenes"] for st in sc["steps"] for o in st["options"]):
+                err(p + "variant tag %s is never set by any option" % v.get("tag"))
     # redesigned jobs: no mission may be finishable by collecting/talking only
     for m in db["missions"]:
         if m["jobId"] in REAL_ACTIVITY_JOBS:
