@@ -177,5 +177,67 @@ namespace MyFutureCity.Tests
                 Assert.AreEqual(teach.variants.IndexOf(v), teach.VariantIndexFor(w.Save.choiceTags));
             }
         }
+
+        private static void SolvePreferringTag(ActivitySession s, string tag)
+        {
+            int guard = 0;
+            while (s.CurrentStep != null && guard++ < 50)
+            {
+                int pick = -1;
+                for (int i = 0; i < s.CurrentStep.options.Count; i++)
+                    if (s.CurrentStep.options[i].setsTag == tag) { pick = i; break; }
+                if (pick < 0)
+                    for (int i = 0; i < s.CurrentStep.options.Count; i++)
+                        if (s.CurrentStep.IsAccepted(i)) { pick = i; break; }
+                Assert.IsTrue(s.Choose(pick).Accepted);
+            }
+            Assert.IsTrue(s.Finished);
+        }
+
+        [Test]
+        public void TheChosenTopicIsFollowedByEveryLaterTeacherMission()
+        {
+            var db = LoadDb();
+            var acts = LoadActs();
+            foreach (var tag in new[] { "topic=science", "topic=nature" })
+            {
+                var w = Create(db, acts);
+                foreach (var m in db.missions)
+                {
+                    if (m.jobId != "teacher") continue;
+                    Assert.IsTrue(w.Missions.Start(m.id), m.id);
+                    foreach (var o in m.objectives)
+                    {
+                        if (o.ParsedType() != ObjectiveType.Interact)
+                        {
+                            w.Missions.Notify(o.ParsedType(), o.targetId, o.RequiredCount);
+                            continue;
+                        }
+                        var def = acts.Find(m.id, o.targetId);
+                        Assert.IsNotNull(def, m.id);
+                        bool isPrep = m.id == "teach_01_books";
+                        int expectedVariant = isPrep ? -1 : def.VariantIndexFor(w.Save.choiceTags);
+                        if (!isPrep)
+                        {
+                            Assert.GreaterOrEqual(expectedVariant, 0, m.id + ": the chosen topic must change this mission (" + tag + ")");
+                            Assert.AreEqual(tag, def.variants[expectedVariant].tag, m.id);
+                            Assert.GreaterOrEqual(def.variants[expectedVariant].scenes.Count, o.RequiredCount, m.id);
+                        }
+                        for (int order = 0; order < o.RequiredCount; order++)
+                        {
+                            var session = w.Activities.Begin(m.id, o.targetId, order);
+                            Assert.IsNotNull(session, m.id + " spot " + order);
+                            Assert.AreEqual(expectedVariant, session.VariantIndex, m.id + " spot " + order);
+                            SolvePreferringTag(session, isPrep ? tag : null);
+                            if (!isPrep)
+                                Assert.IsNotNull(w.Save.GetActivityRecord(m.id, o.targetId, 100 * (expectedVariant + 1) + order, false),
+                                    m.id + " spot " + order + ": the topic scene must be saved under its own key");
+                        }
+                    }
+                    Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus(m.id), m.id);
+                }
+                Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag);
+            }
+        }
     }
 }
