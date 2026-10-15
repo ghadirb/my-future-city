@@ -14,11 +14,16 @@ namespace MyFutureCity
 
         private GameContext ctx;
         private Renderer[] renderers;
+        private Renderer[] beacons;
         private bool visible = true;
 
         private void Start()
         {
             renderers = GetComponentsInChildren<Renderer>(true);
+            var found = new System.Collections.Generic.List<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
+                if (renderers[i].name == "Beacon") found.Add(renderers[i]);
+            beacons = found.ToArray();
             ctx = GameContext.Instance;
             ctx.Missions.Changed += Refresh;
             Refresh();
@@ -51,6 +56,12 @@ namespace MyFutureCity
             visible = show;
             if (renderers == null) return;
             for (int i = 0; i < renderers.Length; i++) renderers[i].enabled = show;
+            // The yellow pole is a "do this now" signal: only the current objective's items get one,
+            // otherwise the whole city is covered in poles.
+            bool current = show && ctx.Missions.IsObjectiveCurrent(ObjectiveType.Collect, targetId)
+                           && ctx.Missions.GetStatus(missionId) == MissionStatus.Active;
+            if (beacons != null)
+                for (int i = 0; i < beacons.Length; i++) beacons[i].enabled = current;
         }
 
         public override bool IsAvailable(GameContext c)
