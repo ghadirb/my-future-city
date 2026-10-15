@@ -185,7 +185,7 @@ namespace MyFutureCity.Tests
             {
                 int pick = -1;
                 for (int i = 0; i < s.CurrentStep.options.Count; i++)
-                    if (s.CurrentStep.options[i].setsTag == tag) { pick = i; break; }
+                    if (tag != null && s.CurrentStep.options[i].setsTag == tag) { pick = i; break; }
                 if (pick < 0)
                     for (int i = 0; i < s.CurrentStep.options.Count; i++)
                         if (s.CurrentStep.IsAccepted(i)) { pick = i; break; }
