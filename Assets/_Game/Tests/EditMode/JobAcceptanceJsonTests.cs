@@ -334,5 +334,53 @@ namespace MyFutureCity.Tests
                 Assert.IsTrue(pastChoice, tag);
             }
         }
+
+        [Test]
+        public void TheChosenMedicalCaseIsFollowedByEveryLaterDoctorMission()
+        {
+            var db = LoadDb();
+            var acts = LoadActs();
+            foreach (var tag in new[] { "case=scratch", "case=fever", "case=sprain" })
+            {
+                var w = Create(db, acts);
+                bool pastChoice = false;
+                foreach (var m in db.missions)
+                {
+                    Assert.IsTrue(w.Missions.Start(m.id), m.id);
+                    foreach (var o in m.objectives)
+                    {
+                        if (o.ParsedType() != ObjectiveType.Interact)
+                        {
+                            w.Missions.Notify(o.ParsedType(), o.targetId, o.RequiredCount);
+                            continue;
+                        }
+                        var def = acts.Find(m.id, o.targetId);
+                        Assert.IsNotNull(def, m.id);
+                        bool followsCase = pastChoice && m.jobId == "doctor" && def.variants != null && def.variants.Count > 0;
+                        int expectedVariant = followsCase ? def.VariantIndexFor(w.Save.choiceTags) : -1;
+                        if (followsCase && tag != "case=scratch")
+                        {
+                            Assert.GreaterOrEqual(expectedVariant, 0, m.id + ": the chosen case must change this mission (" + tag + ")");
+                            Assert.AreEqual(tag, def.variants[expectedVariant].tag, m.id);
+                            Assert.GreaterOrEqual(def.variants[expectedVariant].scenes.Count, o.RequiredCount, m.id);
+                        }
+                        for (int order = 0; order < o.RequiredCount; order++)
+                        {
+                            var session = w.Activities.Begin(m.id, o.targetId, order);
+                            Assert.IsNotNull(session, m.id + " spot " + order);
+                            if (followsCase) Assert.AreEqual(expectedVariant, session.VariantIndex, m.id + " spot " + order);
+                            SolvePreferringTag(session, m.id == "med_01_first_aid" ? tag : null);
+                            if (followsCase && expectedVariant >= 0)
+                                Assert.IsNotNull(w.Save.GetActivityRecord(m.id, o.targetId, 100 * (expectedVariant + 1) + order, false),
+                                    m.id + " spot " + order + ": the case scene must be saved under its own key");
+                        }
+                    }
+                    Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus(m.id), m.id);
+                    if (m.id == "med_01_first_aid") { pastChoice = true; Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag); }
+                    if (m.id == "med_05_open_clinic") break;
+                }
+                Assert.IsTrue(pastChoice, tag);
+            }
+        }
     }
 }
