@@ -1424,7 +1424,7 @@
       "id": "vet_01_leashes",
       "jobId": "vet",
       "nameFa": "قلاده‌های گمشده",
-      "descriptionFa": "دو قلاده را پیدا کن و به دکتر مینا برگردان.",
+      "descriptionFa": "دو قلاده را پیدا کن؛ بعد حیوان ترسیده را آرام کن و قلاده را درست ببند.",
       "startNpcId": "npc_vet",
       "requiresMissionId": "",
       "objectives": [
@@ -1433,6 +1433,12 @@
           "targetId": "pet_leash",
           "count": 2,
           "textFa": "دو قلاده را پیدا کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "pet_intake",
+          "count": 1,
+          "textFa": "حیوان ترسیده را آرام کن و قلاده را درست ببند"
         },
         {
           "type": "talk",
@@ -1457,7 +1463,7 @@
       "id": "vet_02_feed",
       "jobId": "vet",
       "nameFa": "غذای حیوانات",
-      "descriptionFa": "سه کیسه غذا پیدا کن و در دو ایستگاه غذا بگذار.",
+      "descriptionFa": "غذا را پیدا کن، برای هر حیوان غذای مناسب و اندازهٔ درست را انتخاب کن.",
       "startNpcId": "npc_vet",
       "requiresMissionId": "vet_01_leashes",
       "objectives": [
@@ -1471,7 +1477,7 @@
           "type": "interact",
           "targetId": "feed_station",
           "count": 2,
-          "textFa": "غذا را در دو ایستگاه بگذار",
+          "textFa": "غذا و آب مناسب هر حیوان را آماده کن",
           "buildingId": "vet_clinic",
           "buildingProgress": 15
         },
@@ -1498,7 +1504,7 @@
       "id": "vet_03_shelter",
       "jobId": "vet",
       "nameFa": "پناهگاه امن",
-      "descriptionFa": "سه پناهگاه کوچک را آماده کن تا حیوانات جای گرم داشته باشند.",
+      "descriptionFa": "برای سگ، گربه و خرگوش جای امن و مناسب بساز.",
       "startNpcId": "npc_vet",
       "requiresMissionId": "vet_02_feed",
       "objectives": [
@@ -1506,7 +1512,7 @@
           "type": "interact",
           "targetId": "pet_shelter",
           "count": 3,
-          "textFa": "سه پناهگاه را آماده کن",
+          "textFa": "سه جای امن برای حیوانات بساز",
           "buildingId": "vet_clinic",
           "buildingProgress": 20
         },
@@ -1533,7 +1539,7 @@
       "id": "vet_04_checkup",
       "jobId": "vet",
       "nameFa": "معاینهٔ مهربان",
-      "descriptionFa": "دو حیوان را با مهربانی معاینه کن.",
+      "descriptionFa": "حیوان را با ملایمت معاینه کن، نشانه‌ها را بخوان و نتیجه را ثبت کن.",
       "startNpcId": "npc_vet",
       "requiresMissionId": "vet_03_shelter",
       "objectives": [
@@ -1541,7 +1547,7 @@
           "type": "interact",
           "targetId": "pet_checkup",
           "count": 2,
-          "textFa": "دو حیوان را معاینه کن",
+          "textFa": "دو حیوان را معاینه کن و نتیجه را ثبت کن",
           "buildingId": "vet_clinic",
           "buildingProgress": 10
         },
@@ -1568,7 +1574,7 @@
       "id": "vet_05_open_clinic",
       "jobId": "vet",
       "nameFa": "بازگشایی درمانگاه",
-      "descriptionFa": "کارت‌های سلامت حیوانات را جمع کن تا درمانگاه رسماً باز شود.",
+      "descriptionFa": "کارت‌های سلامت را جمع کن، بعد یک روز کامل درمانگاه را اداره کن: نوبت‌ها، صاحبان حیوان و بررسی نتیجه.",
       "startNpcId": "npc_vet",
       "requiresMissionId": "vet_04_checkup",
       "objectives": [
@@ -1579,6 +1585,12 @@
           "textFa": "سه کارت سلامت را جمع کن",
           "buildingId": "vet_clinic",
           "buildingProgress": 5
+        },
+        {
+          "type": "interact",
+          "targetId": "vet_session",
+          "count": 3,
+          "textFa": "یک روز کامل درمانگاه را اداره کن: نوبت، راهنمایی صاحبان و بررسی نتیجه"
         },
         {
           "type": "talk",
@@ -1603,7 +1615,7 @@
       "id": "market_01_crates",
       "jobId": "merchant",
       "nameFa": "جعبه‌های بازار",
-      "descriptionFa": "دو جعبهٔ خالی را پیدا کن و به خاله سمیرا برگردان.",
+      "descriptionFa": "دو جعبه را پیدا کن؛ بعد کالاها را بازبینی کن، خراب‌ها را جدا کن و جای هر چیز را مشخص کن.",
       "startNpcId": "npc_merchant",
       "requiresMissionId": "",
       "objectives": [
@@ -1612,6 +1624,12 @@
           "targetId": "market_crate",
           "count": 2,
           "textFa": "دو جعبهٔ بازار را پیدا کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "shop_prep",
+          "count": 1,
+          "textFa": "جعبه‌ها را بازبینی کن و جای هر کالا را مشخص کن"
         },
         {
           "type": "talk",
@@ -1636,7 +1654,7 @@
       "id": "market_02_stalls",
       "jobId": "merchant",
       "nameFa": "غرفه‌های رنگی",
-      "descriptionFa": "سه جعبه میوه پیدا کن و دو غرفه را بچین.",
+      "descriptionFa": "میوه‌ها را پیدا کن و درست و دلپذیر روی غرفه بچین؛ از آفتاب محافظت کن و به مشتری کمک کن.",
       "startNpcId": "npc_merchant",
       "requiresMissionId": "market_01_crates",
       "objectives": [
@@ -1650,7 +1668,7 @@
           "type": "interact",
           "targetId": "stall_table",
           "count": 2,
-          "textFa": "دو غرفه را بچین",
+          "textFa": "دو غرفه را درست بچین",
           "buildingId": "market",
           "buildingProgress": 15
         },
@@ -1677,7 +1695,7 @@
       "id": "market_03_price_signs",
       "jobId": "merchant",
       "nameFa": "تابلوهای قیمت",
-      "descriptionFa": "سه تابلو قیمت را بنویس تا همه راحت‌تر خرید کنند.",
+      "descriptionFa": "قیمت را حساب کن، تابلوی خوانا بنویس و تخفیف را محاسبه کن.",
       "startNpcId": "npc_merchant",
       "requiresMissionId": "market_02_stalls",
       "objectives": [
@@ -1685,7 +1703,7 @@
           "type": "interact",
           "targetId": "price_sign",
           "count": 3,
-          "textFa": "سه تابلو قیمت را بنویس",
+          "textFa": "سه تابلو را با قیمت درست بنویس",
           "buildingId": "market",
           "buildingProgress": 20
         },
@@ -1712,7 +1730,7 @@
       "id": "market_04_shelves",
       "jobId": "merchant",
       "nameFa": "قفسه‌های مرتب",
-      "descriptionFa": "دو قفسه را مرتب کن تا خرید آسان شود.",
+      "descriptionFa": "کالاها را گروه‌بندی کن، پرفروش‌ها را دم‌دست بگذار و تاریخ مصرف را کنترل کن.",
       "startNpcId": "npc_merchant",
       "requiresMissionId": "market_03_price_signs",
       "objectives": [
@@ -1720,7 +1738,7 @@
           "type": "interact",
           "targetId": "shop_shelf",
           "count": 2,
-          "textFa": "دو قفسه را مرتب کن",
+          "textFa": "دو قفسه را درست و ایمن بچین",
           "buildingId": "market",
           "buildingProgress": 10
         },
@@ -1747,7 +1765,7 @@
       "id": "market_05_open_market",
       "jobId": "merchant",
       "nameFa": "بازگشایی بازار",
-      "descriptionFa": "سه کوپن تخفیف را جمع کن تا مردم برای خرید بیایند.",
+      "descriptionFa": "کوپن‌ها را جمع کن، بعد یک روز کامل بازار را اداره کن: مشتری، حساب و بررسی پایان روز.",
       "startNpcId": "npc_merchant",
       "requiresMissionId": "market_04_shelves",
       "objectives": [
@@ -1758,6 +1776,12 @@
           "textFa": "سه کوپن تخفیف را جمع کن",
           "buildingId": "market",
           "buildingProgress": 5
+        },
+        {
+          "type": "interact",
+          "targetId": "market_session",
+          "count": 3,
+          "textFa": "یک روز کامل بازار را اداره کن: مشتری، حساب و بررسی پایان روز"
         },
         {
           "type": "talk",
@@ -1782,7 +1806,7 @@
       "id": "tech_01_parts",
       "jobId": "tech",
       "nameFa": "قطعه‌های گمشده",
-      "descriptionFa": "دو قطعهٔ الکترونیکی را پیدا کن و به آرش برگردان.",
+      "descriptionFa": "دو قطعه را پیدا کن؛ بعد دستگاه خاموش را با رعایت ایمنی بررسی کن.",
       "startNpcId": "npc_tech",
       "requiresMissionId": "",
       "objectives": [
@@ -1791,6 +1815,12 @@
           "targetId": "circuit_part",
           "count": 2,
           "textFa": "دو قطعهٔ الکترونیکی را پیدا کن"
+        },
+        {
+          "type": "interact",
+          "targetId": "device_check",
+          "count": 1,
+          "textFa": "دستگاه خاموش را با رعایت ایمنی بررسی کن"
         },
         {
           "type": "talk",
@@ -1815,7 +1845,7 @@
       "id": "tech_02_solar",
       "jobId": "tech",
       "nameFa": "برق خورشیدی",
-      "descriptionFa": "سه کابل پیدا کن و دو پنل خورشیدی را وصل کن.",
+      "descriptionFa": "کابل‌ها را پیدا کن، جای پنل و جهت درست را انتخاب کن و ایمن وصل کن.",
       "startNpcId": "npc_tech",
       "requiresMissionId": "tech_01_parts",
       "objectives": [
@@ -1829,7 +1859,7 @@
           "type": "interact",
           "targetId": "solar_panel",
           "count": 2,
-          "textFa": "دو پنل خورشیدی را وصل کن",
+          "textFa": "دو پنل را درست و ایمن وصل کن",
           "buildingId": "tech_lab",
           "buildingProgress": 15
         },
@@ -1856,7 +1886,7 @@
       "id": "tech_03_robot",
       "jobId": "tech",
       "nameFa": "ربات کوچک",
-      "descriptionFa": "سه ایستگاه ساخت ربات را آماده کن.",
+      "descriptionFa": "برای ربات فرمان بنویس، حسگر مناسب انتخاب کن و اشتباه را پیدا و درست کن.",
       "startNpcId": "npc_tech",
       "requiresMissionId": "tech_02_solar",
       "objectives": [
@@ -1864,7 +1894,7 @@
           "type": "interact",
           "targetId": "robot_station",
           "count": 3,
-          "textFa": "سه ایستگاه ربات را آماده کن",
+          "textFa": "سه ایستگاه ربات را درست برنامه‌ریزی کن",
           "buildingId": "tech_lab",
           "buildingProgress": 20
         },
@@ -1891,7 +1921,7 @@
       "id": "tech_04_wifi",
       "jobId": "tech",
       "nameFa": "اینترنت محله",
-      "descriptionFa": "دو گرهٔ اینترنت را روشن کن.",
+      "descriptionFa": "جای نقطهٔ اینترنت را انتخاب کن، مشکل کندی را بررسی کن و رمز امن بگذار.",
       "startNpcId": "npc_tech",
       "requiresMissionId": "tech_03_robot",
       "objectives": [
@@ -1899,7 +1929,7 @@
           "type": "interact",
           "targetId": "wifi_node",
           "count": 2,
-          "textFa": "دو گرهٔ اینترنت را روشن کن",
+          "textFa": "دو نقطهٔ اینترنت را درست و امن راه‌اندازی کن",
           "buildingId": "tech_lab",
           "buildingProgress": 10
         },
@@ -1926,7 +1956,7 @@
       "id": "tech_05_open_lab",
       "jobId": "tech",
       "nameFa": "راه‌اندازی آزمایشگاه",
-      "descriptionFa": "سه کلید آزمایشگاه را جمع کن تا کار شروع شود.",
+      "descriptionFa": "کلیدها را جمع کن، بعد یک روز کامل آزمایشگاه را اداره کن: اولویت‌ها، تعمیر و گزارش.",
       "startNpcId": "npc_tech",
       "requiresMissionId": "tech_04_wifi",
       "objectives": [
@@ -1937,6 +1967,12 @@
           "textFa": "سه کلید آزمایشگاه را جمع کن",
           "buildingId": "tech_lab",
           "buildingProgress": 5
+        },
+        {
+          "type": "interact",
+          "targetId": "lab_session",
+          "count": 3,
+          "textFa": "یک روز کامل آزمایشگاه را اداره کن: اولویت، تعمیر و گزارش"
         },
         {
           "type": "talk",

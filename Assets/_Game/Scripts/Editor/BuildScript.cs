@@ -125,6 +125,8 @@ namespace MyFutureCity.EditorTools
             PlayerSettings.Android.targetArchitectures =
                 AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Low);
+            // Keep native engine classes (colliders etc.) that scenes reference by name; stripped classes crash at runtime.
+            PlayerSettings.stripEngineCode = false;
 
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });

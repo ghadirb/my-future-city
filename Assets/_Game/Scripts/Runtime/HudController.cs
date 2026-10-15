@@ -22,6 +22,9 @@ namespace MyFutureCity
         private Text dialogTitle, dialogBody;
         private RectTransform dialogButtons, dialogPanel;
         private GridLayoutGroup dialogGrid;
+        private ScrollRect dialogScroll;
+        private RectTransform dialogViewport;
+        private GameObject dialogHint;
         private CanvasGroup toastGroup;
         private Coroutine toastRoutine;
         private string lastPrompt = "\u0001";
@@ -118,8 +121,44 @@ namespace MyFutureCity
             dialogTitle = UIKit.Label(panel.transform, "", 42, TextAnchor.MiddleCenter, new Color(1f, 0.85f, 0.4f), 0);
             UIKit.Place(dialogTitle.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -20), new Vector2(920, 64));
 
-            dialogBody = UIKit.Label(panel.transform, "", 28, TextAnchor.UpperRight, Color.white, 0);
-            UIKit.Stretch(dialogBody.rectTransform, new Vector2(50, 130), new Vector2(-50, -100));
+            dialogTitle.resizeTextForBestFit = true;
+            dialogTitle.resizeTextMinSize = 22;
+            dialogTitle.resizeTextMaxSize = 42;
+
+            // The body lives in a scroll view so long Persian text (missions list, city list, report) can be
+            // read on any screen: drag with a finger, or use the mouse wheel in the editor.
+            var viewport = UIKit.Box(panel.transform, "BodyViewport", new Color(0f, 0f, 0f, 0f), true);
+            UIKit.Stretch(viewport.rectTransform, new Vector2(40, 130), new Vector2(-40, -100));
+            viewport.gameObject.AddComponent<RectMask2D>();
+            dialogViewport = viewport.rectTransform;
+
+            dialogBody = UIKit.Label(viewport.transform, "", 28, TextAnchor.UpperRight, Color.white, 0);
+            var bodyRt = dialogBody.rectTransform;
+            bodyRt.anchorMin = new Vector2(0f, 1f);
+            bodyRt.anchorMax = new Vector2(1f, 1f);
+            bodyRt.pivot = new Vector2(0.5f, 1f);
+            bodyRt.anchoredPosition = Vector2.zero;
+            bodyRt.sizeDelta = new Vector2(-20f, 0f);
+            var fitter = dialogBody.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            dialogScroll = viewport.gameObject.AddComponent<ScrollRect>();
+            dialogScroll.viewport = dialogViewport;
+            dialogScroll.content = bodyRt;
+            dialogScroll.horizontal = false;
+            dialogScroll.vertical = true;
+            dialogScroll.movementType = ScrollRect.MovementType.Clamped;
+            dialogScroll.inertia = true;
+            dialogScroll.scrollSensitivity = 40f;
+            dialogScroll.onValueChanged.AddListener(_ => UpdateScrollHint());
+
+            var hint = UIKit.Box(panel.transform, "ScrollHint", new Color(0.05f, 0.1f, 0.18f, 0.92f), false);
+            UIKit.Place(hint.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(420f, 34f));
+            var hintText = UIKit.Label(hint.transform, "برای دیدن ادامه، متن را بالا بکش", 20, TextAnchor.MiddleCenter, new Color(1f, 0.85f, 0.4f), 0);
+            UIKit.Stretch(hintText.rectTransform, Vector2.zero, Vector2.zero);
+            dialogHint = hint.gameObject;
+            dialogHint.SetActive(false);
 
             var row = UIKit.NewRect("Buttons", panel.transform);
             UIKit.Place(row, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 24), new Vector2(920, 80));
@@ -237,26 +276,32 @@ namespace MyFutureCity
             if (options == null || options.Length == 0)
                 options = new[] { new DialogOption(Strings.GotIt, null) };
 
-            // Layout: up to 3 options -> full-width rows; 4+ -> two columns.
+            // Layout: up to 3 options -> full-width rows; 4-7 -> two columns; 8+ -> three columns.
             int n = options.Length;
-            int cols = n >= 4 ? 2 : 1;
+            int cols = n >= 8 ? 3 : (n >= 4 ? 2 : 1);
             int rows = (n + cols - 1) / cols;
             float width = 920f;
             float cellW = (width - (cols - 1) * dialogGrid.spacing.x) / cols;
-            float cellH = cols == 1 ? 84f : 70f;
-            int wrap = cols == 1 ? 50 : 24;
-            int fontSize = cols == 1 ? 26 : 24;
+            float cellH = cols == 1 ? 84f : (cols == 2 ? 70f : 64f);
+            int wrap = cols == 1 ? 50 : (cols == 2 ? 24 : 15);
+            int fontSize = cols == 1 ? 26 : (cols == 2 ? 24 : 20);
             dialogGrid.constraintCount = cols;
             dialogGrid.cellSize = new Vector2(cellW, cellH);
             float buttonsH = rows * cellH + (rows - 1) * dialogGrid.spacing.y;
             var rowRt = dialogButtons;
             rowRt.sizeDelta = new Vector2(width, buttonsH);
-            float bodyAreaMin = 150f;
-            float panelH = Mathf.Min(620f, 120f + bodyAreaMin + buttonsH + 40f);
+
+            // Panel height follows the content but never exceeds the screen; whatever does not fit scrolls.
+            float screenH = ((RectTransform)dialogRoot.transform).rect.height;
+            if (screenH < 200f) screenH = 640f;
+            float maxPanelH = Mathf.Min(screenH - 24f, 700f);
+            const float topH = 100f, gap = 16f, bottomPad = 24f, minBodyH = 110f;
+            float wantBodyH = Mathf.Max(PreferredBodyHeight(width - 100f) + 12f, minBodyH);
+            float panelH = Mathf.Min(maxPanelH, topH + wantBodyH + gap + buttonsH + bottomPad);
             dialogPanel.sizeDelta = new Vector2(1000f, panelH);
-            // Body fills the space between the title and the buttons.
-            dialogBody.rectTransform.offsetMin = new Vector2(50, 24 + buttonsH + 16);
-            dialogBody.rectTransform.offsetMax = new Vector2(-50, -100);
+            // Viewport fills the space between the title and the buttons.
+            dialogViewport.offsetMin = new Vector2(40, bottomPad + buttonsH + gap);
+            dialogViewport.offsetMax = new Vector2(-40, -topH);
 
             for (int i = 0; i < n; i++)
             {
@@ -274,6 +319,33 @@ namespace MyFutureCity
             GameInput.Blocked = true;
             GameInput.Move = Vector2.zero;
             GameInput.ConsumeInteract();
+            StartCoroutine(ResetScrollNextFrame());
+        }
+
+        private float PreferredBodyHeight(float width)
+        {
+            if (string.IsNullOrEmpty(dialogBody.text)) return 0f;
+            var settings = dialogBody.GetGenerationSettings(new Vector2(width, 0f));
+            return dialogBody.cachedTextGeneratorForLayout.GetPreferredHeight(dialogBody.text, settings) / dialogBody.pixelsPerUnit;
+        }
+
+        private IEnumerator ResetScrollNextFrame()
+        {
+            yield return null;                       // let uGUI finish the layout pass
+            Canvas.ForceUpdateCanvases();
+            if (dialogScroll != null) dialogScroll.verticalNormalizedPosition = 1f;   // always start at the top
+            UpdateScrollHint();
+        }
+
+        private void UpdateScrollHint()
+        {
+            if (dialogHint == null || dialogScroll == null) return;
+            float overflow = dialogBody.rectTransform.rect.height - dialogViewport.rect.height;
+            bool more = overflow > 4f && dialogScroll.verticalNormalizedPosition > 0.02f;
+            if (dialogHint.activeSelf != more) dialogHint.SetActive(more);
+            if (more)
+                UIKit.Place((RectTransform)dialogHint.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                    new Vector2(0f, dialogViewport.offsetMin.y + 4f), new Vector2(420f, 34f));
         }
 
         public void CloseDialog()

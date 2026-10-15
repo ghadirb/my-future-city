@@ -41,6 +41,9 @@ namespace MyFutureCity.Tests
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "environment").Count);
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "firefighter").Count);
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "transport").Count);
+            Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "vet").Count);
+            Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "merchant").Count);
+            Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(db, acts, "tech").Count);
         }
 
         [Test]
