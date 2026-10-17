@@ -282,7 +282,7 @@ namespace MyFutureCity.Tests
                     }
                     Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus(m.id), m.id);
                     if (m.id == "farm_01_seeds") { pastChoice = true; Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag); }
-                    if (m.id == "farm_04_harvest") break;
+                    if (m.id == "farm_05_open_farm") break;
                 }
             }
         }
@@ -474,6 +474,150 @@ namespace MyFutureCity.Tests
                     Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus(m.id), m.id);
                     if (m.id == "fire_01_helmets") { pastChoice = true; Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag); }
                     if (m.id == "fire_05_open_station") break;
+                }
+                Assert.IsTrue(pastChoice, tag);
+            }
+        }
+
+        [Test]
+        public void TheChosenFocusIsFollowedByEveryLaterRangerMission()
+        {
+            var db = LoadDb();
+            var acts = LoadActs();
+            foreach (var tag in new[] { "focus=river", "focus=compost", "focus=recycle" })
+            {
+                var w = Create(db, acts);
+                bool pastChoice = false;
+                foreach (var m in db.missions)
+                {
+                    Assert.IsTrue(w.Missions.Start(m.id), m.id);
+                    foreach (var o in m.objectives)
+                    {
+                        if (o.ParsedType() != ObjectiveType.Interact)
+                        {
+                            w.Missions.Notify(o.ParsedType(), o.targetId, o.RequiredCount);
+                            continue;
+                        }
+                        var def = acts.Find(m.id, o.targetId);
+                        Assert.IsNotNull(def, m.id);
+                        bool followsFocus = pastChoice && m.jobId == "environment" && def.variants != null && def.variants.Count > 0;
+                        int expectedVariant = followsFocus ? def.VariantIndexFor(w.Save.choiceTags) : -1;
+                        if (followsFocus && tag != "focus=recycle")
+                        {
+                            Assert.GreaterOrEqual(expectedVariant, 0, m.id + ": the chosen choice must change this mission (" + tag + ")");
+                            Assert.AreEqual(tag, def.variants[expectedVariant].tag, m.id);
+                            Assert.GreaterOrEqual(def.variants[expectedVariant].scenes.Count, o.RequiredCount, m.id);
+                        }
+                        for (int order = 0; order < o.RequiredCount; order++)
+                        {
+                            var session = w.Activities.Begin(m.id, o.targetId, order);
+                            Assert.IsNotNull(session, m.id + " spot " + order);
+                            if (followsFocus) Assert.AreEqual(expectedVariant, session.VariantIndex, m.id + " spot " + order);
+                            SolvePreferringTag(session, m.id == "env_01_gloves" ? tag : null);
+                            if (followsFocus && expectedVariant >= 0)
+                                Assert.IsNotNull(w.Save.GetActivityRecord(m.id, o.targetId, 100 * (expectedVariant + 1) + order, false),
+                                    m.id + " spot " + order + ": the chosen scene must be saved under its own key");
+                        }
+                    }
+                    Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus(m.id), m.id);
+                    if (m.id == "env_01_gloves") { pastChoice = true; Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag); }
+                    if (m.id == "env_05_open_station") break;
+                }
+                Assert.IsTrue(pastChoice, tag);
+            }
+        }
+
+        [Test]
+        public void TheChosenServiceIsFollowedByEveryLaterDriverMission()
+        {
+            var db = LoadDb();
+            var acts = LoadActs();
+            foreach (var tag in new[] { "service=school", "service=fresh", "service=city" })
+            {
+                var w = Create(db, acts);
+                bool pastChoice = false;
+                foreach (var m in db.missions)
+                {
+                    Assert.IsTrue(w.Missions.Start(m.id), m.id);
+                    foreach (var o in m.objectives)
+                    {
+                        if (o.ParsedType() != ObjectiveType.Interact)
+                        {
+                            w.Missions.Notify(o.ParsedType(), o.targetId, o.RequiredCount);
+                            continue;
+                        }
+                        var def = acts.Find(m.id, o.targetId);
+                        Assert.IsNotNull(def, m.id);
+                        bool followsService = pastChoice && m.jobId == "transport" && def.variants != null && def.variants.Count > 0;
+                        int expectedVariant = followsService ? def.VariantIndexFor(w.Save.choiceTags) : -1;
+                        if (followsService && tag != "service=city")
+                        {
+                            Assert.GreaterOrEqual(expectedVariant, 0, m.id + ": the chosen choice must change this mission (" + tag + ")");
+                            Assert.AreEqual(tag, def.variants[expectedVariant].tag, m.id);
+                            Assert.GreaterOrEqual(def.variants[expectedVariant].scenes.Count, o.RequiredCount, m.id);
+                        }
+                        for (int order = 0; order < o.RequiredCount; order++)
+                        {
+                            var session = w.Activities.Begin(m.id, o.targetId, order);
+                            Assert.IsNotNull(session, m.id + " spot " + order);
+                            if (followsService) Assert.AreEqual(expectedVariant, session.VariantIndex, m.id + " spot " + order);
+                            SolvePreferringTag(session, m.id == "transit_01_passes" ? tag : null);
+                            if (followsService && expectedVariant >= 0)
+                                Assert.IsNotNull(w.Save.GetActivityRecord(m.id, o.targetId, 100 * (expectedVariant + 1) + order, false),
+                                    m.id + " spot " + order + ": the chosen scene must be saved under its own key");
+                        }
+                    }
+                    Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus(m.id), m.id);
+                    if (m.id == "transit_01_passes") { pastChoice = true; Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag); }
+                    if (m.id == "transit_05_open_terminal") break;
+                }
+                Assert.IsTrue(pastChoice, tag);
+            }
+        }
+
+        [Test]
+        public void TheChosenDeviceIsFollowedByEveryLaterTechMission()
+        {
+            var db = LoadDb();
+            var acts = LoadActs();
+            foreach (var tag in new[] { "device=robot", "device=computer", "device=solar" })
+            {
+                var w = Create(db, acts);
+                bool pastChoice = false;
+                foreach (var m in db.missions)
+                {
+                    Assert.IsTrue(w.Missions.Start(m.id), m.id);
+                    foreach (var o in m.objectives)
+                    {
+                        if (o.ParsedType() != ObjectiveType.Interact)
+                        {
+                            w.Missions.Notify(o.ParsedType(), o.targetId, o.RequiredCount);
+                            continue;
+                        }
+                        var def = acts.Find(m.id, o.targetId);
+                        Assert.IsNotNull(def, m.id);
+                        bool followsDevice = pastChoice && m.jobId == "tech" && def.variants != null && def.variants.Count > 0;
+                        int expectedVariant = followsDevice ? def.VariantIndexFor(w.Save.choiceTags) : -1;
+                        if (followsDevice && tag != "device=solar")
+                        {
+                            Assert.GreaterOrEqual(expectedVariant, 0, m.id + ": the chosen choice must change this mission (" + tag + ")");
+                            Assert.AreEqual(tag, def.variants[expectedVariant].tag, m.id);
+                            Assert.GreaterOrEqual(def.variants[expectedVariant].scenes.Count, o.RequiredCount, m.id);
+                        }
+                        for (int order = 0; order < o.RequiredCount; order++)
+                        {
+                            var session = w.Activities.Begin(m.id, o.targetId, order);
+                            Assert.IsNotNull(session, m.id + " spot " + order);
+                            if (followsDevice) Assert.AreEqual(expectedVariant, session.VariantIndex, m.id + " spot " + order);
+                            SolvePreferringTag(session, m.id == "tech_01_parts" ? tag : null);
+                            if (followsDevice && expectedVariant >= 0)
+                                Assert.IsNotNull(w.Save.GetActivityRecord(m.id, o.targetId, 100 * (expectedVariant + 1) + order, false),
+                                    m.id + " spot " + order + ": the chosen scene must be saved under its own key");
+                        }
+                    }
+                    Assert.AreEqual(MissionStatus.Completed, w.Missions.GetStatus(m.id), m.id);
+                    if (m.id == "tech_01_parts") { pastChoice = true; Assert.IsTrue(w.Save.choiceTags.Contains(tag), tag); }
+                    if (m.id == "tech_05_open_lab") break;
                 }
                 Assert.IsTrue(pastChoice, tag);
             }
