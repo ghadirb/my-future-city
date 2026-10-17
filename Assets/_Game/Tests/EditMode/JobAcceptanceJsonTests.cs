@@ -456,6 +456,40 @@ namespace MyFutureCity.Tests
         }
 
         [Test]
+        public void EveryOtherJobHasADirectOrderingActivityInBaseAndInEveryBranch()
+        {
+            var acts = LoadActs();
+            var expected = new[]
+            {
+                new[] { "med_02_supplies", "first_aid_case" },
+                new[] { "fire_04_alarms", "fire_alarm" },
+                new[] { "farm_02_soil", "farm_soil" },
+                new[] { "market_05_open_market", "market_session" },
+                new[] { "eng_03_repair_school", "school_fix" },
+                new[] { "vet_04_checkup", "pet_checkup" },
+                new[] { "transit_02_parcels", "parcel_bay" },
+                new[] { "env_02_cleanup", "cleanup_station" },
+                new[] { "tech_05_open_lab", "lab_session" },
+            };
+            foreach (var e in expected)
+            {
+                var def = acts.Find(e[0], e[1]);
+                Assert.IsNotNull(def, e[0]);
+                var sets = new List<List<ActivityScene>> { def.scenes };
+                foreach (var v in def.variants) sets.Add(v.scenes);
+                Assert.GreaterOrEqual(sets.Count, 3, e[0] + ": base and every branch must be checked");
+                foreach (var scenes in sets)
+                {
+                    bool found = false;
+                    foreach (var sc in scenes)
+                        foreach (var st in sc.steps)
+                            if (st.ordered && st.options.Count >= 3) found = true;
+                    Assert.IsTrue(found, e[0] + ": every branch needs a direct ordering step");
+                }
+            }
+        }
+
+        [Test]
         public void TheChosenHazardIsFollowedByEveryLaterFirefighterMission()
         {
             var db = LoadDb();
