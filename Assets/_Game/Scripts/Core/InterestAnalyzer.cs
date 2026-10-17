@@ -30,6 +30,7 @@ namespace MyFutureCity.Core
         public int WrongChoices;
         public int HintsUsed;
         public int OptionalActivityRuns;// scenes finished while voluntarily repeating a finished stage
+        public int OptionalPicked;      // scenes finished of the extra activities no mission asks for
         public int ActivitiesAbandoned;
         public int FreeChoices;         // preference decisions (no wrong answer) recorded in the log
 
@@ -121,6 +122,7 @@ namespace MyFutureCity.Core
                     ji.WrongChoices = ast.wrongChoices;
                     ji.HintsUsed = ast.hints;
                     ji.OptionalActivityRuns = ast.optionalRuns;
+                    ji.OptionalPicked = ast.optionalPicked;
                     ji.ActivitiesAbandoned = ast.abandoned;
                 }
                 report.Jobs.Add(ji);
@@ -281,6 +283,13 @@ namespace MyFutureCity.Core
             if (act != null)
                 r.LinesFa.Add("در «" + act.NameFa + "» " + act.ActivitiesDone + " فعالیت واقعی کار را خودت انجام داده‌ای"
                               + (act.OptionalActivityRuns > 0 ? " و " + act.OptionalActivityRuns + " بار آن را با میل خودت تکرار کرده‌ای." : "."));
+
+            // Choosing an extra activity nobody asked for is a separate, descriptive signal (never a verdict).
+            JobInsight extra = null;
+            foreach (var j in r.Jobs)
+                if (j.OptionalPicked > 0 && (extra == null || j.OptionalPicked > extra.OptionalPicked)) extra = j;
+            if (extra != null)
+                r.LinesFa.Add("در «" + extra.NameFa + "» فعالیت اختیاری را هم خودت انتخاب کرده‌ای (" + extra.OptionalPicked + " بار).");
 
             JobInsight steady = null;
             foreach (var j in r.Jobs)

@@ -69,6 +69,11 @@ namespace MyFutureCity.Core
         public string realWorldFa;
         public string childDoesFa;
         public string skillFa;
+        /// <summary>
+        /// True for an extra activity of the job that no mission asks for. It unlocks once <see cref="missionId"/> has been
+        /// completed once, never advances a mission, never pays coins/xp, and choosing it is logged as an optional pick.
+        /// </summary>
+        public bool optional;
         /// <summary>Spot number N of the objective plays scene N (wraps around).</summary>
         public List<ActivityScene> scenes = new List<ActivityScene>();
         /// <summary>Optional alternative scene sets chosen by an earlier decision of the child (see ActivityOption.setsTag).</summary>
@@ -141,12 +146,12 @@ namespace MyFutureCity.Core
                 ObjectiveDefinition obj = null;
                 foreach (var o in m.objectives)
                     if (o != null && o.targetId == a.targetId && o.ParsedType() == ObjectiveType.Interact) obj = o;
-                if (obj == null) errors.Add(p + "mission has no interact objective with this targetId.");
+                if (obj == null && !a.optional) errors.Add(p + "mission has no interact objective with this targetId.");
                 if (string.IsNullOrEmpty(a.realWorldFa)) errors.Add(p + "missing realWorldFa (what the real job does).");
                 if (string.IsNullOrEmpty(a.childDoesFa)) errors.Add(p + "missing childDoesFa (what the child does).");
                 if (string.IsNullOrEmpty(a.skillFa)) errors.Add(p + "missing skillFa (what is practised).");
                 if (a.scenes == null || a.scenes.Count == 0) { errors.Add(p + "has no scenes."); continue; }
-                if (obj != null && a.scenes.Count < obj.RequiredCount)
+                if (obj != null && !a.optional && a.scenes.Count < obj.RequiredCount)
                     errors.Add(p + "only " + a.scenes.Count + " scene(s) for " + obj.RequiredCount + " required spots.");
 
                 ValidateScenes(errors, p, a.scenes);

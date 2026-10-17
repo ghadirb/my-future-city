@@ -49,6 +49,7 @@ namespace MyFutureCity.Core
         public int wrongChoices;
         public int hints;
         public int optionalRuns;   // scenes finished while repeating an already completed stage (the child's own choice)
+        public int optionalPicked; // scenes finished of the extra activities no mission asks for (the child's own choice)
         public int abandoned;      // scenes left unfinished
     }
 
@@ -249,6 +250,7 @@ namespace MyFutureCity.Core
                 if (a.wrongChoices < 0) a.wrongChoices = 0;
                 if (a.hints < 0) a.hints = 0;
                 if (a.optionalRuns < 0) a.optionalRuns = 0;
+                if (a.optionalPicked < 0) a.optionalPicked = 0;
                 if (a.abandoned < 0) a.abandoned = 0;
             }
             activityRecords.RemoveAll(r => r == null || string.IsNullOrEmpty(r.missionId) || string.IsNullOrEmpty(r.targetId));

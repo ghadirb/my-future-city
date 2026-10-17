@@ -62,7 +62,8 @@ try:
         if not m: err(p + "unknown mission"); continue
         if m["jobId"] != a["jobId"]: err(p + "jobId does not match mission")
         obj = [o for o in m["objectives"] if o["type"] == "interact" and o["targetId"] == a["targetId"]]
-        if not obj: err(p + "mission has no interact objective with this target")
+        if a.get("optional"): obj = []        # extra activity no mission asks for: unlocked by finishing the stage in missionId
+        elif not obj: err(p + "mission has no interact objective with this target")
         elif len(a["scenes"]) < obj[0]["count"]: err(p + "fewer scenes than required spots")
         for f in ("realWorldFa", "childDoesFa", "skillFa"):
             if not a.get(f): err(p + "missing " + f)

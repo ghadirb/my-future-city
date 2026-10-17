@@ -280,7 +280,7 @@ namespace MyFutureCity.EditorTools
         /// <summary>Spots whose activity is performed with a student character instead of a board.</summary>
         private static bool IsStudentSpot(string targetId) { return targetId == "student_help"; }
 
-        private static void AddTaskSpot(Transform parent, List<Zone> zones, Vector3 position, string name, string missionId, string targetId, string promptFa, int order, Material pendingMaterial, Material completedMaterial, Material beacon)
+        private static void AddTaskSpot(Transform parent, List<Zone> zones, Vector3 position, string name, string missionId, string targetId, string promptFa, int order, Material pendingMaterial, Material completedMaterial, Material beacon, bool optional = false)
         {
             var root = Empty(name + order, parent, position);
             bool isActivity = ActivityDb.Has(missionId, targetId);
@@ -325,6 +325,7 @@ namespace MyFutureCity.EditorTools
                 act.promptFa = promptFa;
                 act.guideNameFa = promptFa;
                 act.radius = 2.8f;
+                act.optional = optional;
                 act.pendingVisual = pending;
                 act.completedVisual = completed;
             }
@@ -340,6 +341,53 @@ namespace MyFutureCity.EditorTools
                 task.fixedVisual = completed;
             }
             zones.Add(new Zone(position.x, position.z, 2, 2));
+        }
+
+        /// <summary>Anchor = the first-stage task spot of the job; the extra spot is put in the nearest free place next to it.</summary>
+        private static readonly object[][] OptionalSpotPlan =
+        {
+            new object[] { "teach_01_books", "opt_teacher", -28f, 25f, "فعالیت اختیاری: بازی آموزشی" },
+            new object[] { "med_01_first_aid", "opt_doctor", 0f, 17f, "فعالیت اختیاری: آموزش شستن دست" },
+            new object[] { "eng_01_toolbox", "opt_engineer", -15.5f, 18f, "فعالیت اختیاری: ساخت نیمکت" },
+            new object[] { "farm_01_seeds", "opt_farmer", -7f, -27f, "فعالیت اختیاری: برچسب‌گذاری ردیف‌ها" },
+            new object[] { "env_01_gloves", "opt_environment", 12f, 24f, "فعالیت اختیاری: آبخوری پرنده‌ها" },
+            new object[] { "fire_01_helmets", "opt_firefighter", -17f, -10f, "فعالیت اختیاری: نقشهٔ فرار خانه" },
+            new object[] { "transit_01_passes", "opt_transport", -30f, -23f, "فعالیت اختیاری: مسیر امن مدرسه" },
+            new object[] { "vet_01_leashes", "opt_vet", 26.5f, -3f, "فعالیت اختیاری: برگهٔ مراقبت حیوان" },
+            new object[] { "market_01_crates", "opt_merchant", 22f, 29f, "فعالیت اختیاری: چیدن ویترین" },
+            new object[] { "tech_01_parts", "opt_tech", -25f, 25f, "فعالیت اختیاری: ساختن رمز عبور" },
+        };
+
+        private static void AddOptionalSpots(Transform parent, List<Zone> zones, Material beacon)
+        {
+            var pending = Lit("OptionalSpot", 0.3f, 0.55f, 0.9f);
+            var ready = Lit("OptionalSpotReady", 0.3f, 0.55f, 0.9f);
+            foreach (var plan in OptionalSpotPlan)
+            {
+                string missionId = (string)plan[0], targetId = (string)plan[1];
+                if (!ActivityDb.Has(missionId, targetId)) continue;
+                Vector3 pos = FindFreeSpotNear((float)plan[2], (float)plan[3], zones);
+                AddTaskSpot(parent, zones, pos, "Optional_" + targetId, missionId, targetId, (string)plan[4], 0, pending, ready, beacon, true);
+            }
+        }
+
+        /// <summary>Walks outward from the anchor in 8 directions and returns the first place that overlaps no zone.</summary>
+        private static Vector3 FindFreeSpotNear(float ax, float az, List<Zone> zones)
+        {
+            for (float r = 3f; r <= 9f; r += 1.5f)
+            {
+                for (int k = 0; k < 8; k++)
+                {
+                    float a = k * Mathf.PI / 4f;
+                    float x = ax + Mathf.Cos(a) * r, z = az + Mathf.Sin(a) * r;
+                    if (Mathf.Abs(x) > 38f || Mathf.Abs(z) > 38f) continue;
+                    bool bad = false;
+                    foreach (var zn in zones)
+                        if (Mathf.Abs(x - zn.x) < zn.hx + 2.2f && Mathf.Abs(z - zn.z) < zn.hz + 2.2f) { bad = true; break; }
+                    if (!bad) return new Vector3(x, 0, z);
+                }
+            }
+            return new Vector3(ax + 3f, 0, az + 3f);
         }
 
         private static void GenerateNeighborhood()
@@ -1238,6 +1286,9 @@ namespace MyFutureCity.EditorTools
             Vector3[] labKeyPos = { new Vector3(-12, 0.42f, 14), new Vector3(18, 0.42f, -34), new Vector3(-9, 0.42f, 34) };
             for (int i = 0; i < labKeyPos.Length; i++)
                 AddPickupMarker(pickups.transform, zones, labKeyPos[i], "LabKey", "tech_05_open_lab", "lab_key", "کلید آزمایشگاه", i, labKeyMat, beacon);
+
+            // ----- optional activities (one extra spot per job, shown once the job's first stage is done) -----
+            AddOptionalSpots(repairs.transform, zones, beacon);
 
             // ----- trees (scenery) -----
             var rnd = new System.Random(12345);

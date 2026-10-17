@@ -30,6 +30,8 @@ namespace MyFutureCity.Core
         public bool Abandoned { get; private set; }
         /// <summary>True when the mission had already been completed before this run (a voluntary repeat).</summary>
         public bool IsReplay { get; private set; }
+        /// <summary>True for an extra activity that no mission asks for (see ActivityDefinition.optional).</summary>
+        public bool IsOptional { get { return Definition.optional; } }
 
         public int StepsDone { get; private set; }
         public int FirstTryCorrect { get; private set; }
@@ -190,7 +192,7 @@ namespace MyFutureCity.Core
         public ActivitySession Begin(string missionId, string targetId, int order)
         {
             var def = acts.Find(missionId, targetId);
-            if (def == null) return null;
+            if (def == null || def.optional) return null;
             var active = missions.ActiveMission;
             if (active == null || active.id != missionId) return null;
             if (!missions.IsObjectiveCurrent(ObjectiveType.Interact, targetId)) return null;
@@ -200,6 +202,26 @@ namespace MyFutureCity.Core
             bool replay = missions.TimesCompleted(missionId) > 0;
             Stats(def.jobId).started++;
             return new ActivitySession(this, def, order, replay, def.VariantIndexFor(save.choiceTags));
+        }
+
+        /// <summary>An optional activity is offered once the stage named by its missionId has been completed once.</summary>
+        public bool IsOptionalAvailable(string missionId, string targetId)
+        {
+            var def = acts.Find(missionId, targetId);
+            return def != null && def.optional && def.scenes != null && def.scenes.Count > 0 && missions.TimesCompleted(missionId) > 0;
+        }
+
+        /// <summary>
+        /// Starts an optional activity. It needs no active mission, can be played again and again, and never touches
+        /// missions or rewards: the only thing it changes is the interest log.
+        /// </summary>
+        public ActivitySession BeginOptional(string missionId, string targetId, int order)
+        {
+            if (!IsOptionalAvailable(missionId, targetId)) return null;
+            var def = acts.Find(missionId, targetId);
+            if (def.SceneFor(order) == null) return null;
+            Stats(def.jobId).started++;
+            return new ActivitySession(this, def, order, false, def.VariantIndexFor(save.choiceTags));
         }
 
         // ----- internal bookkeeping used by ActivitySession -----
@@ -232,7 +254,8 @@ namespace MyFutureCity.Core
         {
             var js = Stats(s.Definition.jobId);
             js.completed++;
-            if (s.IsReplay) js.optionalRuns++;
+            if (s.IsOptional) js.optionalPicked++;
+            else if (s.IsReplay) js.optionalRuns++;
             var rec = save.GetActivityRecord(s.Definition.missionId, s.Definition.targetId, s.SceneKey, true);
             rec.completions++;
             rec.jobId = s.Definition.jobId;
@@ -240,7 +263,7 @@ namespace MyFutureCity.Core
             // Stats are written BEFORE the mission advances, so the save made by the mission events already contains them.
             var h = SceneCompleted;
             if (h != null) h(s);
-            missions.Notify(ObjectiveType.Interact, s.Definition.targetId);
+            if (!s.IsOptional) missions.Notify(ObjectiveType.Interact, s.Definition.targetId);   // optional: no mission, no reward
         }
     }
 }
