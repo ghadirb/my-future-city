@@ -7,6 +7,8 @@ errors = []
 
 def err(msg): errors.append(msg)
 
+REVIEWED_JOBS = ["tech"]   # jobs whose option texts were rewritten for the 'longest = correct' cue (docs/PROGRESS.md)
+
 # 1. required files
 required = [
     "ProjectSettings/ProjectVersion.txt", "Packages/manifest.json",
@@ -54,6 +56,7 @@ try:
     mission = {m["id"]: m for m in db["missions"]}
     seen = set()
     correct_pos = {}
+    length_cue = {}
     for a in acts:
         key = a["missionId"] + "/" + a["targetId"]
         p = "activity " + key + ": "
@@ -74,6 +77,10 @@ try:
                     if not st.get("free") and not st.get("ordered") and sum(1 for o in st["options"] if o["correct"]) == 1:
                         ci = [o["correct"] for o in st["options"]].index(True)
                         correct_pos[(len(st["options"]), ci)] = correct_pos.get((len(st["options"]), ci), 0) + 1
+                        ls = [len(o["textFa"]) for o in st["options"]]
+                        lj = length_cue.setdefault(a["jobId"], [0, 0])
+                        lj[1] += 1
+                        if ls[ci] == max(ls) and ls.count(max(ls)) == 1: lj[0] += 1
             for si, sc in enumerate(scenes):
                 if not sc.get("titleFa") or not sc["steps"]: err(prefix + "scene %d incomplete" % si)
                 for ti, st in enumerate(sc["steps"]):
@@ -123,6 +130,13 @@ try:
             limit = 0.45 if n == 3 else 0.60
             if total >= 30 and share > limit:
                 err("correct answer sits at position %d in %.0f%% of %d-option steps (run tools/balance_correct_positions.py)" % (i + 1, share * 100, n))
+    # Jobs whose texts were reviewed: the correct option must not be the single longest one far more often than
+    # chance (~33%). A child who reads but does not understand could otherwise win by tapping the longest button.
+    # Add a job here once its wrong options have been rewritten to be as plausible and as long as the right one.
+    for job in REVIEWED_JOBS:
+        hit, n = length_cue.get(job, [0, 0])
+        if n >= 20 and hit / n > 0.55:
+            err("job %s: the correct option is the longest in %.0f%% of %d steps (limit 55%%; rewrite the wrong options)" % (job, 100 * hit / n, n))
     # redesigned jobs: no mission may be finishable by collecting/talking only
     for m in db["missions"]:
         if m["jobId"] in REAL_ACTIVITY_JOBS:
