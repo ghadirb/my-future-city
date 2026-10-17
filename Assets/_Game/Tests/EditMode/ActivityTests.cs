@@ -93,6 +93,17 @@ namespace MyFutureCity.Tests
                 }
             });
 
+            // An extra activity no mission asks for: unlocked once t1 is done, never pays, never advances a mission.
+            acts.activities.Add(new ActivityDefinition
+            {
+                missionId = "t1", targetId = "opt_teacher", jobId = "teacher", optional = true,
+                realWorldFa = "معلم بازی آموزشی می‌سازد", childDoesFa = "کودک بازی را انتخاب می‌کند", skillFa = "طراحی فعالیت",
+                scenes = new List<ActivityScene>
+                {
+                    new ActivityScene { titleFa = "بازی آموزشی", steps = new List<ActivityStep> { Step(false, O("غلط", false), O("درست", true)) } }
+                }
+            });
+
             var w = new TeacherWorld { Db = db, Acts = acts, Save = new SaveData() };
             w.Wallet = new Wallet(w.Save);
             w.City = new CityProgressService(db, w.Save);
@@ -585,6 +596,90 @@ namespace MyFutureCity.Tests
             Assert.IsTrue(jobs.Contains("farmer"));
             Assert.AreEqual(0, ActivityDatabaseValidator.MissionsWithoutRealActivity(w.Db, w.Acts, "teacher").Count);
             Assert.AreEqual(1, ActivityDatabaseValidator.MissionsWithoutRealActivity(w.Db, w.Acts, "farmer").Count);
+        }
+
+        // ---------- optional activities (extra, not asked by any mission) ----------
+
+        private static TeacherWorld WorldWithT1Done()
+        {
+            var w = Create();
+            Assert.IsTrue(w.Missions.Start("t1"));
+            CollectBooks(w);
+            Solve(w.Activities.Begin("t1", "prep", 0));
+            Assert.IsTrue(w.Missions.Notify(ObjectiveType.Talk, "npc"));
+            Assert.AreEqual(1, w.Missions.TimesCompleted("t1"));
+            return w;
+        }
+
+        [Test]
+        public void OptionalActivityIsLockedUntilItsStageIsDone()
+        {
+            var w = Create();
+            Assert.IsFalse(w.Activities.IsOptionalAvailable("t1", "opt_teacher"));
+            Assert.IsNull(w.Activities.BeginOptional("t1", "opt_teacher", 0));
+            var w2 = WorldWithT1Done();
+            Assert.IsTrue(w2.Activities.IsOptionalAvailable("t1", "opt_teacher"));
+            Assert.IsNotNull(w2.Activities.BeginOptional("t1", "opt_teacher", 0));
+        }
+
+        [Test]
+        public void OptionalActivityCannotBeStartedAsAMissionObjective()
+        {
+            var w = WorldWithT1Done();
+            Assert.IsTrue(w.Missions.Start("t2"));
+            Assert.IsNull(w.Activities.Begin("t1", "opt_teacher", 0), "the normal Begin must refuse an optional activity");
+            Assert.IsNull(w.Activities.BeginOptional("t2", "teach", 0), "a mission activity is not optional");
+        }
+
+        [Test]
+        public void OptionalActivityPaysNothingAndNeverAdvancesAMission()
+        {
+            var w = WorldWithT1Done();
+            Assert.IsTrue(w.Missions.Start("t2"));
+            int coins = w.Wallet.Coins, xp = w.Wallet.Xp;
+            int doneT2 = w.Missions.GetCountByTarget("t2", "teach");
+            var s = w.Activities.BeginOptional("t1", "opt_teacher", 0);
+            Solve(s);
+            Assert.IsTrue(s.Finished);
+            Assert.AreEqual(coins, w.Wallet.Coins, "no coins for an optional activity");
+            Assert.AreEqual(xp, w.Wallet.Xp, "no xp for an optional activity");
+            Assert.AreEqual(doneT2, w.Missions.GetCountByTarget("t2", "teach"), "no mission progress");
+            Assert.AreEqual(MissionStatus.Active, w.Missions.GetStatus("t2"));
+        }
+
+        [Test]
+        public void OptionalActivityCanBePlayedAgainAndIsCountedSeparatelyFromRepeats()
+        {
+            var w = WorldWithT1Done();
+            Solve(w.Activities.BeginOptional("t1", "opt_teacher", 0));
+            Solve(w.Activities.BeginOptional("t1", "opt_teacher", 0));
+            var st = w.Save.GetActivityStats("teacher", false);
+            Assert.IsNotNull(st);
+            Assert.AreEqual(2, st.optionalPicked);
+            Assert.AreEqual(0, st.optionalRuns, "optional picks are not stage repeats");
+            Assert.IsTrue(w.Save.activityChoices.Exists(c => c.targetId == "opt_teacher"), "the choices are logged");
+        }
+
+        [Test]
+        public void OptionalActivityAppearsInTheReportAsDescriptiveText()
+        {
+            var w = WorldWithT1Done();
+            Solve(w.Activities.BeginOptional("t1", "opt_teacher", 0));
+            var report = InterestAnalyzer.Analyze(w.Db, w.Save);
+            var joined = string.Join("\n", report.LinesFa.ToArray());
+            StringAssert.Contains("فعالیت اختیاری", joined);
+            StringAssert.DoesNotContain("استعداد", joined);
+            Assert.AreEqual(1, report.Find("teacher").OptionalPicked);
+        }
+
+        [Test]
+        public void OptionalActivityNeedsNoObjectiveButStillNeedsRealDecisions()
+        {
+            var w = Create();
+            Assert.AreEqual(0, ActivityDatabaseValidator.Validate(w.Acts, w.Db).Count);
+            var opt = w.Acts.Find("t1", "opt_teacher");
+            opt.scenes[0].steps[0] = Step(false, O("الف", true), O("ب", true));
+            Assert.IsTrue(ActivityDatabaseValidator.Validate(w.Acts, w.Db).Count > 0, "every option correct is still rejected");
         }
     }
 }

@@ -16,6 +16,8 @@ namespace MyFutureCity
         public string guideNameFa = "";
         public GameObject pendingVisual;
         public GameObject completedVisual;
+        /// <summary>An extra activity no mission asks for: shown once its stage is done, repeatable, never rewarded.</summary>
+        public bool optional;
 
         private GameContext ctx;
         private bool done;
@@ -35,6 +37,19 @@ namespace MyFutureCity
         private void Refresh()
         {
             if (ctx == null) return;
+            if (optional)
+            {
+                // Hidden until the stage is done; never "done" (it can be played again); no yellow guide beacon.
+                if (pendingVisual != null)
+                {
+                    pendingVisual.SetActive(IsAvailable(ctx));
+                    var marks = pendingVisual.GetComponentsInChildren<Transform>(true);
+                    for (int i = 0; i < marks.Length; i++)
+                        if (marks[i].name == "Beacon" || marks[i].name == "Marker") marks[i].gameObject.SetActive(false);
+                }
+                if (completedVisual != null) completedVisual.SetActive(false);
+                return;
+            }
             var status = ctx.Missions.GetStatus(missionId);
             done = status == MissionStatus.Completed ||
                    (status == MissionStatus.Active && order < ctx.Missions.GetCountByTarget(missionId, targetId));
@@ -55,20 +70,23 @@ namespace MyFutureCity
 
         public override bool IsAvailable(GameContext context)
         {
+            if (optional) return context != null && context.Activities.IsOptionalAvailable(missionId, targetId);
             return context != null &&
                    context.Missions.GetStatus(missionId) == MissionStatus.Active &&
                    context.Missions.IsObjectiveCurrent(ObjectiveType.Interact, targetId) &&
                    order == context.Missions.GetCountByTarget(missionId, targetId);
         }
 
-        public override bool MatchesCurrentObjective(GameContext context) { return IsAvailable(context); }
+        public override bool MatchesCurrentObjective(GameContext context) { return !optional && IsAvailable(context); }
 
         public override string GuideName { get { return guideNameFa; } }
 
         public override void Interact(GameSceneController scene)
         {
             if (scene == null || scene.Ctx == null) return;
-            var session = scene.Ctx.Activities.Begin(missionId, targetId, order);
+            var session = optional
+                ? scene.Ctx.Activities.BeginOptional(missionId, targetId, order)
+                : scene.Ctx.Activities.Begin(missionId, targetId, order);
             if (session == null) return;
             ShowStep(scene, session);
         }
@@ -143,7 +161,8 @@ namespace MyFutureCity
             if (result.SceneFinished)
             {
                 string summary = session.FirstTryCorrect + " از " + session.StepsDone
-                                 + " تصمیم را در تلاش اول درست گرفتی.";
+                                 + " تصمیم را در تلاش اول درست گرفتی."
+                                 + (session.IsOptional ? "\nاین یک فعالیت اختیاری بود؛ هر وقت خواستی می‌توانی دوباره انجامش بدهی." : "");
                 scene.Hud.ShowDialog("کار تمام شد!", result.FeedbackFa + "\n" + summary,
                     new DialogOption("ادامه", null));
                 Refresh();
