@@ -18,6 +18,24 @@ namespace MyFutureCity.Core
         public string setsTag;
     }
 
+    /// <summary>
+    /// Direct hands-on work: the child puts every item on the slot where it really belongs (e.g. the right teaching
+    /// material for each lesson). <see cref="answer"/>[slot] = index of the item that belongs on that slot.
+    /// Unlike a dialog choice, each placement is its own logged action.
+    /// </summary>
+    [Serializable]
+    public class TaskSpec
+    {
+        public List<string> itemsFa = new List<string>();
+        public List<string> slotsFa = new List<string>();
+        public List<int> answer = new List<int>();
+        /// <summary>Friendly lines shown after a wrong placement (why it does not fit); rotated.</summary>
+        public List<string> wrongFa = new List<string>();
+        /// <summary>Shown after a right placement; "{item}" and "{slot}" are replaced.</summary>
+        public string rightFa;
+        public string doneFa;
+    }
+
     /// <summary>One decision inside a scene. A "free" step has no wrong answer: it records what the child prefers.</summary>
     [Serializable]
     public class ActivityStep
@@ -32,6 +50,11 @@ namespace MyFutureCity.Core
         /// </summary>
         public bool ordered;
         public List<ActivityOption> options = new List<ActivityOption>();
+        /// <summary>Optional direct task (see <see cref="TaskSpec"/>). A task step is finished only by placing every item.</summary>
+        public TaskSpec task;
+
+        // JsonUtility turns a missing nested object into an empty one, so "present" means "has items".
+        public bool IsTask { get { return task != null && task.itemsFa != null && task.itemsFa.Count > 0; } }
 
         public bool IsAccepted(int optionIndex)
         {
@@ -245,6 +268,31 @@ namespace MyFutureCity.Core
                 if (string.IsNullOrEmpty(line)) errors.Add(p + "reactions." + name + " has an empty line.");
         }
 
+        private static void ValidateTask(List<string> errors, string tp, ActivityStep st)
+        {
+            var t = st.task;
+            if (st.free || st.ordered) errors.Add(tp + "a task step cannot also be free or ordered.");
+            if (t.itemsFa.Count < 3 || t.itemsFa.Count > 4) errors.Add(tp + "task needs 3 or 4 items.");
+            if (t.slotsFa == null || t.slotsFa.Count != t.itemsFa.Count) { errors.Add(tp + "task needs exactly one slot per item."); return; }
+            if (t.answer == null || t.answer.Count != t.slotsFa.Count) { errors.Add(tp + "task.answer needs one entry per slot."); return; }
+            var used = new HashSet<int>();
+            for (int i = 0; i < t.answer.Count; i++)
+            {
+                int a = t.answer[i];
+                if (a < 0 || a >= t.itemsFa.Count || !used.Add(a)) errors.Add(tp + "task.answer must be a permutation of the items.");
+            }
+            bool identity = true;
+            for (int i = 0; i < t.answer.Count; i++) if (t.answer[i] != i) identity = false;
+            if (identity) errors.Add(tp + "task.answer must not be the identity order (items would be listed already matched).");
+            foreach (var x in t.itemsFa) if (string.IsNullOrEmpty(x)) errors.Add(tp + "a task item has no text.");
+            foreach (var x in t.slotsFa) if (string.IsNullOrEmpty(x)) errors.Add(tp + "a task slot has no text.");
+            if (t.wrongFa == null || t.wrongFa.Count == 0) errors.Add(tp + "task.wrongFa needs at least one friendly line.");
+            else foreach (var x in t.wrongFa) if (string.IsNullOrEmpty(x) || x.Length < 25) errors.Add(tp + "task.wrongFa lines must be teaching feedback (>= 25 chars).");
+            if (string.IsNullOrEmpty(t.rightFa)) errors.Add(tp + "task.rightFa missing.");
+            if (string.IsNullOrEmpty(t.doneFa)) errors.Add(tp + "task.doneFa missing.");
+            if (string.IsNullOrEmpty(st.hintFa)) errors.Add(tp + "missing hintFa.");
+        }
+
         private static void ValidateScenes(List<string> errors, string p, List<ActivityScene> scenes)
         {
             for (int s = 0; s < scenes.Count; s++)
@@ -259,6 +307,11 @@ namespace MyFutureCity.Core
                     string tp = sp + "step " + t + ": ";
                     if (st == null) { errors.Add(tp + "is null."); continue; }
                     if (string.IsNullOrEmpty(st.promptFa)) errors.Add(tp + "missing promptFa.");
+                    if (st.IsTask)
+                    {
+                        ValidateTask(errors, tp, st);
+                        continue;
+                    }
                     if (st.options == null || st.options.Count < 2 || st.options.Count > (st.ordered ? 4 : 3))
                     { errors.Add(tp + (st.ordered ? "needs 3 or 4 items." : "needs 2 or 3 options.")); continue; }
                     int correct = 0;

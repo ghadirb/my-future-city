@@ -20,6 +20,8 @@ namespace MyFutureCity.Core
         public bool SupportDone;
         /// <summary>Set together with SceneFinished: how the scene ended for the student.</summary>
         public string EndingFa = "";
+        /// <summary>Task step only: the slot already holds its item (or the item is already used); nothing was logged.</summary>
+        public bool Ignored;
     }
 
     public enum StudentMood { Calm, Unsure, Discouraged }
@@ -125,7 +127,8 @@ namespace MyFutureCity.Core
         {
             var step = CurrentStep;
             var res = new StepResult();
-            if (step == null || optionIndex < 0 || optionIndex >= step.options.Count) return res;
+            if (step == null || step.IsTask) return res;          // a task is finished only by doing it (PerformAction)
+            if (optionIndex < 0 || optionIndex >= step.options.Count) return res;
 
             var opt = step.options[optionIndex];
             bool ok;
@@ -177,10 +180,95 @@ namespace MyFutureCity.Core
                 PlacedCount = 0;                                   // the last item completes the step
             }
 
-            res.Accepted = true;
             if (!step.ordered && rx != null) res.ReactionFa = Pick(stepHadMistake ? rx.reliefFa : rx.confidentFa, 2);
-            stepWrong = 0;
             if (!string.IsNullOrEmpty(opt.setsTag)) service.RememberChoice(opt.setsTag);
+            AcceptStep(res, rx);
+            return res;
+        }
+
+        // ----- direct hands-on task -----
+
+        private bool[] slotFilled;
+        private bool[] itemUsed;
+        private int taskWrongInStep;
+
+        public int TaskFilledCount
+        {
+            get { int n = 0; if (slotFilled != null) foreach (var f in slotFilled) if (f) n++; return n; }
+        }
+        public bool IsSlotFilled(int slot) { return slotFilled != null && slot >= 0 && slot < slotFilled.Length && slotFilled[slot]; }
+        public bool IsItemUsed(int item) { return itemUsed != null && item >= 0 && item < itemUsed.Length && itemUsed[item]; }
+        public int ActionsRight { get; private set; }
+        public int ActionsWrong { get; private set; }
+
+        /// <summary>
+        /// The child puts one item on one slot of the current task step. Every placement is a logged action:
+        /// the right one stays, the wrong one costs nothing but is counted. When every slot is filled the step is accepted.
+        /// </summary>
+        public StepResult PerformAction(int itemIndex, int slotIndex)
+        {
+            var step = CurrentStep;
+            var res = new StepResult();
+            if (step == null || !step.IsTask || InSupport) return res;
+            var t = step.task;
+            if (slotFilled == null || slotFilled.Length != t.slotsFa.Count) { slotFilled = new bool[t.slotsFa.Count]; itemUsed = new bool[t.itemsFa.Count]; taskWrongInStep = 0; }
+            if (itemIndex < 0 || itemIndex >= t.itemsFa.Count || slotIndex < 0 || slotIndex >= t.slotsFa.Count) { res.Ignored = true; return res; }
+            if (slotFilled[slotIndex] || itemUsed[itemIndex]) { res.Ignored = true; return res; }
+
+            bool ok = t.answer[slotIndex] == itemIndex;
+            res.Correct = ok;
+            var js = service.Stats(Definition.jobId);
+            js.actions++;
+            service.LogChoice(this, StepIndex, itemIndex * 10 + slotIndex, ok);
+            if (!ok)
+            {
+                WrongChoices++;
+                ActionsWrong++;
+                taskWrongInStep++;
+                stepHadMistake = true;
+                js.wrongChoices++;
+                res.FeedbackFa = t.wrongFa[(taskWrongInStep - 1) % t.wrongFa.Count];
+                return res;
+            }
+
+            js.actionsRight++;
+            ActionsRight++;
+            slotFilled[slotIndex] = true;
+            itemUsed[itemIndex] = true;
+            res.FeedbackFa = (t.rightFa ?? "").Replace("{item}", t.itemsFa[itemIndex]).Replace("{slot}", t.slotsFa[slotIndex]);
+            if (TaskFilledCount < t.slotsFa.Count) { res.Placed = true; return res; }
+
+            res.FeedbackFa = t.doneFa;
+            slotFilled = null; itemUsed = null; taskWrongInStep = 0;
+            js.tasksDone++;
+            AcceptStep(res, Definition.HasReactions ? Definition.reactions : null);
+            return res;
+        }
+
+        /// <summary>The next right placement of the current task step (first free slot with its item); false when not a task step.</summary>
+        public bool NextCorrectPlacement(out int item, out int slot)
+        {
+            item = -1; slot = -1;
+            var step = CurrentStep;
+            if (step == null || !step.IsTask || InSupport) return false;
+            for (int i = 0; i < step.task.slotsFa.Count; i++)
+                if (!IsSlotFilled(i)) { slot = i; item = step.task.answer[i]; return true; }
+            return false;
+        }
+
+        /// <summary>Plays the whole current task step correctly (helper for tests and tools).</summary>
+        public StepResult SolveTaskStep()
+        {
+            StepResult last = new StepResult();
+            int item, slot;
+            while (NextCorrectPlacement(out item, out slot)) last = PerformAction(item, slot);
+            return last;
+        }
+
+        private void AcceptStep(StepResult res, StudentReactions rx)
+        {
+            res.Accepted = true;
+            stepWrong = 0;
             StepsDone++;
             var js = service.Stats(Definition.jobId);
             js.stepsDone++;
@@ -196,7 +284,6 @@ namespace MyFutureCity.Core
                     res.EndingFa = Pick((SupportUsed || WrongChoices >= 3) ? rx.endingReviewFa : rx.endingGoodFa, 3);
                 service.FinishSession(this);
             }
-            return res;
         }
 
         /// <summary>The child asked for help on the current step. Counted in the log, never punished.</summary>

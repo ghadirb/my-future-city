@@ -72,6 +72,7 @@ namespace MyFutureCity.Tests
             int guard = 0;
             while (s.CurrentStep != null && guard++ < 50)
             {
+                if (s.CurrentStep.IsTask) { var tr = s.SolveTaskStep(); Assert.IsTrue(tr.Accepted); continue; }
                 int pick = Math.Max(0, s.NextAcceptedIndex());
                 var r = s.Choose(pick);
                 Assert.IsTrue(r.Accepted || r.Placed);
@@ -203,11 +204,27 @@ namespace MyFutureCity.Tests
             }
         }
 
+        [Test]
+        public void TeacherLessonCannotBeFinishedByDialogChoicesAloneItNeedsHandsOnPlacement()
+        {
+            var acts = LoadActs();
+            var def = acts.Find("teach_02_classroom", "lesson_teach");
+            Assert.IsNotNull(def);
+            foreach (var scenes in new[] { def.scenes, def.variants[0].scenes, def.variants[1].scenes })
+            {
+                Assert.IsTrue(scenes[0].steps[0].IsTask, "the first step of the lesson is hands-on");
+                int tasks = 0;
+                foreach (var st in scenes[0].steps) if (st.IsTask) tasks++;
+                Assert.IsTrue(tasks >= 1);
+            }
+        }
+
         private static void SolvePreferringTag(ActivitySession s, string tag)
         {
             int guard = 0;
             while (s.CurrentStep != null && guard++ < 50)
             {
+                if (s.CurrentStep.IsTask) { var tr = s.SolveTaskStep(); Assert.IsTrue(tr.Accepted); continue; }
                 int pick = -1;
                 for (int i = 0; i < s.CurrentStep.options.Count; i++)
                     if (tag != null && s.CurrentStep.options[i].setsTag == tag) { pick = i; break; }

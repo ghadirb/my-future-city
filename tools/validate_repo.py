@@ -74,6 +74,7 @@ try:
         def check_scenes(prefix, scenes):
             for sc in scenes:     # tally where the single correct option sits (anti "always tap the first one")
                 for st in sc["steps"]:
+                    if st.get("task"): continue
                     if not st.get("free") and not st.get("ordered") and sum(1 for o in st["options"] if o["correct"]) == 1:
                         ci = [o["correct"] for o in st["options"]].index(True)
                         correct_pos[(len(st["options"]), ci)] = correct_pos.get((len(st["options"]), ci), 0) + 1
@@ -87,6 +88,14 @@ try:
                     q = prefix + "scene %d step %d: " % (si, ti)
                     ops = st["options"]
                     if not st["promptFa"]: err(q + "no prompt")
+                    if st.get("task"):
+                        t = st["task"]; n = len(t.get("itemsFa", []))
+                        if not 3 <= n <= 4 or len(t.get("slotsFa", [])) != n or sorted(t.get("answer", [])) != list(range(n)): err(q + "task needs 3-4 items, one slot each, answer = permutation")
+                        elif t["answer"] == list(range(n)): err(q + "task answer must not be the identity order")
+                        if not t.get("wrongFa") or any(len(x) < 25 for x in t["wrongFa"]): err(q + "task.wrongFa must be teaching feedback (>= 25 chars)")
+                        if not t.get("rightFa") or not t.get("doneFa") or not st.get("hintFa"): err(q + "task needs rightFa, doneFa and hintFa")
+                        if st.get("free") or st.get("ordered"): err(q + "a task step cannot be free or ordered")
+                        continue
                     if not 2 <= len(ops) <= (4 if st.get("ordered") else 3): err(q + "needs 2-3 options (3-4 items when ordered)")
                     if st.get("ordered") and (st.get("free") or len(ops) < 3): err(q + "an ordered step needs 3-4 items and cannot be free")
                     if any(not o["textFa"] or not o["feedbackFa"] for o in ops): err(q + "option without text/feedback")
