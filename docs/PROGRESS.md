@@ -229,3 +229,9 @@ P4 برای مأموریت «کمک به دانش‌آموز» معلمی: وا�
 - `teacher` به `REVIEWED_JOBS` اضافه شد (حد ۵۵٪).
 - اثبات‌شده محلی: validate، audit، type-check، ۱۲۵ تست Mono. اثبات‌نشده: درستی علمی/سنی متن‌ها توسط انسان؛ دیده‌شدن متن‌های بلندتر در دیالوگ روی گوشی.
 - هنوز بازبینی‌نشده: transport، vet، doctor، environment، firefighter، engineer، farmer، merchant.
+
+## بازبینی محتوا — مرحلهٔ ۳: راننده و حمل‌ونقل (۱۷ اکتبر ۲۰۲۶)
+- حرفهٔ **راننده و حمل‌ونقل** (۶۱ گام عادی) بازنویسی شد: گزینه‌های غلط باورپذیر و هم‌طول، بازخورد غلط «چرا غلط است + چه باید کرد»، راهنماها جملهٔ کامل و بدون لو دادن پاسخ. نتیجهٔ اندازه‌گیری: بلندترین=درست ۹۰٪ ← ۳۹٪؛ بازخورد غلط کوتاه ۱۰۹ ← ۰؛ راهنمای کوتاه ۴۵ ← ۰. `correct`، `setsTag`، ساختار و جای گزینهٔ درست دست‌نخورده (`balance_correct_positions.py --check` ← `would move 0`).
+- patch: `tools/content_patches/transport_{a,b,c}.py` با `tools/apply_content_patch.py`؛ `transport` به `REVIEWED_JOBS` اضافه شد.
+- اثبات‌شده محلی: validate، audit، type-check، ۱۲۵ تست Mono. اثبات‌نشده: درستی علمی/سنی (به‌ویژه ایمنی مسافر کودک، کمربند، عبور عابر) توسط انسان؛ دیده‌شدن متن‌ها روی گوشی.
+- هنوز بازبینی‌نشده: vet، doctor، environment، firefighter، engineer، farmer، merchant.
