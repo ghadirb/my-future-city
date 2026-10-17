@@ -728,5 +728,81 @@ namespace MyFutureCity.Tests
                 Assert.IsTrue(pastChoice, tag);
             }
         }
+            /// <summary>Shipped data: the teacher's "help a student" activity carries reactions and the support detour.</summary>
+        [Test]
+        public void ShippedStudentHelpHasReactionsSupportStepAndStudentNames()
+        {
+            var acts = LoadActs();
+            var def = acts.Find("teach_03_garden", "student_help");
+            Assert.IsNotNull(def);
+            Assert.IsTrue(def.HasReactions, "reactions missing in activities.json");
+            Assert.IsTrue(def.HasSupport, "supportStep missing in activities.json");
+            foreach (var sc in def.scenes) Assert.IsFalse(string.IsNullOrEmpty(sc.studentFa), "scene without studentFa: " + sc.titleFa);
+            foreach (var v in def.variants)
+                foreach (var sc in v.scenes) Assert.IsFalse(string.IsNullOrEmpty(sc.studentFa), "variant scene without studentFa: " + sc.titleFa);
+            Assert.AreEqual(0, ActivityDatabaseValidator.Validate(acts, LoadDb()).Count);
+        }
+
+        /// <summary>Shipped data played for real: two wrong picks start the detour, the right encouragement ends it.</summary>
+        [Test]
+        public void ShippedStudentHelpTakesTheSupportDetourAfterTwoMistakes()
+        {
+            var db = LoadDb();
+            var acts = LoadActs();
+            var def = acts.Find("teach_03_garden", "student_help");
+            Assert.IsNotNull(def);
+            var w = Create(db, acts);
+            // bring the teacher chain up to the mission that contains the student activity
+            string target = "teach_03_garden";
+            var chain = new List<string>();
+            var cur = target;
+            while (!string.IsNullOrEmpty(cur))
+            {
+                chain.Insert(0, cur);
+                MissionDefinition m = null;
+                foreach (var x in db.missions) if (x.id == cur) m = x;
+                cur = m == null ? null : m.requiresMissionId;
+            }
+            foreach (var id in chain)
+            {
+                Assert.IsTrue(w.Missions.Start(id), "cannot start " + id);
+                if (id == target) break;
+                MissionDefinition m = null;
+                foreach (var x in db.missions) if (x.id == id) m = x;
+                foreach (var o in m.objectives)
+                {
+                    for (int k = 0; k < o.RequiredCount; k++)
+                    {
+                        if (o.ParsedType() == ObjectiveType.Interact && acts.Has(id, o.targetId))
+                        {
+                            var ss = w.Activities.Begin(id, o.targetId, k);
+                            Assert.IsNotNull(ss, id + "/" + o.targetId);
+                            Solve(ss);
+                        }
+                        else w.Missions.Notify(o.ParsedType(), o.targetId);
+                    }
+                }
+            }
+            // objectives of the target mission that come before the student activity
+            var tm = db.missions.Find(x => x.id == target);
+            foreach (var o in tm.objectives)
+            {
+                if (o.ParsedType() == ObjectiveType.Interact && o.targetId == "student_help") break;
+                for (int k = 0; k < o.RequiredCount; k++) w.Missions.Notify(o.ParsedType(), o.targetId);
+            }
+            var s = w.Activities.Begin(target, "student_help", 0);
+            Assert.IsNotNull(s);
+            s.Choose(s.WrongIndex());
+            var second = s.Choose(s.WrongIndex());
+            Assert.IsTrue(second.SupportStarted);
+            Assert.IsTrue(s.InSupport);
+            Assert.IsFalse(string.IsNullOrEmpty(second.ReactionFa));
+            Assert.IsFalse(second.ReactionFa.Contains("{name}"));
+            var kind = s.Choose(s.NextAcceptedIndex());
+            Assert.IsTrue(kind.SupportDone);
+            Assert.IsFalse(s.InSupport);
+            Solve(s);
+            Assert.IsTrue(s.Finished);
+        }
     }
 }

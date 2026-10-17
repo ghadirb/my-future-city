@@ -84,6 +84,20 @@ try:
                         if good == len(ops): err(q + "every option correct (use free)")
                     if not st.get("free") and not st.get("hintFa"): err(q + "no hint")
         check_scenes(p, a["scenes"])
+        # student reactions + support detour (optional, but if present it must be complete)
+        rx = a.get("reactions")
+        if rx:
+            for k in ("unsureFa", "discouragedFa", "reliefFa", "confidentFa", "endingGoodFa", "endingReviewFa"):
+                if not rx.get(k) or any(not x for x in rx[k]): err(p + "reactions.%s is empty" % k)
+        sup = a.get("supportStep")
+        if sup:
+            if not rx: err(p + "supportStep needs reactions")
+            if sup.get("free") or sup.get("ordered"): err(p + "supportStep must be a normal right/wrong step")
+            sops = sup.get("options", [])
+            if not sup.get("promptFa") or not sup.get("hintFa"): err(p + "supportStep needs prompt and hint")
+            if not 2 <= len(sops) <= 3 or any(not o["textFa"] or not o["feedbackFa"] for o in sops): err(p + "supportStep needs 2-3 complete options")
+            g = sum(1 for o in sops if o["correct"])
+            if g == 0 or g == len(sops): err(p + "supportStep needs a right and a wrong option")
         for vi, v in enumerate(a.get("variants", [])):
             vp = p + "variant %d: " % vi
             if not v.get("tag") or "=" not in v["tag"][1:]: err(vp + "needs a key=value tag")

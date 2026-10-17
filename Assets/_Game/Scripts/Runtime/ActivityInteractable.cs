@@ -96,7 +96,9 @@ namespace MyFutureCity
             var step = session.CurrentStep;
             if (step == null) return;
 
-            string title = session.Scene.titleFa + "  (" + (session.StepIndex + 1) + "/" + session.StepCount + ")";
+            string title = session.InSupport
+                ? session.Scene.titleFa + "  (دل‌گرم کردن)"
+                : session.Scene.titleFa + "  (" + (session.StepIndex + 1) + "/" + session.StepCount + ")";
             if (step.ordered) { ShowOrderedStep(scene, session, step, title); return; }
 
             int n = step.options.Count;
@@ -154,7 +156,16 @@ namespace MyFutureCity
             }
             if (!result.Accepted)
             {
-                ShowMistake(scene, session, result.FeedbackFa);
+                string text = WithReaction(result.FeedbackFa, result.ReactionFa);
+                if (result.SupportStarted)
+                {
+                    // Two wrong picks in a row: the student is discouraged and the lesson takes a detour.
+                    scene.Hud.ShowDialog("دانش‌آموز دل‌سرد شد", text + "\nاول باید دلش را گرم کنیم.",
+                        new DialogOption("ادامه", () => ShowStep(scene, session)),
+                        new DialogOption("بعداً برمی‌گردم", () => session.Abandon()));
+                    return;
+                }
+                ShowMistake(scene, session, text);
                 return;
             }
 
@@ -163,14 +174,20 @@ namespace MyFutureCity
                 string summary = session.FirstTryCorrect + " از " + session.StepsDone
                                  + " تصمیم را در تلاش اول درست گرفتی."
                                  + (session.IsOptional ? "\nاین یک فعالیت اختیاری بود؛ هر وقت خواستی می‌توانی دوباره انجامش بدهی." : "");
-                scene.Hud.ShowDialog("کار تمام شد!", result.FeedbackFa + "\n" + summary,
+                string ending = string.IsNullOrEmpty(result.EndingFa) ? "" : "\n" + WithReaction(result.ReactionFa, result.EndingFa);
+                scene.Hud.ShowDialog("کار تمام شد!", result.FeedbackFa + ending + "\n" + summary,
                     new DialogOption("ادامه", null));
                 Refresh();
                 return;
             }
 
-            scene.Hud.ShowDialog(session.Scene.titleFa, result.FeedbackFa,
+            scene.Hud.ShowDialog(session.Scene.titleFa, WithReaction(result.FeedbackFa, result.ReactionFa),
                 new DialogOption("ادامه", () => ShowStep(scene, session)));
+        }
+
+        private static string WithReaction(string feedback, string reaction)
+        {
+            return string.IsNullOrEmpty(reaction) ? feedback : feedback + "\n" + reaction;
         }
 
         private void ShowMistake(GameSceneController scene, ActivitySession session, string feedback)
