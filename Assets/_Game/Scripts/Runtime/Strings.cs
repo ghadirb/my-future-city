@@ -53,6 +53,7 @@ namespace MyFutureCity
         public const string NpcIdle = "امروز کاری ندارم. به شهر سر بزن!";
         public const string MyReport = "گزارش من";
         public const string Close = "بستن";
+        public const string ParentReport = "گزارش برای والد یا مربی";
         public const string SwitchJob = "کار دیگری می\u200Cخواهم";
         public const string ChooseWork = "چه کاری انجام بدهیم؟ هر کدام را خواستی انتخاب کن.";
         public const string More = "بیشتر…";

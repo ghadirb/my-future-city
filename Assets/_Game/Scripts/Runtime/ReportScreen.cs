@@ -88,7 +88,12 @@ namespace MyFutureCity
                 Time.timeScale = prevScale;
                 if (onClose != null) onClose();
             });
-            UIKit.Place((RectTransform)close.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 18), new Vector2(260, 64));
+            UIKit.Place((RectTransform)close.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(230, 18), new Vector2(260, 64));
+
+            // Addendum section 8: a separate, descriptive report for a parent or coach.
+            var parent = UIKit.MakeButton(panel.transform, Strings.ParentReport, 28, new Color(0.25f, 0.45f, 0.75f),
+                () => ParentReportScreen.Show(ctx, null));
+            UIKit.Place((RectTransform)parent.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(-180, 18), new Vector2(460, 64));
         }
 
         private static void BuildRow(Transform parent, JobInsight job, bool isTop, float y)

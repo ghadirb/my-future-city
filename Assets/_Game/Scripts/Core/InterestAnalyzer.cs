@@ -249,6 +249,7 @@ namespace MyFutureCity.Core
 
         public const string TextNoData = "هنوز مأموریتی انجام نداده‌ای. چند مأموریت را امتحان کن تا ببینیم چه کاری بیشتر دوست داری.";
         public const string TextLowData = "این فقط شروع کار است؛ هرچه بیشتر بازی کنی، گزارش دقیق‌تر می‌شود.";
+        public const string TextNotEnough = "هنوز اطلاعات کافی نیست تا بگوییم کدام کار را بیشتر دوست داری.";
         public const string TextFreedom = "هر شغلی را هر چند بار خواستی می‌توانی دوباره انجام بدهی.";
 
         private static void BuildLines(InsightReport r)
@@ -256,6 +257,9 @@ namespace MyFutureCity.Core
             if (r.Confidence == DataConfidence.None) { r.LinesFa.Add(TextNoData); return; }
 
             var top = r.Find(r.TopInterestJobId);
+            // Addendum section 8: with too little data the honest answer is "not enough information".
+            if (r.Confidence == DataConfidence.Low) top = null;
+            if (r.Confidence == DataConfidence.Low) r.LinesFa.Add(TextNotEnough);
             if (top != null)
                 r.LinesFa.Add("به نظر می‌رسد بیشتر از همه به «" + top.NameFa + "» علاقه نشان داده‌ای: "
                               + DescribeEffort(top) + ".");
