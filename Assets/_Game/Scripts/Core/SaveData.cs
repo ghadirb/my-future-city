@@ -51,6 +51,9 @@ namespace MyFutureCity.Core
         public int optionalRuns;   // scenes finished while repeating an already completed stage (the child's own choice)
         public int optionalPicked; // scenes finished of the extra activities no mission asks for (the child's own choice)
         public int abandoned;      // scenes left unfinished
+        public int actions;        // direct hands-on placements the child made (right or wrong)
+        public int actionsRight;   // placements that were right
+        public int tasksDone;      // hands-on task steps finished
     }
 
     /// <summary>How often one scene (one spot of one activity) was completed. Proof that the activity was really done.</summary>
@@ -252,6 +255,10 @@ namespace MyFutureCity.Core
                 if (a.optionalRuns < 0) a.optionalRuns = 0;
                 if (a.optionalPicked < 0) a.optionalPicked = 0;
                 if (a.abandoned < 0) a.abandoned = 0;
+                if (a.actions < 0) a.actions = 0;
+                if (a.actionsRight < 0) a.actionsRight = 0;
+                if (a.actionsRight > a.actions) a.actionsRight = a.actions;
+                if (a.tasksDone < 0) a.tasksDone = 0;
             }
             activityRecords.RemoveAll(r => r == null || string.IsNullOrEmpty(r.missionId) || string.IsNullOrEmpty(r.targetId));
             var seenR = new HashSet<string>();

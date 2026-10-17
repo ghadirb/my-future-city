@@ -15,7 +15,7 @@ def steps(d):
         for sc_list in groups:
             for sc in sc_list:
                 for st in sc.get('steps', []):
-                    if st.get('free') or st.get('ordered'):
+                    if st.get('free') or st.get('ordered') or st.get('task'):
                         continue
                     if sum(1 for o in st['options'] if o.get('correct')) == 1:
                         yield st

@@ -99,6 +99,7 @@ namespace MyFutureCity
             string title = session.InSupport
                 ? session.Scene.titleFa + "  (دل‌گرم کردن)"
                 : session.Scene.titleFa + "  (" + (session.StepIndex + 1) + "/" + session.StepCount + ")";
+            if (step.IsTask) { ShowTaskItems(scene, session, step, title); return; }
             if (step.ordered) { ShowOrderedStep(scene, session, step, title); return; }
 
             int n = step.options.Count;
@@ -145,9 +146,58 @@ namespace MyFutureCity
             scene.Hud.ShowDialog(title, body.ToString(), options);
         }
 
+        /// <summary>
+        /// Hands-on task: the child first takes one item (a button per unused item), then puts it on a slot (a button per
+        /// empty slot). Every placement is a real action that is logged; a dialog choice can never finish this step.
+        /// </summary>
+        private void ShowTaskItems(GameSceneController scene, ActivitySession session, ActivityStep step, string title)
+        {
+            var t = step.task;
+            var body = new System.Text.StringBuilder(step.promptFa);
+            body.Append("\n");
+            for (int i = 0; i < t.slotsFa.Count; i++)
+            {
+                body.Append("\n").Append(session.IsSlotFilled(i) ? "✓ " : "○ ").Append(t.slotsFa[i]);
+                if (session.IsSlotFilled(i)) body.Append(" ← ").Append(t.itemsFa[t.answer[i]]);
+            }
+            var items = new System.Collections.Generic.List<DialogOption>();
+            for (int i = 0; i < t.itemsFa.Count; i++)
+            {
+                if (session.IsItemUsed(i)) continue;
+                int item = i;
+                items.Add(new DialogOption(t.itemsFa[i], () => ShowTaskSlots(scene, session, step, title, item)));
+            }
+            scene.Hud.ShowDialog(title, body.ToString(), items.ToArray());
+        }
+
+        private void ShowTaskSlots(GameSceneController scene, ActivitySession session, ActivityStep step, string title, int item)
+        {
+            var t = step.task;
+            var slots = new System.Collections.Generic.List<DialogOption>();
+            for (int i = 0; i < t.slotsFa.Count; i++)
+            {
+                if (session.IsSlotFilled(i)) continue;
+                int slot = i;
+                slots.Add(new DialogOption(t.slotsFa[i], () => OnPlace(scene, session, item, slot)));
+            }
+            slots.Add(new DialogOption("وسیلهٔ دیگری برمی‌دارم", () => ShowStep(scene, session)));
+            scene.Hud.ShowDialog(title, "«" + t.itemsFa[item] + "» را برای کدام درس می‌گذاری؟", slots.ToArray());
+        }
+
+        private void OnPlace(GameSceneController scene, ActivitySession session, int item, int slot)
+        {
+            var result = session.PerformAction(item, slot);
+            if (result.Ignored) { ShowStep(scene, session); return; }
+            Resolve(scene, session, result);
+        }
+
         private void OnChoose(GameSceneController scene, ActivitySession session, int index)
         {
-            var result = session.Choose(index);
+            Resolve(scene, session, session.Choose(index));
+        }
+
+        private void Resolve(GameSceneController scene, ActivitySession session, StepResult result)
+        {
             if (result.Placed)
             {
                 scene.Hud.ShowDialog(session.Scene.titleFa, result.FeedbackFa,

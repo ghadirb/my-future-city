@@ -32,6 +32,10 @@ namespace MyFutureCity.Core
         public int OptionalActivityRuns;// scenes finished while voluntarily repeating a finished stage
         public int OptionalPicked;      // scenes finished of the extra activities no mission asks for
         public int ActivitiesAbandoned;
+        /// <summary>Hands-on placements (doing the work directly), kept apart from dialog decisions.</summary>
+        public int DirectActions;
+        public int DirectActionsRight;
+        public int TasksDone;
         public int FreeChoices;         // preference decisions (no wrong answer) recorded in the log
 
         public int Attempts { get { return Completed + Abandoned; } }
@@ -124,6 +128,9 @@ namespace MyFutureCity.Core
                     ji.OptionalActivityRuns = ast.optionalRuns;
                     ji.OptionalPicked = ast.optionalPicked;
                     ji.ActivitiesAbandoned = ast.abandoned;
+                    ji.DirectActions = ast.actions;
+                    ji.DirectActionsRight = ast.actionsRight;
+                    ji.TasksDone = ast.tasksDone;
                 }
                 report.Jobs.Add(ji);
             }
