@@ -51,3 +51,4 @@ secrets*
 
 # Local logic-test output
 /tools/out/
+__pycache__/

@@ -53,6 +53,7 @@ try:
     acts = json.load(open(os.path.join(ROOT, "Assets/_Game/Resources/Data/activities.json"), encoding="utf-8"))["activities"]
     mission = {m["id"]: m for m in db["missions"]}
     seen = set()
+    correct_pos = {}
     for a in acts:
         key = a["missionId"] + "/" + a["targetId"]
         p = "activity " + key + ": "
@@ -68,6 +69,11 @@ try:
         for f in ("realWorldFa", "childDoesFa", "skillFa"):
             if not a.get(f): err(p + "missing " + f)
         def check_scenes(prefix, scenes):
+            for sc in scenes:     # tally where the single correct option sits (anti "always tap the first one")
+                for st in sc["steps"]:
+                    if not st.get("free") and not st.get("ordered") and sum(1 for o in st["options"] if o["correct"]) == 1:
+                        ci = [o["correct"] for o in st["options"]].index(True)
+                        correct_pos[(len(st["options"]), ci)] = correct_pos.get((len(st["options"]), ci), 0) + 1
             for si, sc in enumerate(scenes):
                 if not sc.get("titleFa") or not sc["steps"]: err(prefix + "scene %d incomplete" % si)
                 for ti, st in enumerate(sc["steps"]):
@@ -109,6 +115,14 @@ try:
             if not any(o.get("setsTag") == v.get("tag") for x in acts if x["jobId"] == a["jobId"]
                        for sc in x["scenes"] for st in sc["steps"] for o in st["options"]):
                 err(p + "variant tag %s is never set by any option" % v.get("tag"))
+    # the correct answer must not favour one position (a child could win by always tapping the same button)
+    for n in (2, 3):
+        total = sum(v for (k, _), v in correct_pos.items() if k == n)
+        for i in range(n):
+            share = correct_pos.get((n, i), 0) / total if total else 0
+            limit = 0.45 if n == 3 else 0.60
+            if total >= 30 and share > limit:
+                err("correct answer sits at position %d in %.0f%% of %d-option steps (run tools/balance_correct_positions.py)" % (i + 1, share * 100, n))
     # redesigned jobs: no mission may be finishable by collecting/talking only
     for m in db["missions"]:
         if m["jobId"] in REAL_ACTIVITY_JOBS:
