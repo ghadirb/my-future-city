@@ -40,10 +40,27 @@ namespace MyFutureCity.Core
         }
     }
 
+    /// <summary>
+    /// How the student in a scene reacts to what the child does. Pools of short lines; "{name}" is replaced by the
+    /// scene's studentFa. Which line is shown depends on the child's real choices (see ActivitySession).
+    /// </summary>
+    [Serializable]
+    public class StudentReactions
+    {
+        public List<string> unsureFa = new List<string>();        // after a first wrong pick in a step
+        public List<string> discouragedFa = new List<string>();   // after two or more wrong picks in the same step
+        public List<string> reliefFa = new List<string>();        // right pick after mistakes
+        public List<string> confidentFa = new List<string>();     // right pick at the first try
+        public List<string> endingGoodFa = new List<string>();    // scene ended without needing extra support
+        public List<string> endingReviewFa = new List<string>();  // scene needed extra support / many mistakes
+    }
+
     /// <summary>One playable situation (one spot in the world). Finishing every step completes one objective unit.</summary>
     [Serializable]
     public class ActivityScene
     {
+        /// <summary>Optional name of the student in this scene; used in the reaction lines.</summary>
+        public string studentFa;
         public string titleFa;
         public List<ActivityStep> steps = new List<ActivityStep>();
     }
@@ -74,6 +91,30 @@ namespace MyFutureCity.Core
         /// completed once, never advances a mission, never pays coins/xp, and choosing it is logged as an optional pick.
         /// </summary>
         public bool optional;
+        /// <summary>Optional: how the student reacts to the child's choices (see <see cref="StudentReactions"/>).</summary>
+        public StudentReactions reactions;
+        /// <summary>
+        /// Optional detour step. When the child picks two wrong options in the same step the student is discouraged and
+        /// this step (how to encourage the student) is played once per scene before the original step is tried again.
+        /// </summary>
+        public ActivityStep supportStep;
+
+        // Unity's JsonUtility turns a missing nested object into an EMPTY object, never null, so "present" means "filled in".
+        public bool HasSupport
+        {
+            get { return supportStep != null && (!string.IsNullOrEmpty(supportStep.promptFa) || (supportStep.options != null && supportStep.options.Count > 0)); }
+        }
+
+        public bool HasReactions
+        {
+            get
+            {
+                var r = reactions;
+                return r != null && ((r.unsureFa != null && r.unsureFa.Count > 0) || (r.discouragedFa != null && r.discouragedFa.Count > 0)
+                    || (r.reliefFa != null && r.reliefFa.Count > 0) || (r.confidentFa != null && r.confidentFa.Count > 0)
+                    || (r.endingGoodFa != null && r.endingGoodFa.Count > 0) || (r.endingReviewFa != null && r.endingReviewFa.Count > 0));
+            }
+        }
         /// <summary>Spot number N of the objective plays scene N (wraps around).</summary>
         public List<ActivityScene> scenes = new List<ActivityScene>();
         /// <summary>Optional alternative scene sets chosen by an earlier decision of the child (see ActivityOption.setsTag).</summary>
@@ -169,8 +210,39 @@ namespace MyFutureCity.Core
                         ValidateScenes(errors, vp, variant.scenes);
                     }
                 }
+                ValidateStudentSupport(errors, p, a);
             }
             return errors;
+        }
+
+        private static void ValidateStudentSupport(List<string> errors, string p, ActivityDefinition a)
+        {
+            if (a.HasSupport)
+            {
+                var wrap = new List<ActivityScene>();
+                wrap.Add(new ActivityScene { titleFa = "support", steps = new List<ActivityStep> { a.supportStep } });
+                var sub = new List<string>();
+                ValidateScenes(sub, p + "supportStep: ", wrap);
+                errors.AddRange(sub);
+                if (a.supportStep.free || a.supportStep.ordered) errors.Add(p + "supportStep must be a normal right/wrong step.");
+                if (!a.HasReactions) errors.Add(p + "a supportStep needs reactions too.");
+            }
+            if (a.HasReactions)
+            {
+                CheckPool(errors, p, "unsureFa", a.reactions.unsureFa);
+                CheckPool(errors, p, "discouragedFa", a.reactions.discouragedFa);
+                CheckPool(errors, p, "reliefFa", a.reactions.reliefFa);
+                CheckPool(errors, p, "confidentFa", a.reactions.confidentFa);
+                CheckPool(errors, p, "endingGoodFa", a.reactions.endingGoodFa);
+                CheckPool(errors, p, "endingReviewFa", a.reactions.endingReviewFa);
+            }
+        }
+
+        private static void CheckPool(List<string> errors, string p, string name, List<string> pool)
+        {
+            if (pool == null || pool.Count == 0) { errors.Add(p + "reactions." + name + " is empty."); return; }
+            foreach (var line in pool)
+                if (string.IsNullOrEmpty(line)) errors.Add(p + "reactions." + name + " has an empty line.");
         }
 
         private static void ValidateScenes(List<string> errors, string p, List<ActivityScene> scenes)

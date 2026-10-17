@@ -12,7 +12,17 @@ namespace MyFutureCity.Core
         public bool SceneFinished;
         /// <summary>Ordered step only: the item went to the right slot but the step is not finished yet.</summary>
         public bool Placed;
+        /// <summary>What the student says/does in answer to this choice (empty when the activity has no reactions).</summary>
+        public string ReactionFa = "";
+        /// <summary>Wrong picks discouraged the student: a support step now comes before the original step.</summary>
+        public bool SupportStarted;
+        /// <summary>The support step was answered well; the original step is tried again.</summary>
+        public bool SupportDone;
+        /// <summary>Set together with SceneFinished: how the scene ended for the student.</summary>
+        public string EndingFa = "";
     }
+
+    public enum StudentMood { Calm, Unsure, Discouraged }
 
     /// <summary>One run through one scene. Created by <see cref="ActivityService.Begin"/>.</summary>
     public class ActivitySession
@@ -39,6 +49,26 @@ namespace MyFutureCity.Core
         public int HintsUsed { get; private set; }
 
         private bool stepHadMistake;
+        private int stepWrong;          // wrong picks in the current step (drives the student's mood)
+
+        /// <summary>Wrong picks in one step that discourage the student and start the support step.</summary>
+        public const int WrongsBeforeSupport = 2;
+        /// <summary>Log index of the support step (real steps use their own index).</summary>
+        public const int SupportLogStep = 90;
+
+        /// <summary>True while the support (encouragement) step is the one being played.</summary>
+        public bool InSupport { get; private set; }
+        public bool SupportUsed { get; private set; }
+        public StudentMood Mood { get { return stepWrong >= WrongsBeforeSupport ? StudentMood.Discouraged : (stepWrong == 1 ? StudentMood.Unsure : StudentMood.Calm); } }
+        public string StudentName { get { return string.IsNullOrEmpty(Scene.studentFa) ? "دانش‌آموز" : Scene.studentFa; } }
+
+        private string Pick(List<string> pool, int salt)
+        {
+            if (pool == null || pool.Count == 0) return "";
+            int i = (SceneKey * 7 + StepIndex * 3 + salt + WrongChoices) % pool.Count;
+            if (i < 0) i = -i;
+            return pool[i].Replace("{name}", StudentName);
+        }
 
         /// <summary>Ordered step: how many items are already in place (items 0..PlacedCount-1 of the authored order).</summary>
         public int PlacedCount { get; private set; }
@@ -83,7 +113,11 @@ namespace MyFutureCity.Core
 
         public ActivityStep CurrentStep
         {
-            get { return (Finished || Abandoned || StepIndex >= Scene.steps.Count) ? null : Scene.steps[StepIndex]; }
+            get
+            {
+                if (Finished || Abandoned || StepIndex >= Scene.steps.Count) return null;
+                return InSupport ? Definition.supportStep : Scene.steps[StepIndex];
+            }
         }
 
         /// <summary>The child picked an option. A wrong pick changes nothing except the log; the same step is tried again.</summary>
@@ -103,13 +137,36 @@ namespace MyFutureCity.Core
             else ok = step.IsAccepted(optionIndex);
             res.Correct = ok;
             res.FeedbackFa = (step.ordered && !ok) ? OrderWrongFa : opt.feedbackFa;
-            service.LogChoice(this, StepIndex, optionIndex, ok);
+            service.LogChoice(this, InSupport ? SupportLogStep : StepIndex, optionIndex, ok);
 
+            var rx = Definition.HasReactions ? Definition.reactions : null;
             if (!ok)
             {
                 WrongChoices++;
                 stepHadMistake = true;
                 service.Stats(Definition.jobId).wrongChoices++;
+                if (!step.ordered && rx != null)
+                {
+                    stepWrong++;
+                    if (!InSupport && stepWrong >= WrongsBeforeSupport && Definition.HasSupport && !SupportUsed)
+                    {
+                        InSupport = true;               // the lesson takes a detour: first encourage the student
+                        SupportUsed = true;
+                        res.SupportStarted = true;
+                    }
+                    res.ReactionFa = Pick(Mood == StudentMood.Discouraged ? rx.discouragedFa : rx.unsureFa, stepWrong);
+                }
+                return res;
+            }
+
+            if (InSupport)
+            {
+                // The detour is over: the student calms down and the same step is tried again.
+                InSupport = false;
+                stepWrong = 0;
+                res.Accepted = true;
+                res.SupportDone = true;
+                res.ReactionFa = Pick(rx != null ? rx.reliefFa : null, 1);
                 return res;
             }
 
@@ -121,6 +178,8 @@ namespace MyFutureCity.Core
             }
 
             res.Accepted = true;
+            if (!step.ordered && rx != null) res.ReactionFa = Pick(stepHadMistake ? rx.reliefFa : rx.confidentFa, 2);
+            stepWrong = 0;
             if (!string.IsNullOrEmpty(opt.setsTag)) service.RememberChoice(opt.setsTag);
             StepsDone++;
             var js = service.Stats(Definition.jobId);
@@ -133,6 +192,8 @@ namespace MyFutureCity.Core
             {
                 Finished = true;
                 res.SceneFinished = true;
+                if (rx != null)
+                    res.EndingFa = Pick((SupportUsed || WrongChoices >= 3) ? rx.endingReviewFa : rx.endingGoodFa, 3);
                 service.FinishSession(this);
             }
             return res;
