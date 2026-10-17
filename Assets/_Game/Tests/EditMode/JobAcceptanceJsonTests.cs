@@ -24,6 +24,31 @@ namespace MyFutureCity.Tests
             return JsonUtility.FromJson<ActivityDatabase>(Resources.Load<TextAsset>("Data/activities").text);
         }
 
+        [Test]
+        public void TheCorrectAnswerDoesNotFavourOnePosition()
+        {
+            // a child must not be able to win by always tapping the same button
+            var counts = new int[4];
+            int total = 0;
+            foreach (var a in LoadActs().activities)
+            {
+                var all = new List<ActivityScene>(a.scenes);
+                if (a.variants != null) foreach (var v in a.variants) all.AddRange(v.scenes);
+                foreach (var sc in all)
+                    foreach (var st in sc.steps)
+                    {
+                        if (st.free || st.ordered || st.options.Count != 3) continue;
+                        int good = 0, at = -1;
+                        for (int i = 0; i < st.options.Count; i++) if (st.options[i].correct) { good++; at = i; }
+                        if (good != 1) continue;
+                        counts[at]++; total++;
+                    }
+            }
+            Assert.Greater(total, 30);
+            for (int i = 0; i < 3; i++)
+                Assert.LessOrEqual(counts[i] / (double)total, 0.45, "correct answer sits at position " + (i + 1) + " too often");
+        }
+
         private class World
         {
             public SaveData Save = new SaveData();
