@@ -7,7 +7,7 @@ errors = []
 
 def err(msg): errors.append(msg)
 
-REVIEWED_JOBS = ["tech", "teacher", "transport"]   # jobs whose option texts were rewritten for the 'longest = correct' cue (docs/PROGRESS.md)
+REVIEWED_JOBS = ["tech", "teacher", "transport", "vet"]   # jobs whose option texts were rewritten for the 'longest = correct' cue (docs/PROGRESS.md)
 
 # 1. required files
 required = [
