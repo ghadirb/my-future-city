@@ -25,6 +25,12 @@ namespace MyFutureCity.Core
         public string promptFa;
         public string hintFa;
         public bool free;
+        /// <summary>
+        /// Direct "doing" step: the child puts the items in the right order. The options are AUTHORED in the correct
+        /// order (index 0 first); the UI shows them shuffled and each tap places one item. Option text = the item,
+        /// option feedback = why it belongs at that position. Wrong placements cost nothing but are logged.
+        /// </summary>
+        public bool ordered;
         public List<ActivityOption> options = new List<ActivityOption>();
 
         public bool IsAccepted(int optionIndex)
@@ -176,8 +182,8 @@ namespace MyFutureCity.Core
                     string tp = sp + "step " + t + ": ";
                     if (st == null) { errors.Add(tp + "is null."); continue; }
                     if (string.IsNullOrEmpty(st.promptFa)) errors.Add(tp + "missing promptFa.");
-                    if (st.options == null || st.options.Count < 2 || st.options.Count > 3)
-                    { errors.Add(tp + "needs 2 or 3 options."); continue; }
+                    if (st.options == null || st.options.Count < 2 || st.options.Count > (st.ordered ? 4 : 3))
+                    { errors.Add(tp + (st.ordered ? "needs 3 or 4 items." : "needs 2 or 3 options.")); continue; }
                     int correct = 0;
                     foreach (var o in st.options)
                     {
@@ -187,8 +193,16 @@ namespace MyFutureCity.Core
                         if (o != null && !string.IsNullOrEmpty(o.setsTag) && o.setsTag.IndexOf('=') <= 0)
                             errors.Add(tp + "option '" + o.textFa + "' has a malformed setsTag (needs key=value).");
                     }
-                    if (!st.free && correct == 0) errors.Add(tp + "has no correct option.");
-                    if (!st.free && correct == st.options.Count) errors.Add(tp + "every option is correct (use free:true for preference choices).");
+                    if (st.ordered)
+                    {
+                        if (st.free) errors.Add(tp + "an ordered step cannot also be free.");
+                        if (st.options.Count < 3) errors.Add(tp + "an ordered step needs at least 3 items.");
+                    }
+                    else
+                    {
+                        if (!st.free && correct == 0) errors.Add(tp + "has no correct option.");
+                        if (!st.free && correct == st.options.Count) errors.Add(tp + "every option is correct (use free:true for preference choices).");
+                    }
                     if (!st.free && string.IsNullOrEmpty(st.hintFa)) errors.Add(tp + "missing hintFa.");
                 }
             }

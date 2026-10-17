@@ -73,14 +73,15 @@ try:
                     q = prefix + "scene %d step %d: " % (si, ti)
                     ops = st["options"]
                     if not st["promptFa"]: err(q + "no prompt")
-                    if not 2 <= len(ops) <= 3: err(q + "needs 2-3 options")
+                    if not 2 <= len(ops) <= (4 if st.get("ordered") else 3): err(q + "needs 2-3 options (3-4 items when ordered)")
+                    if st.get("ordered") and (st.get("free") or len(ops) < 3): err(q + "an ordered step needs 3-4 items and cannot be free")
                     if any(not o["textFa"] or not o["feedbackFa"] for o in ops): err(q + "option without text/feedback")
                     if any(o.get("setsTag") and "=" not in o["setsTag"][1:] for o in ops): err(q + "malformed setsTag")
                     good = sum(1 for o in ops if o["correct"])
-                    if not st.get("free"):
+                    if not st.get("free") and not st.get("ordered"):
                         if good == 0: err(q + "no correct option")
                         if good == len(ops): err(q + "every option correct (use free)")
-                        if not st.get("hintFa"): err(q + "no hint")
+                    if not st.get("free") and not st.get("hintFa"): err(q + "no hint")
         check_scenes(p, a["scenes"])
         for vi, v in enumerate(a.get("variants", [])):
             vp = p + "variant %d: " % vi

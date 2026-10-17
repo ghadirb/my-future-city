@@ -79,6 +79,8 @@ namespace MyFutureCity
             if (step == null) return;
 
             string title = session.Scene.titleFa + "  (" + (session.StepIndex + 1) + "/" + session.StepCount + ")";
+            if (step.ordered) { ShowOrderedStep(scene, session, step, title); return; }
+
             int n = step.options.Count;
             var options = new DialogOption[n];
             for (int i = 0; i < n; i++)
@@ -89,9 +91,49 @@ namespace MyFutureCity
             scene.Hud.ShowDialog(title, step.promptFa, options);
         }
 
+        /// <summary>
+        /// Direct "doing" step: items already placed are listed in the text, the remaining ones are buttons shown in a
+        /// scrambled (but fixed) order; the child taps them one by one in the order the work is really done.
+        /// </summary>
+        private void ShowOrderedStep(GameSceneController scene, ActivitySession session, ActivityStep step, string title)
+        {
+            var body = new System.Text.StringBuilder(step.promptFa);
+            if (session.PlacedCount > 0)
+            {
+                body.Append("\n\n");
+                for (int i = 0; i < session.PlacedCount; i++)
+                    body.Append(i + 1).Append(") ").Append(step.options[i].textFa).Append("\n");
+            }
+
+            var remaining = new System.Collections.Generic.List<int>();
+            for (int i = session.PlacedCount; i < step.options.Count; i++) remaining.Add(i);
+            if (remaining.Count > 1)
+            {
+                // rotate so the correct (first) remaining item is never the first button
+                int shift = 1 + (session.SceneKey + session.StepIndex + session.PlacedCount) % (remaining.Count - 1);
+                var rotated = new System.Collections.Generic.List<int>();
+                for (int i = 0; i < remaining.Count; i++) rotated.Add(remaining[(i + shift) % remaining.Count]);
+                remaining = rotated;
+            }
+
+            var options = new DialogOption[remaining.Count];
+            for (int i = 0; i < remaining.Count; i++)
+            {
+                int index = remaining[i];
+                options[i] = new DialogOption(step.options[index].textFa, () => OnChoose(scene, session, index));
+            }
+            scene.Hud.ShowDialog(title, body.ToString(), options);
+        }
+
         private void OnChoose(GameSceneController scene, ActivitySession session, int index)
         {
             var result = session.Choose(index);
+            if (result.Placed)
+            {
+                scene.Hud.ShowDialog(session.Scene.titleFa, result.FeedbackFa,
+                    new DialogOption("ادامه", () => ShowStep(scene, session)));
+                return;
+            }
             if (!result.Accepted)
             {
                 ShowMistake(scene, session, result.FeedbackFa);
