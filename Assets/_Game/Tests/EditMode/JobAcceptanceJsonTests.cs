@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MyFutureCity.Core;
 using NUnit.Framework;
@@ -46,10 +47,9 @@ namespace MyFutureCity.Tests
             int guard = 0;
             while (s.CurrentStep != null && guard++ < 50)
             {
-                int pick = 0;
-                for (int i = 0; i < s.CurrentStep.options.Count; i++)
-                    if (s.CurrentStep.IsAccepted(i)) { pick = i; break; }
-                Assert.IsTrue(s.Choose(pick).Accepted);
+                int pick = Math.Max(0, s.NextAcceptedIndex());
+                var r = s.Choose(pick);
+                Assert.IsTrue(r.Accepted || r.Placed);
             }
             Assert.IsTrue(s.Finished);
         }
@@ -186,10 +186,9 @@ namespace MyFutureCity.Tests
                 int pick = -1;
                 for (int i = 0; i < s.CurrentStep.options.Count; i++)
                     if (tag != null && s.CurrentStep.options[i].setsTag == tag) { pick = i; break; }
-                if (pick < 0)
-                    for (int i = 0; i < s.CurrentStep.options.Count; i++)
-                        if (s.CurrentStep.IsAccepted(i)) { pick = i; break; }
-                Assert.IsTrue(s.Choose(pick).Accepted);
+                if (pick < 0) pick = Math.Max(0, s.NextAcceptedIndex());
+                var r = s.Choose(pick);
+                Assert.IsTrue(r.Accepted || r.Placed);
             }
             Assert.IsTrue(s.Finished);
         }
@@ -428,6 +427,31 @@ namespace MyFutureCity.Tests
                     if (m.id == "market_05_open_market") break;
                 }
                 Assert.IsTrue(pastChoice, tag);
+            }
+        }
+
+        [Test]
+        public void TeacherClassManagementHasADirectOrderingActivityInEveryTopic()
+        {
+            var db = LoadDb();
+            var acts = LoadActs();
+            var def = acts.Find("teach_04_lesson_board", "lesson_board");
+            if (def == null)
+            {
+                foreach (var o in db.missions.Find(m => m.id == "teach_04_lesson_board").objectives)
+                    if (o.ParsedType() == ObjectiveType.Interact) def = acts.Find("teach_04_lesson_board", o.targetId);
+            }
+            Assert.IsNotNull(def);
+            var sets = new List<List<ActivityScene>> { def.scenes };
+            foreach (var v in def.variants) sets.Add(v.scenes);
+            Assert.GreaterOrEqual(sets.Count, 3);
+            foreach (var scenes in sets)
+            {
+                bool found = false;
+                foreach (var sc in scenes)
+                    foreach (var st in sc.steps)
+                        if (st.ordered && st.options.Count >= 3) found = true;
+                Assert.IsTrue(found, "every topic needs a direct ordering step in class management");
             }
         }
 

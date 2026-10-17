@@ -10,6 +10,8 @@ namespace MyFutureCity.Core
         public bool Correct;
         public string FeedbackFa;
         public bool SceneFinished;
+        /// <summary>Ordered step only: the item went to the right slot but the step is not finished yet.</summary>
+        public bool Placed;
     }
 
     /// <summary>One run through one scene. Created by <see cref="ActivityService.Begin"/>.</summary>
@@ -35,6 +37,33 @@ namespace MyFutureCity.Core
         public int HintsUsed { get; private set; }
 
         private bool stepHadMistake;
+
+        /// <summary>Ordered step: how many items are already in place (items 0..PlacedCount-1 of the authored order).</summary>
+        public int PlacedCount { get; private set; }
+
+        public const string OrderWrongFa = "این کار هنوز زود است. فکر کن اول کدام کار باید انجام شود.";
+
+        /// <summary>The option index a correct play would pick now (first accepted option, or the next item of an ordered step).</summary>
+        public int NextAcceptedIndex()
+        {
+            var step = CurrentStep;
+            if (step == null) return -1;
+            if (step.ordered) return PlacedCount;
+            for (int i = 0; i < step.options.Count; i++) if (step.IsAccepted(i)) return i;
+            return -1;
+        }
+
+        /// <summary>An option index that this step would NOT accept now, or -1 when none exists.</summary>
+        public int WrongIndex()
+        {
+            var step = CurrentStep;
+            if (step == null) return -1;
+            for (int i = 0; i < step.options.Count; i++)
+            {
+                if (step.ordered ? i > PlacedCount : !step.IsAccepted(i)) return i;
+            }
+            return -1;
+        }
 
         internal ActivitySession(ActivityService service, ActivityDefinition def, int order, bool replay, int variantIndex)
         {
@@ -63,9 +92,15 @@ namespace MyFutureCity.Core
             if (step == null || optionIndex < 0 || optionIndex >= step.options.Count) return res;
 
             var opt = step.options[optionIndex];
-            bool ok = step.IsAccepted(optionIndex);
+            bool ok;
+            if (step.ordered)
+            {
+                if (optionIndex < PlacedCount) return res;        // already placed: not a decision
+                ok = optionIndex == PlacedCount;
+            }
+            else ok = step.IsAccepted(optionIndex);
             res.Correct = ok;
-            res.FeedbackFa = opt.feedbackFa;
+            res.FeedbackFa = (step.ordered && !ok) ? OrderWrongFa : opt.feedbackFa;
             service.LogChoice(this, StepIndex, optionIndex, ok);
 
             if (!ok)
@@ -74,6 +109,13 @@ namespace MyFutureCity.Core
                 stepHadMistake = true;
                 service.Stats(Definition.jobId).wrongChoices++;
                 return res;
+            }
+
+            if (step.ordered)
+            {
+                PlacedCount++;
+                if (PlacedCount < step.options.Count) { res.Placed = true; return res; }
+                PlacedCount = 0;                                   // the last item completes the step
             }
 
             res.Accepted = true;

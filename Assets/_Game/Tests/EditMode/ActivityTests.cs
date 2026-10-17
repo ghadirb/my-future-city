@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MyFutureCity.Core;
 using NUnit.Framework;
@@ -107,19 +108,13 @@ namespace MyFutureCity.Tests
         {
             while (s.CurrentStep != null)
             {
-                int pick = 0;
-                for (int i = 0; i < s.CurrentStep.options.Count; i++)
-                    if (s.CurrentStep.IsAccepted(i)) { pick = i; break; }
-                Assert.IsTrue(s.Choose(pick).Accepted);
+                int pick = Math.Max(0, s.NextAcceptedIndex());
+                var r = s.Choose(pick);
+                Assert.IsTrue(r.Accepted || r.Placed);
             }
         }
 
-        private static int Wrong(ActivitySession s)
-        {
-            for (int i = 0; i < s.CurrentStep.options.Count; i++)
-                if (!s.CurrentStep.IsAccepted(i)) return i;
-            return -1;
-        }
+        private static int Wrong(ActivitySession s) { return s.WrongIndex(); }
 
         // ---------- 1. collecting alone can never finish the profession ----------
 
@@ -183,6 +178,46 @@ namespace MyFutureCity.Tests
             Solve(s);                                                   // the child may pick another way
             Assert.IsTrue(s.Finished);
             Assert.AreEqual(1, w.Missions.GetCountByTarget("t1", "prep"));
+        }
+
+        [Test]
+        public void OrderedStepNeedsTheRightOrderAndLogsEveryPlacement()
+        {
+            var w = CreateStartedT1();
+            CollectBooks(w);
+            w.Acts.Find("t1", "prep").scenes[0].steps.Add(new ActivityStep
+            {
+                promptFa = "ترتیب", hintFa = "راهنما", ordered = true,
+                options = new List<ActivityOption> { O("اول", true), O("دوم", true), O("سوم", true) }
+            });
+            var s = w.Activities.Begin("t1", "prep", 0);
+            Assert.IsTrue(s.Choose(0).Accepted);                          // free preference step
+            Assert.IsTrue(s.Choose(s.NextAcceptedIndex()).Accepted);      // normal decision step
+            Assert.AreEqual(2, s.StepIndex);
+
+            var wrong = s.Choose(2);                                      // third item first: wrong place
+            Assert.IsFalse(wrong.Accepted); Assert.IsFalse(wrong.Placed); Assert.IsFalse(wrong.Correct);
+            Assert.AreEqual(ActivitySession.OrderWrongFa, wrong.FeedbackFa);
+            Assert.AreEqual(0, s.PlacedCount);
+
+            var r = s.Choose(0);
+            Assert.IsTrue(r.Placed); Assert.IsTrue(r.Correct); Assert.IsFalse(r.Accepted);
+            int logged = w.Save.activityChoices.Count;
+            var again = s.Choose(0);                                      // already placed: not a decision
+            Assert.IsFalse(again.Placed); Assert.IsFalse(again.Accepted);
+            Assert.AreEqual(logged, w.Save.activityChoices.Count);
+
+            Assert.IsTrue(s.Choose(1).Placed);
+            Assert.AreEqual(0, w.Missions.GetCountByTarget("t1", "prep"));  // not finished until the last item is placed
+            var last = s.Choose(2);
+            Assert.IsTrue(last.Accepted); Assert.IsTrue(last.SceneFinished); Assert.IsTrue(s.Finished);
+            Assert.AreEqual(1, w.Missions.GetCountByTarget("t1", "prep"));
+
+            int wrongLogged = 0;
+            foreach (var c in w.Save.activityChoices) if (!c.correct) wrongLogged++;
+            Assert.AreEqual(1, wrongLogged);                              // exactly the one misplaced item
+            Assert.AreEqual(1, s.WrongChoices);
+            Assert.AreEqual(3, s.StepsDone);                              // the ordered step counts once, not per item
         }
 
         [Test]
